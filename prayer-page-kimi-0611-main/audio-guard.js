@@ -6,6 +6,7 @@
   var trackedAudios = [];
   var NativeAudio = window.Audio;
   var NativeMediaPlay = window.HTMLMediaElement && window.HTMLMediaElement.prototype.play;
+  var NativeMediaPause = window.HTMLMediaElement && window.HTMLMediaElement.prototype.pause;
   var activeTheme = "golbang";
   var managedBgm = null;
   var managedAsmr = null;
@@ -18,6 +19,7 @@
   var lastThemeSwitchAt = 0;
   var lastThemeSwitchTheme = "";
   var firstGestureBgmStarted = false;
+  var managedPlayProtectUntil = 0;
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -191,6 +193,19 @@
     window.__codexMediaPlayGuardInstalled = true;
   }
 
+  if (NativeMediaPause && !window.__codexMediaPauseGuardInstalled) {
+    window.HTMLMediaElement.prototype.pause = function guardedPause() {
+      if (this === managedBgm && isEnabled() && Date.now() < managedPlayProtectUntil) {
+        if (window.__codexAudioDebug && console.trace) {
+          console.trace("[codex-audio] Ignored managed BGM pause during gesture play", activeTheme, this.src);
+        }
+        return;
+      }
+      return NativeMediaPause.apply(this, arguments);
+    };
+    window.__codexMediaPauseGuardInstalled = true;
+  }
+
   function getManagedBgm() {
     if (!managedBgm) {
       managedBgm = trackAudio(new NativeAudio());
@@ -215,6 +230,12 @@
 
   function pauseAndReset(audio) {
     if (!audio) return;
+    if (audio === managedBgm && isEnabled() && Date.now() < managedPlayProtectUntil) {
+      if (window.__codexAudioDebug && console.trace) {
+        console.trace("[codex-audio] Ignored managed BGM reset during gesture play", activeTheme, getAudioPath(audio));
+      }
+      return;
+    }
     try {
       audio.pause();
     } catch (error) {}
@@ -321,6 +342,7 @@
     audio.muted = false;
     audio.volume = 0.4;
     audio.loop = true;
+    managedPlayProtectUntil = Date.now() + 1200;
 
     return (NativeMediaPlay ? NativeMediaPlay.call(audio) : audio.play()).then(function () {
       if (window.__codexAudioDebug) {
@@ -488,6 +510,7 @@
     if (willEnable) {
       enableAndPlayCurrentThemeFromGesture("ccm-on");
     } else {
+      managedPlayProtectUntil = 0;
       setEnabled(false);
       userGestureEnableUntil = 0;
       stopAllThemeBgm();
