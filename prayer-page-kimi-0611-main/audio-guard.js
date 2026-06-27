@@ -17,6 +17,7 @@
   var pendingCcmEnable = null;
   var lastThemeSwitchAt = 0;
   var lastThemeSwitchTheme = "";
+  var firstGestureBgmStarted = false;
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -167,8 +168,8 @@
         if (hasRecentThemeIntent) {
           return Promise.resolve();
         }
-        if (!isEnabled()) return Promise.resolve();
-        return playCurrentTheme();
+        if (isEnabled()) setManagedSource(activeTheme);
+        return Promise.resolve();
       }
 
       if (isAsmrSrc(src)) {
@@ -482,32 +483,21 @@
     }
   }, true);
 
-  function resumeCurrentBgmOnly() {
+  function startCurrentBgmFromFirstGesture(event) {
+    if (firstGestureBgmStarted) return;
+    var button = event && event.target && event.target.closest ? event.target.closest("button") : null;
+    if (isCcmButton(button)) return;
     syncActiveThemeFromDom();
-    if (isEnabled()) {
-      playCurrentTheme();
-    } else {
-      stopAllThemeBgm();
-    }
-  }
-
-  function resumeCurrentBgmFromGesture(event) {
-    syncActiveThemeFromDom();
+    firstGestureBgmStarted = true;
     if (isCurrentThemeBgmPlaying()) return;
-    if (localStorage.getItem(BGM_KEY) === "true") {
-      playCurrentThemeFromGesture(event && event.type || "first-gesture");
-    }
+    setEnabled(true);
+    playCurrentThemeFromGesture(event && event.type || "first-gesture");
   }
-
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState !== "visible") return;
-    resumeCurrentBgmOnly();
-  });
-
-  window.addEventListener("focus", resumeCurrentBgmOnly);
-  window.addEventListener("pageshow", resumeCurrentBgmOnly);
 
   window.codexSwitchThemeBgm = switchThemeBgm;
   window.codexSyncThemeBgm = syncThemeBgm;
   window.codexPlayCurrentThemeBgm = playCurrentTheme;
+
+  window.addEventListener("click", startCurrentBgmFromFirstGesture, { once: true });
+  window.addEventListener("touchstart", startCurrentBgmFromFirstGesture, { once: true });
 })();
