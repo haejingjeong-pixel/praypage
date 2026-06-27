@@ -78,7 +78,7 @@
     return clickSfx;
   }
 
-  function playFirstClickSfx(event) {
+  function startBgmFromFirstClick(event) {
     if (clickSfxPlayed) return;
     clickSfxPlayed = true;
 
@@ -90,6 +90,9 @@
     audio.play().catch(function (error) {
       console.warn("[codex-audio] first click sfx failed", event && event.type, error);
     });
+
+    setEnabled(true);
+    playCurrentTheme("first-click");
   }
 
   function getCurrentThemeFromDom() {
@@ -236,5 +239,5 @@
     }
   };
 
-  window.addEventListener("pointerdown", playFirstClickSfx, { once: true });
+  window.addEventListener("pointerdown", startBgmFromFirstClick, { once: true });
 })();
