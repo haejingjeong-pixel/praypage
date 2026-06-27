@@ -78,9 +78,16 @@
     return clickSfx;
   }
 
-  function startBgmFromFirstClick(event) {
+  function removeFirstGestureListeners() {
+    window.removeEventListener("pointerdown", startBgmFromFirstGesture, true);
+    window.removeEventListener("touchstart", startBgmFromFirstGesture, true);
+    window.removeEventListener("click", startBgmFromFirstGesture, true);
+  }
+
+  function startBgmFromFirstGesture(event) {
     if (clickSfxPlayed) return;
     clickSfxPlayed = true;
+    removeFirstGestureListeners();
 
     var audio = getClickSfx();
     try {
@@ -88,11 +95,11 @@
     } catch (error) {}
 
     audio.play().catch(function (error) {
-      console.warn("[codex-audio] first click sfx failed", event && event.type, error);
+      console.warn("[codex-audio] first gesture sfx failed", event && event.type, error);
     });
 
     setEnabled(true);
-    playCurrentTheme("first-click");
+    playCurrentTheme("first-gesture");
   }
 
   function getCurrentThemeFromDom() {
@@ -239,5 +246,7 @@
     }
   };
 
-  window.addEventListener("pointerdown", startBgmFromFirstClick, { once: true });
+  window.addEventListener("pointerdown", startBgmFromFirstGesture, true);
+  window.addEventListener("touchstart", startBgmFromFirstGesture, true);
+  window.addEventListener("click", startBgmFromFirstGesture, true);
 })();
