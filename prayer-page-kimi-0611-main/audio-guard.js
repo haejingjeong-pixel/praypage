@@ -365,27 +365,6 @@
     return text === "CCM" || button.title === "CCM" || button.getAttribute("aria-label") === "CCM";
   }
 
-  function handleCcmGesture(event) {
-    var button = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (!isCcmButton(button)) return;
-
-    var now = Date.now();
-    if (now - lastCcmGestureAt < 500) return;
-    lastCcmGestureAt = now;
-
-    var willEnable = !isCcmButtonOn(button);
-    pendingCcmEnable = willEnable;
-    ccmGestureHandledUntil = now + 900;
-    setEnabled(willEnable);
-    if (willEnable) {
-      syncActiveThemeFromDom();
-      playCurrentThemeFromGesture(event.type);
-    } else {
-      userGestureEnableUntil = 0;
-      stopAllThemeBgm();
-    }
-  }
-
   function setPrayerDisabled(disabled) {
     findPrayerButtons().forEach(function (button) {
       button.disabled = disabled;
@@ -465,6 +444,7 @@
     var willEnable = !isCcmButtonOn(button);
     pendingCcmEnable = willEnable;
     ccmGestureHandledUntil = Date.now() + 500;
+    lastCcmGestureAt = Date.now();
     setEnabled(willEnable);
     if (willEnable) {
       syncActiveThemeFromDom();
@@ -473,25 +453,7 @@
       userGestureEnableUntil = 0;
       stopAllThemeBgm();
     }
-
-    window.setTimeout(function () {
-      var currentButton = document.querySelector('button[title="CCM"], button[aria-label="CCM"]') || button;
-      var nextEnabled = localStorage.getItem(BGM_KEY) === "true" || willEnable || isCcmButtonOn(currentButton);
-      setEnabled(nextEnabled);
-      if (nextEnabled && willEnable) {
-        syncActiveThemeFromDom();
-        playCurrentThemeFromGesture("ccm-sync");
-      } else {
-        userGestureEnableUntil = 0;
-        stopAllThemeBgm();
-      }
-    }, 80);
   }, true);
-
-  document.addEventListener("pointerdown", handleCcmGesture, true);
-  document.addEventListener("pointerup", handleCcmGesture, true);
-  document.addEventListener("touchstart", handleCcmGesture, true);
-  document.addEventListener("touchend", handleCcmGesture, true);
 
   document.addEventListener("codex-bgm-theme-change", function (event) {
     var theme = event.detail && event.detail.theme;
@@ -500,9 +462,9 @@
     activeTheme = theme;
     themeIntentUntil = Date.now() + THEME_SWITCH_MS;
     beginThemeTransitionGuard();
-    syncThemeBgm(theme);
+    switchThemeBgm(theme);
     window.setTimeout(function () {
-      syncThemeBgm(theme);
+      switchThemeBgm(theme);
     }, 300);
   });
 
