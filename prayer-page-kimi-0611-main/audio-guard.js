@@ -2,8 +2,11 @@
   "use strict";
 
   var BGM_KEY = "codex-user-bgm-enabled";
+  var CLICK_SFX_SRC = "assets/asmr_fire.mp3";
   var activeTheme = "golbang";
   var bgm = null;
+  var clickSfx = null;
+  var clickSfxPlayed = false;
   var lastCcmClickAt = 0;
 
   var THEME_BGM = {
@@ -60,6 +63,33 @@
       bgm.dataset.codexManagedBgm = "true";
     }
     return bgm;
+  }
+
+  function getClickSfx() {
+    if (!clickSfx) {
+      clickSfx = new Audio(CLICK_SFX_SRC);
+      clickSfx.loop = false;
+      clickSfx.volume = 0.35;
+      clickSfx.preload = "auto";
+      clickSfx.setAttribute("playsinline", "");
+      clickSfx.setAttribute("webkit-playsinline", "");
+      clickSfx.dataset.codexClickSfx = "true";
+    }
+    return clickSfx;
+  }
+
+  function playFirstClickSfx(event) {
+    if (clickSfxPlayed) return;
+    clickSfxPlayed = true;
+
+    var audio = getClickSfx();
+    try {
+      audio.currentTime = 0;
+    } catch (error) {}
+
+    audio.play().catch(function (error) {
+      console.warn("[codex-audio] first click sfx failed", event && event.type, error);
+    });
   }
 
   function getCurrentThemeFromDom() {
@@ -205,4 +235,6 @@
       playCurrentTheme("external-theme-switch");
     }
   };
+
+  window.addEventListener("pointerdown", playFirstClickSfx, { once: true });
 })();
