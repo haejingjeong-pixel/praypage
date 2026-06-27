@@ -38,7 +38,13 @@
     style.id = "golbang-hotfix-style";
     style.textContent = [
       "body[data-theme='golbang'], body[data-current-theme='은밀한 골방'] { background-color: #d6b99c !important; }",
-      "body[data-theme='golbang'] #golbang-theme-layer, body[data-current-theme='은밀한 골방'] #golbang-theme-layer { display: block !important; opacity: 1 !important; background-image: url('assets/back_golbang_new.webp') !important; background-position: center 21% !important; background-size: auto 130% !important; background-repeat: no-repeat !important; background-color: #d6b99c !important; }"
+      "body[data-theme='golbang'] #golbang-theme-layer, body[data-current-theme='은밀한 골방'] #golbang-theme-layer { display: block !important; opacity: 1 !important; background-image: url('assets/back_golbang_new.webp') !important; background-position: center 21% !important; background-size: auto 130% !important; background-repeat: no-repeat !important; background-color: #d6b99c !important; }",
+      ".codex-weekly-banner { padding-top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)) !important; padding-left: 14px !important; padding-right: 14px !important; min-height: 58px !important; align-items: flex-start !important; }",
+      ".codex-weekly-card { width: min(340px, calc(100vw - 32px)) !important; height: 50px !important; min-height: 50px !important; overflow: visible !important; }",
+      ".codex-weekly-text { display: block !important; width: 100% !important; line-height: 1.35 !important; white-space: normal !important; word-break: keep-all !important; overflow: visible !important; }",
+      ".codex-start-guide { padding: 0 18px !important; align-items: center !important; }",
+      ".codex-start-guide-text { display: block !important; width: min(520px, calc(100vw - 44px)) !important; max-width: calc(100vw - 44px) !important; padding: 10px 0 !important; line-height: 1.45 !important; letter-spacing: 0.08em !important; white-space: normal !important; word-break: keep-all !important; overflow-wrap: normal !important; overflow: visible !important; }",
+      "@media (max-width: 480px) { .codex-start-guide-text { font-size: clamp(22px, 6.2vw, 30px) !important; line-height: 1.5 !important; letter-spacing: 0.04em !important; } .codex-weekly-text { font-size: 12px !important; letter-spacing: 0.01em !important; } }"
     ].join("\n");
     document.head.appendChild(style);
   }
