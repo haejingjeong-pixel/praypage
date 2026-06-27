@@ -302,6 +302,23 @@
     });
   }
 
+  function isCurrentThemeBgmPlaying() {
+    var src = THEME_BGM[activeTheme];
+    if (!src) return false;
+    var expectedSrc = normalizeSrc(src);
+    var audios = trackedAudios.slice();
+    if (managedBgm && audios.indexOf(managedBgm) === -1) audios.push(managedBgm);
+    document.querySelectorAll("audio").forEach(function (audio) {
+      if (audios.indexOf(audio) === -1) audios.push(audio);
+    });
+    return audios.some(function (audio) {
+      return audio &&
+        !audio.paused &&
+        !audio.ended &&
+        normalizeSrc(getAudioPath(audio)) === expectedSrc;
+    });
+  }
+
   function syncThemeBgm(theme) {
     activeTheme = theme || syncActiveThemeFromDom();
     themeIntentUntil = Date.now() + THEME_SWITCH_MS;
@@ -476,6 +493,7 @@
 
   function resumeCurrentBgmFromGesture(event) {
     syncActiveThemeFromDom();
+    if (isCurrentThemeBgmPlaying()) return;
     if (localStorage.getItem(BGM_KEY) === "true") {
       playCurrentThemeFromGesture(event && event.type || "first-gesture");
     }
