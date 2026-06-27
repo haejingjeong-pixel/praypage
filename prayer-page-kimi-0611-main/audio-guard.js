@@ -303,6 +303,41 @@
     });
   }
 
+  function enableAndPlayCurrentThemeFromGesture(reason) {
+    var theme = syncActiveThemeFromDom();
+    var src = THEME_BGM[theme];
+    if (!src) {
+      stopAllThemeBgm();
+      return Promise.resolve();
+    }
+
+    setEnabled(true);
+    userGestureEnableUntil = Date.now() + 2500;
+    stopAllThemeBgm();
+
+    activeTheme = theme;
+    var audio = setManagedSource(activeTheme);
+    if (!audio) return Promise.resolve();
+    audio.muted = false;
+    audio.volume = 0.4;
+    audio.loop = true;
+
+    return (NativeMediaPlay ? NativeMediaPlay.call(audio) : audio.play()).then(function () {
+      if (window.__codexAudioDebug) {
+        console.info("[codex-audio] BGM play started from gesture", reason, activeTheme, audio.src);
+      }
+    }).catch(function (error) {
+      console.warn("[codex-audio] BGM gesture play failed", reason, activeTheme, audio.src, {
+        name: error && error.name,
+        message: error && error.message,
+        paused: audio.paused,
+        readyState: audio.readyState,
+        networkState: audio.networkState,
+        enabled: localStorage.getItem(BGM_KEY)
+      });
+    });
+  }
+
   function isCurrentThemeBgmPlaying() {
     var src = THEME_BGM[activeTheme];
     if (!src) return false;
@@ -450,11 +485,10 @@
 
     var willEnable = !isCcmButtonOn(button);
     lastCcmGestureAt = Date.now();
-    setEnabled(willEnable);
     if (willEnable) {
-      syncActiveThemeFromDom();
-      playCurrentThemeFromGesture(event.type);
+      enableAndPlayCurrentThemeFromGesture("ccm-on");
     } else {
+      setEnabled(false);
       userGestureEnableUntil = 0;
       stopAllThemeBgm();
     }
@@ -490,8 +524,7 @@
     syncActiveThemeFromDom();
     firstGestureBgmStarted = true;
     if (isCurrentThemeBgmPlaying()) return;
-    setEnabled(true);
-    playCurrentThemeFromGesture(event && event.type || "first-gesture");
+    enableAndPlayCurrentThemeFromGesture(event && event.type || "first-gesture");
   }
 
   window.codexSwitchThemeBgm = switchThemeBgm;
