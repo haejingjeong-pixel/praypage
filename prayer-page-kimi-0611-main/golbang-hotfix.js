@@ -114,7 +114,6 @@
   }
 
   function showStartHint() {
-    removeStartHint();
   }
 
   function syncGolbang() {

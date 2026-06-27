@@ -15,6 +15,8 @@
   var lastCcmGestureAt = 0;
   var ccmGestureHandledUntil = 0;
   var pendingCcmEnable = null;
+  var lastThemeSwitchAt = 0;
+  var lastThemeSwitchTheme = "";
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -163,7 +165,6 @@
         }
         pauseAndReset(audio);
         if (hasRecentThemeIntent) {
-          stopAllThemeBgm();
           return Promise.resolve();
         }
         if (!isEnabled()) return Promise.resolve();
@@ -311,7 +312,12 @@
   }
 
   function switchThemeBgm(theme) {
-    activeTheme = theme || syncActiveThemeFromDom();
+    var nextTheme = theme || syncActiveThemeFromDom();
+    var now = Date.now();
+    if (nextTheme === lastThemeSwitchTheme && now - lastThemeSwitchAt < 350) return;
+    activeTheme = nextTheme;
+    lastThemeSwitchTheme = activeTheme;
+    lastThemeSwitchAt = now;
     themeIntentUntil = Date.now() + THEME_SWITCH_MS;
     stopAllThemeBgm();
 
@@ -414,36 +420,17 @@
       beginThemeTransitionGuard();
       activeTheme = theme;
       themeIntentUntil = Date.now() + THEME_SWITCH_MS;
-      stopAllThemeBgm();
-      window.setTimeout(function () {
-        switchThemeBgm(theme);
-      }, 0);
-      window.setTimeout(function () {
-        switchThemeBgm(theme);
-      }, 700);
+      switchThemeBgm(theme);
       return;
     }
 
     if (!isCcmButton(button)) return;
 
-    if (Date.now() < ccmGestureHandledUntil && pendingCcmEnable !== null) {
-      setEnabled(pendingCcmEnable);
-      if (pendingCcmEnable) {
-        syncActiveThemeFromDom();
-        playCurrentThemeFromGesture(event.type + "-followup");
-      } else {
-        userGestureEnableUntil = 0;
-        stopAllThemeBgm();
-      }
-      window.setTimeout(function () {
-        pendingCcmEnable = null;
-      }, 120);
+    if (Date.now() - lastCcmGestureAt < 350) {
       return;
     }
 
     var willEnable = !isCcmButtonOn(button);
-    pendingCcmEnable = willEnable;
-    ccmGestureHandledUntil = Date.now() + 500;
     lastCcmGestureAt = Date.now();
     setEnabled(willEnable);
     if (willEnable) {
@@ -463,9 +450,6 @@
     themeIntentUntil = Date.now() + THEME_SWITCH_MS;
     beginThemeTransitionGuard();
     switchThemeBgm(theme);
-    window.setTimeout(function () {
-      switchThemeBgm(theme);
-    }, 300);
   });
 
   document.addEventListener("play", function (event) {
