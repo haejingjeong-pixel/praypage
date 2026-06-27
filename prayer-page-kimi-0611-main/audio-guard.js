@@ -510,7 +510,4 @@
   window.codexSwitchThemeBgm = switchThemeBgm;
   window.codexSyncThemeBgm = syncThemeBgm;
   window.codexPlayCurrentThemeBgm = playCurrentTheme;
-
-  window.addEventListener("click", resumeCurrentBgmFromGesture, { once: true });
-  window.addEventListener("touchstart", resumeCurrentBgmFromGesture, { once: true });
 })();
