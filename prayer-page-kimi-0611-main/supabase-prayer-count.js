@@ -163,7 +163,7 @@
       return response;
     }).then(function (response) {
       if (!response.ok) throw new Error("Supabase insert failed: " + response.status);
-      window.setTimeout(refreshStats, 300);
+      window.setTimeout(refreshStats, 1800);
       return true;
     }).catch(function (error) {
       console.warn("[codex-supabase] Failed to record prayer event", error);
