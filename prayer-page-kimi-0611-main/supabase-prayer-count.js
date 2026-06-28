@@ -4,8 +4,6 @@
   var SUPABASE_URL = "https://qspmqsxsxiftejrvkcna.supabase.co";
   var SUPABASE_KEY = "sb_publishable_sUVoa_VaEAXOXhxJmNo6RA_1lFY3fb3";
   var TABLE = "prayer_events";
-  var INSERT_DEBOUNCE_MS = 1000;
-  var lastInsertAt = 0;
   var supportsThemeColumn = null;
   var latestStats = { weekly: 0, today: 0, byTheme: {} };
 
@@ -139,10 +137,6 @@
   }
 
   function insertPrayerEvent() {
-    var now = Date.now();
-    if (now - lastInsertAt < INSERT_DEBOUNCE_MS) return Promise.resolve(false);
-    lastInsertAt = now;
-
     var theme = getCurrentTheme();
     var payload = supportsThemeColumn === false ? {
       event_type: "prayer"
