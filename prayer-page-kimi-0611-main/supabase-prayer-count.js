@@ -170,16 +170,28 @@
     });
   }
 
-  function isPrayerSubmitButton(button) {
+  function isPrayerCountButton(button) {
     if (!button || button.disabled) return false;
     var text = (button.textContent || "").replace(/\s+/g, " ").trim();
     if (text !== "기도하기") return false;
 
+    if (button.closest && button.closest(".codex-weekly-banner, .codex-weekly-card, #codex-prayer-stats-panel")) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function isPrayerSubmitButton(button) {
+    if (!isPrayerCountButton(button)) return false;
     var textarea = document.querySelector("textarea");
-    if (!textarea || !textarea.value.trim()) return false;
+    if (!textarea) return true;
 
     var modal = textarea.closest(".fixed, [class*='fixed']");
-    return !!modal && modal.contains(button);
+    if (!modal || !modal.contains(button)) return true;
+    if (!textarea.value.trim()) return false;
+
+    return true;
   }
 
   function handleDocumentClick(event) {
