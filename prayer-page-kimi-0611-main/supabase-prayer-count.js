@@ -6,6 +6,7 @@
   var TABLE = "prayer_events";
   var supportsThemeColumn = null;
   var latestStats = { weekly: 0, today: 0, byTheme: {} };
+  var prayerActive = false;
 
   var THEME_LABELS = {
     golbang: "은밀한 골방",
@@ -170,33 +171,35 @@
     });
   }
 
-  function isPrayerCountButton(button) {
-    if (!button || button.disabled) return false;
-    var text = (button.textContent || "").replace(/\s+/g, " ").trim();
-    if (text !== "기도하기") return false;
+  function isPrayerActiveNow() {
+    return Array.from(document.querySelectorAll("button")).some(function (button) {
+      return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도 중...";
+    });
+  }
 
-    if (button.closest && button.closest(".codex-weekly-banner, .codex-weekly-card, #codex-prayer-stats-panel")) {
-      return false;
+  function syncPrayerStateForCount() {
+    var nextActive = isPrayerActiveNow();
+    if (nextActive && !prayerActive) {
+      insertPrayerEvent();
     }
-
-    return true;
+    prayerActive = nextActive;
   }
 
-  function isPrayerSubmitButton(button) {
-    if (!isPrayerCountButton(button)) return false;
-    var textarea = document.querySelector("textarea");
-    if (!textarea) return true;
+  function observePrayerState() {
+    var root = document.getElementById("root") || document.body;
+    if (!root) return;
 
-    var modal = textarea.closest(".fixed, [class*='fixed']");
-    if (!modal || !modal.contains(button)) return true;
-    if (!textarea.value.trim()) return false;
+    window.setTimeout(function () {
+      prayerActive = isPrayerActiveNow();
+    }, 0);
 
-    return true;
-  }
-
-  function handleDocumentClick(event) {
-    var button = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (isPrayerSubmitButton(button)) insertPrayerEvent();
+    new MutationObserver(function () {
+      syncPrayerStateForCount();
+    }).observe(root, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
   }
 
   function ensureStatsPanel() {
@@ -318,7 +321,7 @@
     bindWeeklyBanner();
     refreshStats();
 
-    document.addEventListener("click", handleDocumentClick, true);
+    observePrayerState();
     document.addEventListener("click", handlePanelClick);
     window.setInterval(function () {
       bindWeeklyBanner();
