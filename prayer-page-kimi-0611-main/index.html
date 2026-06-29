@@ -16,10 +16,25 @@
       html, body {
         background-color: #1a1209 !important;
       }
-      #codex-boot-intro {
+      html.codex-exiting,
+      html.codex-exiting body {
+        background: #050302 !important;
+      }
+      #codex-exit-overlay {
         position: fixed;
         inset: 0;
         z-index: 2147483647;
+        display: none;
+        background: #050302;
+        pointer-events: none;
+      }
+      html.codex-exiting #codex-exit-overlay {
+        display: block !important;
+      }
+      #codex-boot-intro {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483646;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -43,6 +58,50 @@
         50% { opacity: 1; }
       }
     </style>
+    <script>
+      (function () {
+        var exiting = false;
+
+        function ensureExitOverlay() {
+          var overlay = document.getElementById("codex-exit-overlay");
+          if (overlay) return overlay;
+          if (!document.body) return null;
+          overlay = document.createElement("div");
+          overlay.id = "codex-exit-overlay";
+          overlay.setAttribute("aria-hidden", "true");
+          document.body.appendChild(overlay);
+          return overlay;
+        }
+
+        function showExitOverlay() {
+          exiting = true;
+          document.documentElement.classList.add("codex-exiting");
+          var overlay = ensureExitOverlay();
+          if (overlay) overlay.style.setProperty("display", "block", "important");
+        }
+
+        function hideExitOverlay() {
+          if (!exiting) return;
+          exiting = false;
+          document.documentElement.classList.remove("codex-exiting");
+          var overlay = document.getElementById("codex-exit-overlay");
+          if (overlay) overlay.style.display = "none";
+        }
+
+        window.addEventListener("beforeunload", showExitOverlay, { capture: true });
+        window.addEventListener("pagehide", showExitOverlay, { capture: true });
+        window.addEventListener("pageshow", function () {
+          hideExitOverlay();
+        }, { capture: true });
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "hidden") {
+            showExitOverlay();
+          } else {
+            hideExitOverlay();
+          }
+        }, { capture: true });
+      })();
+    </script>
     <script src="audio-guard.js?v=mobile-censer-sfx-20260627"></script>
     <link rel="stylesheet" crossorigin href="assets/index-BYZbwYUU.css?v=verse-bright-20250611">
     <link rel="stylesheet" href="theme-transition.css?v=prayer-effects-restore-20250620b">
@@ -63,6 +122,7 @@
     <script type="module" crossorigin src="assets/index-CqKYKs7R.js?v=prayer-submit-animation-restore-20260628c"></script>
   </head>
   <body class="codex-theme-golbang" data-theme="golbang" data-current-theme="은밀한 골방" style="background-color: #1a1209 !important;">
+    <div id="codex-exit-overlay" aria-hidden="true"></div>
     <div id="codex-boot-intro" aria-hidden="true"><span>은밀한 골방</span></div>
     <div id="root"></div>
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
