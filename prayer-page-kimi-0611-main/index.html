@@ -10,7 +10,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PRAY PAGE</title>
     <style>
-      html, body { background-color: #d6b99c; }
+      html, body {
+        background-color: #1a1209 !important;
+      }
+      #codex-boot-intro {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a1209;
+        color: #c9a96e;
+        font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        font-size: 20px;
+        letter-spacing: 0.1em;
+        opacity: 1;
+        transition: opacity 700ms ease;
+      }
+      #codex-boot-intro.codex-boot-intro-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #codex-boot-intro span {
+        animation: codex-boot-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes codex-boot-pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+      }
     </style>
     <script src="audio-guard.js?v=mobile-censer-sfx-20260627"></script>
     <link rel="stylesheet" crossorigin href="assets/index-BYZbwYUU.css?v=verse-bright-20250611">
@@ -31,7 +59,8 @@
     </style>
     <script type="module" crossorigin src="assets/index-CqKYKs7R.js?v=prayer-submit-animation-restore-20260628c"></script>
   </head>
-  <body class="codex-theme-golbang" data-theme="golbang" data-current-theme="은밀한 골방">
+  <body class="codex-theme-golbang" data-theme="golbang" data-current-theme="은밀한 골방" style="background-color: #1a1209 !important;">
+    <div id="codex-boot-intro" aria-hidden="true"><span>은밀한 골방</span></div>
     <div id="root"></div>
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
     <script src="theme-transition.js?v=prayer-effects-restore-20250620b"></script>
@@ -39,5 +68,37 @@
     <script src="mobile-focus-restore.js?v=textarea-viewport-restore-20260628b"></script>
     <script src="golbang-hotfix.js?v=guide-layout-restore-20260627"></script>
     <script src="supabase-prayer-count.js?v=supabase-prayer-nonblocking-20260628b"></script>
+    <script>
+      (function () {
+        var overlay = document.getElementById("codex-boot-intro");
+        var root = document.getElementById("root");
+        var startedAt = Date.now();
+        var hidden = false;
+
+        function hideOverlay() {
+          if (hidden || !overlay) return;
+          hidden = true;
+          window.setTimeout(function () {
+            overlay.classList.add("codex-boot-intro-hidden");
+            window.setTimeout(function () {
+              if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 750);
+          }, Math.max(0, 650 - (Date.now() - startedAt)));
+        }
+
+        function waitForAppRender() {
+          if (root && root.children.length > 0) {
+            hideOverlay();
+            return;
+          }
+          window.requestAnimationFrame(waitForAppRender);
+        }
+
+        window.requestAnimationFrame(waitForAppRender);
+        window.addEventListener("load", function () {
+          window.setTimeout(hideOverlay, 1600);
+        }, { once: true });
+      })();
+    </script>
   </body>
 </html>
