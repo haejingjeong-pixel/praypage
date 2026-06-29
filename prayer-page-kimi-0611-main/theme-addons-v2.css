@@ -2114,3 +2114,8 @@ div[class*="backdrop-blur"] .codex-ai-disclaimer,
     display: block !important;
   }
 }
+
+/* Match the desktop Korean serif rendering explicitly across mobile webviews. */
+#root [style*="font-family: serif"] {
+  font-family: AppleMyungjo, "Nanum Myeongjo", "Noto Serif KR", serif !important;
+}
