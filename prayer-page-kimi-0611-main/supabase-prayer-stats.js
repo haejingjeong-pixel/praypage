@@ -45,7 +45,7 @@
 
   function countSince(startDate) {
     var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=id&created_at=gte." + encodeURIComponent(startDate.toISOString());
+      "?select=id&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString());
     return fetch(url, {
       headers: headers({ Prefer: "count=exact", Range: "0-0" })
     }).then(function (response) {
@@ -56,7 +56,7 @@
 
   function fetchThemeStats(startDate) {
     var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=theme&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
+      "?select=theme&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
     return fetch(url, { headers: headers() })
       .then(function (response) {
         if (response.status === 400) return null;

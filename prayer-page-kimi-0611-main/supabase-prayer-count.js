@@ -54,7 +54,7 @@
 
   function countSince(startDate) {
     var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=id&created_at=gte." + encodeURIComponent(startDate.toISOString());
+      "?select=id&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString());
 
     return fetch(url, {
       method: "GET",
@@ -71,7 +71,7 @@
     }
 
     var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=theme&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
+      "?select=theme&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
 
     return fetch(url, { headers: supabaseHeaders() })
       .then(function (response) {
@@ -139,10 +139,13 @@
 
   function insertPrayerEvent() {
     var theme = getCurrentTheme();
+    var createdAt = new Date().toISOString();
     var payload = supportsThemeColumn === false ? {
-      event_type: "prayer"
+      event_type: "prayer",
+      created_at: createdAt
     } : {
       event_type: "prayer",
+      created_at: createdAt,
       theme: theme,
       theme_label: THEME_LABELS[theme] || theme
     };
@@ -157,7 +160,7 @@
         return fetch(SUPABASE_URL + "/rest/v1/" + TABLE, {
           method: "POST",
           headers: supabaseHeaders({ Prefer: "return=minimal" }),
-          body: JSON.stringify({ event_type: "prayer" })
+          body: JSON.stringify({ event_type: "prayer", created_at: createdAt })
         });
       }
       return response;
