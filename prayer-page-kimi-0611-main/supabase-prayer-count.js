@@ -250,7 +250,7 @@
   }
 
   function openStatsPanel() {
-    window.location.href = "prayer-stats.html";
+    return false;
   }
 
   function openStatsPanelInPlace() {
@@ -275,17 +275,15 @@
     Array.from(document.querySelectorAll(".codex-weekly-banner, .codex-weekly-card")).forEach(function (node) {
       if (node.dataset.supabaseStatsBound === "true") return;
       node.dataset.supabaseStatsBound = "true";
-      node.setAttribute("role", "button");
-      node.setAttribute("tabindex", "0");
-      node.style.cursor = "pointer";
+      node.removeAttribute("role");
+      node.removeAttribute("tabindex");
+      node.style.cursor = "default";
       node.addEventListener("click", function (event) {
         event.preventDefault();
-        openStatsPanel();
       });
       node.addEventListener("keydown", function (event) {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          openStatsPanel();
         }
       });
     });
@@ -331,7 +329,9 @@
       updateWeeklyText(latestStats.weekly);
     }, 1000);
 
-    if (window.location.hash === "#prayer-stats") openStatsPanelInPlace();
+    if (window.location.hash === "#prayer-stats") {
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
   }
 
   if (document.readyState === "loading") {
