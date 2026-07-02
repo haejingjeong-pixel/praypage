@@ -12,6 +12,7 @@
   var audioUnlocking = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
+  var themeObserver = null;
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -65,6 +66,7 @@
       bgm.setAttribute("playsinline", "");
       bgm.setAttribute("webkit-playsinline", "");
       bgm.dataset.codexManagedBgm = "true";
+      document.body && document.body.appendChild(bgm);
     }
     return bgm;
   }
@@ -164,10 +166,8 @@
     audioUnlocking = false;
     removeFirstGestureListeners();
 
-    if (!isCcmButton(getEventButton(event))) {
-      setEnabled(true);
-      playCurrentTheme("first-gesture");
-    }
+    setEnabled(true);
+    playCurrentTheme(isCcmButton(getEventButton(event)) ? "ccm-first-gesture" : "first-gesture");
   }
 
   function getCurrentThemeFromDom() {
@@ -193,8 +193,9 @@
     return activeTheme;
   }
 
-  function setBgmSource(theme) {
-    var src = THEME_BGM[theme];
+  function setBgmSource(theme, reason) {
+    var nextTheme = theme && THEME_BGM[theme] ? theme : syncTheme();
+    var src = THEME_BGM[nextTheme];
     if (!src) return null;
 
     var audio = getBgm();
@@ -202,14 +203,25 @@
       audio.pause();
       audio.src = src;
       audio.load();
+      console.info("[codex-audio] BGM source loaded", reason || "source", nextTheme, src);
     }
+    activeTheme = nextTheme;
     return audio;
+  }
+
+  function loadCurrentThemeBgm(reason, themeOverride) {
+    if (themeOverride && THEME_BGM[themeOverride]) {
+      activeTheme = themeOverride;
+    } else {
+      syncTheme();
+    }
+    return setBgmSource(activeTheme, reason);
   }
 
   function playCurrentTheme(reason) {
     syncTheme();
 
-    var audio = setBgmSource(activeTheme);
+    var audio = setBgmSource(activeTheme, reason);
     if (!audio) return Promise.resolve();
 
     audio.muted = false;
@@ -277,6 +289,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    setBgmSource(theme, "theme-click");
     syncFireAmbient("theme-click", theme);
 
     if (isEnabled()) {
@@ -291,6 +304,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    setBgmSource(theme, "theme-event");
     syncFireAmbient("theme-event", theme);
 
     if (isEnabled()) {
@@ -309,7 +323,7 @@
       syncTheme();
     }
     syncFireAmbient("external-sync", activeTheme);
-    if (isEnabled()) setBgmSource(activeTheme);
+    setBgmSource(activeTheme, "external-sync");
   };
   window.codexSwitchThemeBgm = function (theme) {
     if (theme && THEME_BGM[theme]) {
@@ -318,12 +332,54 @@
       syncTheme();
     }
     syncFireAmbient("external-theme-switch", activeTheme);
+    setBgmSource(activeTheme, "external-theme-switch");
     if (isEnabled()) {
       playCurrentTheme("external-theme-switch");
     }
   };
   window.codexStopFireAmbient = stopFireAmbient;
   window.codexSyncFireAmbient = syncFireAmbient;
+  window.codexLoadCurrentThemeBgm = loadCurrentThemeBgm;
+
+  document.addEventListener("codex-extra-theme-change", function (event) {
+    var theme = event.detail && event.detail.theme;
+    if (!theme || !THEME_BGM[theme]) return;
+
+    activeTheme = theme;
+    setBgmSource(theme, "extra-theme-event");
+
+    if (isEnabled() || audioUnlocked) {
+      window.setTimeout(function () {
+        playCurrentTheme("extra-theme-event");
+      }, 100);
+    }
+  });
+
+  function observeThemeAttributes() {
+    if (!document.body || themeObserver) return;
+    themeObserver = new MutationObserver(function () {
+      var theme = syncTheme();
+      setBgmSource(theme, "theme-attribute");
+      if (isEnabled() || audioUnlocked) {
+        playCurrentTheme("theme-attribute");
+      }
+    });
+    themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "data-current-theme"]
+    });
+  }
+
+  function initializeBgmSource() {
+    observeThemeAttributes();
+    loadCurrentThemeBgm("init");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeBgmSource, { once: true });
+  } else {
+    initializeBgmSource();
+  }
 
   window.addEventListener("pointerdown", startBgmFromFirstGesture, true);
   window.addEventListener("touchstart", startBgmFromFirstGesture, true);
