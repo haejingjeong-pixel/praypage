@@ -180,10 +180,6 @@
     } catch (error) {}
   }
 
-  function shouldPlayFireAmbient(theme) {
-    return Boolean(theme);
-  }
-
   function stopFireAmbient() {
     if (!fireAmbient) return;
     try {
@@ -193,9 +189,7 @@
   }
 
   function playFireAmbient(reason) {
-    syncTheme();
-    if (!audioUnlocked || !shouldPlayFireAmbient(activeTheme)) {
-      stopFireAmbient();
+    if (!audioUnlocked) {
       return Promise.resolve();
     }
 
@@ -213,11 +207,7 @@
 
   function syncFireAmbient(reason) {
     if (!audioUnlocked) return;
-    if (shouldPlayFireAmbient(activeTheme)) {
-      playFireAmbient(reason);
-    } else {
-      stopFireAmbient();
-    }
+    playFireAmbient(reason);
   }
 
   function isCcmButton(button) {
@@ -290,6 +280,12 @@
     } else {
       syncFireAmbient("theme-event");
     }
+  });
+
+  document.addEventListener("codex-extra-theme-change", function (event) {
+    var theme = event.detail && event.detail.theme;
+    if (theme && THEME_BGM[theme]) activeTheme = theme;
+    syncFireAmbient("extra-theme-event");
   });
 
   window.codexPlayCurrentThemeBgm = playCurrentTheme;
