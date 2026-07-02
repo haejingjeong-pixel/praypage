@@ -2,16 +2,20 @@
   "use strict";
 
   var BGM_KEY = "codex-user-bgm-enabled";
-  var CLICK_SFX_SRC = "assets/asmr_fire.mp3";
-  var CLICK_SFX_VOLUME = 0.52;
+  var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
+  var FIRE_AMBIENT_VOLUME = 0.52;
   var activeTheme = "golbang";
   var bgm = null;
-  var clickSfx = null;
-  var clickSfxPlayed = false;
-  var clickSfxUnlocking = false;
+  var fireAmbient = null;
+  var audioUnlocked = false;
+  var audioUnlocking = false;
   var firstGestureBgmStarted = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
+
+  var FIRE_AMBIENT_THEMES = {
+    golbang: true
+  };
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -69,17 +73,17 @@
     return bgm;
   }
 
-  function getClickSfx() {
-    if (!clickSfx) {
-      clickSfx = new Audio(CLICK_SFX_SRC);
-      clickSfx.loop = false;
-      clickSfx.volume = CLICK_SFX_VOLUME;
-      clickSfx.preload = "auto";
-      clickSfx.setAttribute("playsinline", "");
-      clickSfx.setAttribute("webkit-playsinline", "");
-      clickSfx.dataset.codexClickSfx = "true";
+  function getFireAmbient() {
+    if (!fireAmbient) {
+      fireAmbient = new Audio(FIRE_AMBIENT_SRC);
+      fireAmbient.loop = true;
+      fireAmbient.volume = FIRE_AMBIENT_VOLUME;
+      fireAmbient.preload = "auto";
+      fireAmbient.setAttribute("playsinline", "");
+      fireAmbient.setAttribute("webkit-playsinline", "");
+      fireAmbient.dataset.codexFireAmbient = "true";
     }
-    return clickSfx;
+    return fireAmbient;
   }
 
   function unlockAudioContext() {
@@ -104,39 +108,88 @@
     window.removeEventListener("click", startBgmFromFirstGesture, true);
   }
 
+  function stopFireAmbient() {
+    if (!fireAmbient) return;
+    try {
+      fireAmbient.pause();
+      fireAmbient.currentTime = 0;
+    } catch (error) {}
+  }
+
+  function playFireAmbient(reason, themeOverride) {
+    if (themeOverride && THEME_BGM[themeOverride]) {
+      activeTheme = themeOverride;
+    } else {
+      syncTheme();
+    }
+
+    if (!FIRE_AMBIENT_THEMES[activeTheme]) {
+      stopFireAmbient();
+      return Promise.resolve();
+    }
+
+    var audio = getFireAmbient();
+    try {
+      audio.loop = true;
+      audio.muted = false;
+      audio.volume = FIRE_AMBIENT_VOLUME;
+    } catch (error) {}
+
+    return audio.play().catch(function (error) {
+      console.warn("[codex-audio] fire ambient play failed", reason, activeTheme, error);
+    });
+  }
+
+  function syncFireAmbient(reason, themeOverride) {
+    if (themeOverride && THEME_BGM[themeOverride]) {
+      activeTheme = themeOverride;
+    } else {
+      syncTheme();
+    }
+
+    if (!FIRE_AMBIENT_THEMES[activeTheme]) {
+      stopFireAmbient();
+      return;
+    }
+
+    if (audioUnlocked) playFireAmbient(reason, activeTheme);
+  }
+
   function startBgmFromFirstGesture(event) {
-    if (clickSfxPlayed || clickSfxUnlocking) return;
-    clickSfxUnlocking = true;
+    if (audioUnlocked || audioUnlocking) return;
+    audioUnlocking = true;
     unlockAudioContext();
 
-    var audio = getClickSfx();
+    var audio = getFireAmbient();
     try {
       audio.muted = false;
-      audio.volume = CLICK_SFX_VOLUME;
+      audio.volume = FIRE_AMBIENT_VOLUME;
+      audio.loop = true;
       audio.currentTime = 0;
     } catch (error) {}
 
-    var playPromise = audio.play();
+    var playPromise = FIRE_AMBIENT_THEMES[getCurrentThemeFromDom()] ? audio.play() : Promise.resolve();
 
     if (playPromise && typeof playPromise.then === "function") {
       playPromise.then(function () {
-        clickSfxPlayed = true;
-        clickSfxUnlocking = false;
+        audioUnlocked = true;
+        audioUnlocking = false;
         removeFirstGestureListeners();
+        syncFireAmbient("first-gesture");
       }).catch(function (error) {
-        clickSfxUnlocking = false;
-        console.warn("[codex-audio] first gesture sfx failed; waiting for next gesture", event && event.type, error);
+        audioUnlocking = false;
+        console.warn("[codex-audio] first gesture ambient unlock failed; waiting for next gesture", event && event.type, error);
       });
     } else {
-      clickSfxPlayed = true;
-      clickSfxUnlocking = false;
+      audioUnlocked = true;
+      audioUnlocking = false;
       removeFirstGestureListeners();
+      syncFireAmbient("first-gesture");
     }
 
     if (!firstGestureBgmStarted) {
       firstGestureBgmStarted = true;
-      setEnabled(true);
-      playCurrentTheme("first-gesture");
+      if (isEnabled()) playCurrentTheme("first-gesture");
     }
   }
 
@@ -242,6 +295,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    syncFireAmbient("theme-click", theme);
 
     if (isEnabled()) {
       window.setTimeout(function () {
@@ -255,6 +309,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    syncFireAmbient("theme-event", theme);
 
     if (isEnabled()) {
       window.setTimeout(function () {
@@ -271,6 +326,7 @@
     } else {
       syncTheme();
     }
+    syncFireAmbient("external-sync", activeTheme);
     if (isEnabled()) setBgmSource(activeTheme);
   };
   window.codexSwitchThemeBgm = function (theme) {
@@ -279,10 +335,13 @@
     } else {
       syncTheme();
     }
+    syncFireAmbient("external-theme-switch", activeTheme);
     if (isEnabled()) {
       playCurrentTheme("external-theme-switch");
     }
   };
+  window.codexStopFireAmbient = stopFireAmbient;
+  window.codexSyncFireAmbient = syncFireAmbient;
 
   window.addEventListener("pointerdown", startBgmFromFirstGesture, true);
   window.addEventListener("touchstart", startBgmFromFirstGesture, true);
