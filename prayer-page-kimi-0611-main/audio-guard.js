@@ -181,7 +181,7 @@
   }
 
   function shouldPlayFireAmbient(theme) {
-    return theme === "golbang";
+    return Boolean(theme);
   }
 
   function stopFireAmbient() {
