@@ -7,7 +7,10 @@
   var bgm = null;
   var clickSfx = null;
   var clickSfxPlayed = false;
+  var clickSfxUnlocking = false;
+  var firstGestureBgmStarted = false;
   var lastCcmClickAt = 0;
+  var audioContext = null;
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -78,28 +81,62 @@
     return clickSfx;
   }
 
+  function unlockAudioContext() {
+    var AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) return;
+
+    try {
+      if (!audioContext) audioContext = new AudioContextCtor();
+      if (audioContext.state === "suspended") audioContext.resume().catch(function (error) {
+        console.warn("[codex-audio] AudioContext resume failed", error);
+      });
+    } catch (error) {
+      console.warn("[codex-audio] AudioContext unlock failed", error);
+    }
+  }
+
   function removeFirstGestureListeners() {
     window.removeEventListener("pointerdown", startBgmFromFirstGesture, true);
     window.removeEventListener("touchstart", startBgmFromFirstGesture, true);
+    window.removeEventListener("pointerup", startBgmFromFirstGesture, true);
+    window.removeEventListener("touchend", startBgmFromFirstGesture, true);
     window.removeEventListener("click", startBgmFromFirstGesture, true);
   }
 
   function startBgmFromFirstGesture(event) {
-    if (clickSfxPlayed) return;
-    clickSfxPlayed = true;
-    removeFirstGestureListeners();
+    if (clickSfxPlayed || clickSfxUnlocking) return;
+    clickSfxUnlocking = true;
+    unlockAudioContext();
 
     var audio = getClickSfx();
     try {
+      audio.muted = false;
+      audio.volume = 0.35;
       audio.currentTime = 0;
     } catch (error) {}
 
-    audio.play().catch(function (error) {
-      console.warn("[codex-audio] first gesture sfx failed", event && event.type, error);
-    });
+    var playPromise = audio.play();
 
-    setEnabled(true);
-    playCurrentTheme("first-gesture");
+    if (playPromise && typeof playPromise.then === "function") {
+      playPromise.then(function () {
+        clickSfxPlayed = true;
+        clickSfxUnlocking = false;
+        removeFirstGestureListeners();
+      }).catch(function (error) {
+        clickSfxUnlocking = false;
+        console.warn("[codex-audio] first gesture sfx failed; waiting for next gesture", event && event.type, error);
+      });
+    } else {
+      clickSfxPlayed = true;
+      clickSfxUnlocking = false;
+      removeFirstGestureListeners();
+    }
+
+    if (!firstGestureBgmStarted) {
+      firstGestureBgmStarted = true;
+      setEnabled(true);
+      playCurrentTheme("first-gesture");
+    }
   }
 
   function getCurrentThemeFromDom() {
@@ -248,5 +285,7 @@
 
   window.addEventListener("pointerdown", startBgmFromFirstGesture, true);
   window.addEventListener("touchstart", startBgmFromFirstGesture, true);
+  window.addEventListener("pointerup", startBgmFromFirstGesture, true);
+  window.addEventListener("touchend", startBgmFromFirstGesture, true);
   window.addEventListener("click", startBgmFromFirstGesture, true);
 })();
