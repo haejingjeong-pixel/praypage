@@ -4,7 +4,6 @@
   var BGM_KEY = "codex-user-bgm-enabled";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
   var FIRE_AMBIENT_VOLUME = 0.52;
-  var FIRE_AMBIENT_ENABLED = false;
   var activeTheme = "golbang";
   var bgm = null;
   var fireAmbient = null;
@@ -118,11 +117,6 @@
   }
 
   function playFireAmbient(reason, themeOverride) {
-    if (!FIRE_AMBIENT_ENABLED) {
-      stopFireAmbient();
-      return Promise.resolve();
-    }
-
     if (themeOverride && THEME_BGM[themeOverride]) {
       activeTheme = themeOverride;
     } else {
@@ -142,11 +136,6 @@
   }
 
   function syncFireAmbient(reason, themeOverride) {
-    if (!FIRE_AMBIENT_ENABLED) {
-      stopFireAmbient();
-      return;
-    }
-
     if (themeOverride && THEME_BGM[themeOverride]) {
       activeTheme = themeOverride;
     } else {
@@ -156,17 +145,47 @@
     if (audioUnlocked) playFireAmbient(reason, activeTheme);
   }
 
+  function completeAudioUnlock(reason) {
+    audioUnlocked = true;
+    audioUnlocking = false;
+    removeFirstGestureListeners();
+    syncFireAmbient(reason);
+  }
+
   function startBgmFromFirstGesture(event) {
     if (audioUnlocked || audioUnlocking) return;
     audioUnlocking = true;
     unlockAudioContext();
-    audioUnlocked = true;
-    audioUnlocking = false;
-    removeFirstGestureListeners();
 
-    if (!isCcmButton(getEventButton(event))) {
-      setEnabled(true);
-      playCurrentTheme("first-gesture");
+    if (isCcmButton(getEventButton(event))) {
+      audioUnlocked = true;
+      audioUnlocking = false;
+      removeFirstGestureListeners();
+      window.setTimeout(function () {
+        syncFireAmbient("ccm-first-gesture");
+      }, 500);
+      return;
+    }
+
+    var audio = getFireAmbient();
+    try {
+      audio.muted = false;
+      audio.volume = FIRE_AMBIENT_VOLUME;
+      audio.loop = true;
+      audio.currentTime = 0;
+    } catch (error) {}
+
+    var playPromise = audio.play();
+
+    if (playPromise && typeof playPromise.then === "function") {
+      playPromise.then(function () {
+        completeAudioUnlock("first-gesture");
+      }).catch(function (error) {
+        audioUnlocking = false;
+        console.warn("[codex-audio] first gesture ambient unlock failed; waiting for next gesture", event && event.type, error);
+      });
+    } else {
+      completeAudioUnlock("first-gesture");
     }
   }
 
