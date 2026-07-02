@@ -10,6 +10,8 @@
   var audioUnlocked = false;
   var audioUnlocking = false;
   var firstGestureBgmStarted = false;
+  var fireAmbientStarted = false;
+  var fireAmbientStarting = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
 
@@ -80,8 +82,23 @@
       fireAmbient.setAttribute("playsinline", "");
       fireAmbient.setAttribute("webkit-playsinline", "");
       fireAmbient.dataset.codexFireAmbient = "true";
+      if (document.body) {
+        fireAmbient.style.display = "none";
+        document.body.appendChild(fireAmbient);
+      }
     }
     return fireAmbient;
+  }
+
+  function prepareFireAmbient() {
+    var audio = getFireAmbient();
+    try {
+      audio.loop = true;
+      audio.muted = false;
+      audio.volume = FIRE_AMBIENT_VOLUME;
+      audio.load();
+    } catch (error) {}
+    return audio;
   }
 
   function unlockAudioContext() {
@@ -117,6 +134,7 @@
     if (!firstGestureBgmStarted) {
       firstGestureBgmStarted = true;
       setEnabled(true);
+      prepareFireAmbient();
       playCurrentTheme("first-gesture");
       syncFireAmbient("first-gesture");
     }
@@ -186,21 +204,33 @@
       fireAmbient.pause();
       fireAmbient.currentTime = 0;
     } catch (error) {}
+    fireAmbientStarted = false;
   }
 
   function playFireAmbient(reason) {
-    if (!audioUnlocked) {
+    if (!audioUnlocked || fireAmbientStarting) {
       return Promise.resolve();
     }
 
-    var audio = getFireAmbient();
-    try {
-      audio.loop = true;
-      audio.muted = false;
-      audio.volume = FIRE_AMBIENT_VOLUME;
-    } catch (error) {}
+    fireAmbientStarting = true;
+    var audio = prepareFireAmbient();
 
-    return audio.play().catch(function (error) {
+    var playPromise = audio.play();
+    if (!playPromise || typeof playPromise.then !== "function") {
+      fireAmbientStarted = true;
+      fireAmbientStarting = false;
+      removeFireAmbientRetryListeners();
+      return Promise.resolve();
+    }
+
+    return playPromise.then(function () {
+      fireAmbientStarted = true;
+      fireAmbientStarting = false;
+      removeFireAmbientRetryListeners();
+    }).catch(function (error) {
+      fireAmbientStarted = false;
+      fireAmbientStarting = false;
+      addFireAmbientRetryListeners();
       console.warn("[codex-audio] fire ambient play failed", reason, activeTheme, error);
     });
   }
@@ -208,6 +238,24 @@
   function syncFireAmbient(reason) {
     if (!audioUnlocked) return;
     playFireAmbient(reason);
+  }
+
+  function retryFireAmbientFromGesture(event) {
+    if (!audioUnlocked || fireAmbientStarted || fireAmbientStarting) return;
+    unlockAudioContext();
+    playFireAmbient(event && event.type || "ambient-retry");
+  }
+
+  function addFireAmbientRetryListeners() {
+    window.addEventListener("pointerdown", retryFireAmbientFromGesture, true);
+    window.addEventListener("touchstart", retryFireAmbientFromGesture, true);
+    window.addEventListener("click", retryFireAmbientFromGesture, true);
+  }
+
+  function removeFireAmbientRetryListeners() {
+    window.removeEventListener("pointerdown", retryFireAmbientFromGesture, true);
+    window.removeEventListener("touchstart", retryFireAmbientFromGesture, true);
+    window.removeEventListener("click", retryFireAmbientFromGesture, true);
   }
 
   function isCcmButton(button) {
