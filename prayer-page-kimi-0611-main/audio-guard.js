@@ -13,6 +13,10 @@
   var lastCcmClickAt = 0;
   var audioContext = null;
 
+  var FIRE_AMBIENT_THEMES = {
+    golbang: true
+  };
+
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
     desert: "assets/ccm_prayer.mp3",
@@ -119,6 +123,11 @@
       syncTheme();
     }
 
+    if (!FIRE_AMBIENT_THEMES[activeTheme]) {
+      stopFireAmbient();
+      return Promise.resolve();
+    }
+
     var audio = getFireAmbient();
     try {
       audio.loop = true;
@@ -138,6 +147,11 @@
       syncTheme();
     }
 
+    if (!FIRE_AMBIENT_THEMES[activeTheme]) {
+      stopFireAmbient();
+      return;
+    }
+
     if (audioUnlocked) playFireAmbient(reason, activeTheme);
   }
 
@@ -154,7 +168,7 @@
       audio.currentTime = 0;
     } catch (error) {}
 
-    var playPromise = audio.play();
+    var playPromise = FIRE_AMBIENT_THEMES[getCurrentThemeFromDom()] ? audio.play() : Promise.resolve();
 
     if (playPromise && typeof playPromise.then === "function") {
       playPromise.then(function () {
