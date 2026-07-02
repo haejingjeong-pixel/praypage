@@ -3,6 +3,7 @@
 
   var BGM_KEY = "codex-user-bgm-enabled";
   var CLICK_SFX_SRC = "assets/asmr_fire.mp3";
+  var CLICK_SFX_VOLUME = 0.52;
   var activeTheme = "golbang";
   var bgm = null;
   var clickSfx = null;
@@ -72,7 +73,7 @@
     if (!clickSfx) {
       clickSfx = new Audio(CLICK_SFX_SRC);
       clickSfx.loop = false;
-      clickSfx.volume = 0.35;
+      clickSfx.volume = CLICK_SFX_VOLUME;
       clickSfx.preload = "auto";
       clickSfx.setAttribute("playsinline", "");
       clickSfx.setAttribute("webkit-playsinline", "");
@@ -111,7 +112,7 @@
     var audio = getClickSfx();
     try {
       audio.muted = false;
-      audio.volume = 0.35;
+      audio.volume = CLICK_SFX_VOLUME;
       audio.currentTime = 0;
     } catch (error) {}
 
