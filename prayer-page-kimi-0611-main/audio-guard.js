@@ -9,7 +9,6 @@
   var fireAmbient = null;
   var audioUnlocked = false;
   var audioUnlocking = false;
-  var firstGestureBgmStarted = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
 
@@ -104,6 +103,11 @@
     window.removeEventListener("click", startBgmFromFirstGesture, true);
   }
 
+  function getEventButton(event) {
+    var target = event && event.target;
+    return target && target.closest ? target.closest("button") : null;
+  }
+
   function stopFireAmbient() {
     if (!fireAmbient) return;
     try {
@@ -141,10 +145,27 @@
     if (audioUnlocked) playFireAmbient(reason, activeTheme);
   }
 
+  function completeAudioUnlock(reason) {
+    audioUnlocked = true;
+    audioUnlocking = false;
+    removeFirstGestureListeners();
+    syncFireAmbient(reason);
+  }
+
   function startBgmFromFirstGesture(event) {
     if (audioUnlocked || audioUnlocking) return;
     audioUnlocking = true;
     unlockAudioContext();
+
+    if (isCcmButton(getEventButton(event))) {
+      audioUnlocked = true;
+      audioUnlocking = false;
+      removeFirstGestureListeners();
+      window.setTimeout(function () {
+        syncFireAmbient("ccm-first-gesture");
+      }, 500);
+      return;
+    }
 
     var audio = getFireAmbient();
     try {
@@ -158,24 +179,13 @@
 
     if (playPromise && typeof playPromise.then === "function") {
       playPromise.then(function () {
-        audioUnlocked = true;
-        audioUnlocking = false;
-        removeFirstGestureListeners();
-        syncFireAmbient("first-gesture");
+        completeAudioUnlock("first-gesture");
       }).catch(function (error) {
         audioUnlocking = false;
         console.warn("[codex-audio] first gesture ambient unlock failed; waiting for next gesture", event && event.type, error);
       });
     } else {
-      audioUnlocked = true;
-      audioUnlocking = false;
-      removeFirstGestureListeners();
-      syncFireAmbient("first-gesture");
-    }
-
-    if (!firstGestureBgmStarted) {
-      firstGestureBgmStarted = true;
-      if (isEnabled()) playCurrentTheme("first-gesture");
+      completeAudioUnlock("first-gesture");
     }
   }
 
@@ -270,7 +280,12 @@
       setEnabled(willEnable);
 
       if (willEnable) {
-        playCurrentTheme("ccm-on");
+        var resumeAmbient = function () {
+          window.setTimeout(function () {
+            syncFireAmbient("ccm-on");
+          }, 150);
+        };
+        playCurrentTheme("ccm-on").then(resumeAmbient, resumeAmbient);
       } else {
         stopBgm();
       }
