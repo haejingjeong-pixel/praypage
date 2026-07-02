@@ -2,16 +2,18 @@
   "use strict";
 
   var BGM_KEY = "codex-user-bgm-enabled";
-  var CLICK_SFX_SRC = "assets/asmr_fire.mp3";
-  var CLICK_SFX_VOLUME = 0.52;
+  var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
+  var FIRE_AMBIENT_VOLUME = 0.52;
   var activeTheme = "golbang";
   var bgm = null;
-  var clickSfx = null;
-  var clickSfxPlayed = false;
-  var clickSfxUnlocking = false;
+  var fireAmbient = null;
+  var audioUnlocked = false;
+  var audioUnlocking = false;
   var firstGestureBgmStarted = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
+
+  setEnabled(false);
 
   var THEME_BGM = {
     golbang: "assets/X_golbang_ccm.mp3",
@@ -69,17 +71,17 @@
     return bgm;
   }
 
-  function getClickSfx() {
-    if (!clickSfx) {
-      clickSfx = new Audio(CLICK_SFX_SRC);
-      clickSfx.loop = false;
-      clickSfx.volume = CLICK_SFX_VOLUME;
-      clickSfx.preload = "auto";
-      clickSfx.setAttribute("playsinline", "");
-      clickSfx.setAttribute("webkit-playsinline", "");
-      clickSfx.dataset.codexClickSfx = "true";
+  function getFireAmbient() {
+    if (!fireAmbient) {
+      fireAmbient = new Audio(FIRE_AMBIENT_SRC);
+      fireAmbient.loop = true;
+      fireAmbient.volume = FIRE_AMBIENT_VOLUME;
+      fireAmbient.preload = "auto";
+      fireAmbient.setAttribute("playsinline", "");
+      fireAmbient.setAttribute("webkit-playsinline", "");
+      fireAmbient.dataset.codexFireAmbient = "true";
     }
-    return clickSfx;
+    return fireAmbient;
   }
 
   function unlockAudioContext() {
@@ -105,38 +107,18 @@
   }
 
   function startBgmFromFirstGesture(event) {
-    if (clickSfxPlayed || clickSfxUnlocking) return;
-    clickSfxUnlocking = true;
+    if (audioUnlocked || audioUnlocking) return;
+    audioUnlocking = true;
     unlockAudioContext();
-
-    var audio = getClickSfx();
-    try {
-      audio.muted = false;
-      audio.volume = CLICK_SFX_VOLUME;
-      audio.currentTime = 0;
-    } catch (error) {}
-
-    var playPromise = audio.play();
-
-    if (playPromise && typeof playPromise.then === "function") {
-      playPromise.then(function () {
-        clickSfxPlayed = true;
-        clickSfxUnlocking = false;
-        removeFirstGestureListeners();
-      }).catch(function (error) {
-        clickSfxUnlocking = false;
-        console.warn("[codex-audio] first gesture sfx failed; waiting for next gesture", event && event.type, error);
-      });
-    } else {
-      clickSfxPlayed = true;
-      clickSfxUnlocking = false;
-      removeFirstGestureListeners();
-    }
+    audioUnlocked = true;
+    audioUnlocking = false;
+    removeFirstGestureListeners();
 
     if (!firstGestureBgmStarted) {
       firstGestureBgmStarted = true;
       setEnabled(true);
       playCurrentTheme("first-gesture");
+      syncFireAmbient("first-gesture");
     }
   }
 
@@ -198,6 +180,46 @@
     } catch (error) {}
   }
 
+  function shouldPlayFireAmbient(theme) {
+    return theme === "golbang";
+  }
+
+  function stopFireAmbient() {
+    if (!fireAmbient) return;
+    try {
+      fireAmbient.pause();
+      fireAmbient.currentTime = 0;
+    } catch (error) {}
+  }
+
+  function playFireAmbient(reason) {
+    syncTheme();
+    if (!audioUnlocked || !shouldPlayFireAmbient(activeTheme)) {
+      stopFireAmbient();
+      return Promise.resolve();
+    }
+
+    var audio = getFireAmbient();
+    try {
+      audio.loop = true;
+      audio.muted = false;
+      audio.volume = FIRE_AMBIENT_VOLUME;
+    } catch (error) {}
+
+    return audio.play().catch(function (error) {
+      console.warn("[codex-audio] fire ambient play failed", reason, activeTheme, error);
+    });
+  }
+
+  function syncFireAmbient(reason) {
+    if (!audioUnlocked) return;
+    if (shouldPlayFireAmbient(activeTheme)) {
+      playFireAmbient(reason);
+    } else {
+      stopFireAmbient();
+    }
+  }
+
   function isCcmButton(button) {
     if (!button) return false;
     var text = normalizeText(button.textContent);
@@ -232,6 +254,7 @@
 
       if (willEnable) {
         playCurrentTheme("ccm-on");
+        syncFireAmbient("ccm-on");
       } else {
         stopBgm();
       }
@@ -246,7 +269,10 @@
     if (isEnabled()) {
       window.setTimeout(function () {
         playCurrentTheme("theme-click");
+        syncFireAmbient("theme-click");
       }, 100);
+    } else {
+      syncFireAmbient("theme-click");
     }
   }, true);
 
@@ -259,7 +285,10 @@
     if (isEnabled()) {
       window.setTimeout(function () {
         playCurrentTheme("theme-event");
+        syncFireAmbient("theme-event");
       }, 100);
+    } else {
+      syncFireAmbient("theme-event");
     }
   });
 
@@ -282,7 +311,10 @@
     if (isEnabled()) {
       playCurrentTheme("external-theme-switch");
     }
+    syncFireAmbient("external-theme-switch");
   };
+  window.codexStopFireAmbient = stopFireAmbient;
+  window.codexSyncFireAmbient = syncFireAmbient;
 
   window.addEventListener("pointerdown", startBgmFromFirstGesture, true);
   window.addEventListener("touchstart", startBgmFromFirstGesture, true);
