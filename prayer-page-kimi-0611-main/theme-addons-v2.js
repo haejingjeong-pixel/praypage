@@ -416,7 +416,7 @@
       if (!menu.querySelector('button[data-codex-theme]')) return;
       var disclaimer = document.createElement("p");
       disclaimer.className = "codex-ai-disclaimer";
-      disclaimer.textContent = "이 페이지는 AI로 제작되었습니다.";
+      disclaimer.textContent = "이 페이지는 일부 ai로 제작되었습니다.";
       menu.appendChild(disclaimer);
     });
   }
