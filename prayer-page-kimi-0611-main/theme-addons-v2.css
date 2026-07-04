@@ -942,6 +942,12 @@ button[data-codex-theme].codex-theme-active > span:first-child {
   order: 100;
 }
 
+@media (min-width: 768px) {
+  .codex-theme-menu {
+    min-width: 240px !important;
+  }
+}
+
 @keyframes sinalMountainDustDriftNear {
   0% { transform: translate3d(0,0,0) scale(0.85); opacity: 0.5; }
   25% { transform: translate3d(calc(var(--wind-x) * 0.22),calc(var(--wind-y) * -0.55),0) scale(1.06); opacity: 0.58; }
