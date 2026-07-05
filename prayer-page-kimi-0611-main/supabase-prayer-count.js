@@ -139,13 +139,10 @@
 
   function insertPrayerEvent() {
     var theme = getCurrentTheme();
-    var createdAt = new Date().toISOString();
     var payload = supportsThemeColumn === false ? {
-      event_type: "prayer",
-      created_at: createdAt
+      event_type: "prayer"
     } : {
       event_type: "prayer",
-      created_at: createdAt,
       theme: theme,
       theme_label: THEME_LABELS[theme] || theme
     };
@@ -160,7 +157,7 @@
         return fetch(SUPABASE_URL + "/rest/v1/" + TABLE, {
           method: "POST",
           headers: supabaseHeaders({ Prefer: "return=minimal" }),
-          body: JSON.stringify({ event_type: "prayer", created_at: createdAt })
+          body: JSON.stringify({ event_type: "prayer" })
         });
       }
       return response;
