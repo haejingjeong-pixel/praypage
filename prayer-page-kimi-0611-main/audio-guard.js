@@ -3,7 +3,7 @@
 
   var BGM_KEY = "codex-user-bgm-enabled";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
-  var FIRE_AMBIENT_VOLUME = 0.52;
+  var FIRE_AMBIENT_VOLUME = 1.0;
   var activeTheme = "golbang";
   var bgm = null;
   var fireAmbient = null;
