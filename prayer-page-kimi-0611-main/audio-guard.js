@@ -3,6 +3,7 @@
 
   var BGM_KEY = "codex-user-bgm-enabled";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
+  var MEDIA_ARTWORK_SRC = "assets/media-artwork.png";
   var FIRE_AMBIENT_VOLUME = 1.0;
   var activeTheme = "golbang";
   var bgm = null;
@@ -38,6 +39,49 @@
     "어두운 밤": "night",
     "겟세마네 동산": "gethsemane"
   };
+
+  var THEME_TITLE = {
+    golbang: "은밀한 골방",
+    desert: "사막의 제단",
+    sinal: "모세의 시내산",
+    mark: "마가 다락방",
+    summer: "여름 녹음",
+    jonah: "요나의 고래뱃속",
+    night: "어두운 밤",
+    gethsemane: "겟세마네 동산"
+  };
+
+  function updateMediaSession(state) {
+    if (!("mediaSession" in navigator) || typeof window.MediaMetadata !== "function") return;
+
+    var artworkUrl;
+    try {
+      artworkUrl = new URL(MEDIA_ARTWORK_SRC, window.location.href).href;
+    } catch (error) {
+      artworkUrl = MEDIA_ARTWORK_SRC;
+    }
+
+    try {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: THEME_TITLE[activeTheme] || "기도 타임",
+        artist: "Prayer Page",
+        album: "기도 타임",
+        artwork: [
+          { src: artworkUrl, sizes: "96x96", type: "image/png" },
+          { src: artworkUrl, sizes: "128x128", type: "image/png" },
+          { src: artworkUrl, sizes: "192x192", type: "image/png" },
+          { src: artworkUrl, sizes: "256x256", type: "image/png" },
+          { src: artworkUrl, sizes: "384x384", type: "image/png" },
+          { src: artworkUrl, sizes: "512x512", type: "image/png" }
+        ]
+      });
+      if (state && "playbackState" in navigator.mediaSession) {
+        navigator.mediaSession.playbackState = state;
+      }
+    } catch (error) {
+      console.warn("[codex-audio] Media Session metadata failed", error);
+    }
+  }
 
   function normalizeText(value) {
     return String(value || "").replace(/\s+/g, " ").trim();
@@ -178,6 +222,7 @@
 
   function playCurrentTheme(reason) {
     syncTheme();
+    updateMediaSession("playing");
 
     var audio = setBgmSource(activeTheme);
     if (!audio) return Promise.resolve();
@@ -187,6 +232,7 @@
     audio.loop = true;
 
     return audio.play().catch(function (error) {
+      updateMediaSession("paused");
       console.warn("[codex-audio] play failed", reason, activeTheme, audio.src, error);
     });
   }
@@ -195,6 +241,7 @@
     if (!bgm) return;
     try {
       bgm.pause();
+      updateMediaSession("paused");
     } catch (error) {}
   }
 
@@ -213,6 +260,7 @@
     }
 
     fireAmbientStarting = true;
+    updateMediaSession("playing");
     var audio = prepareFireAmbient();
 
     var playPromise = audio.play();
@@ -230,6 +278,7 @@
     }).catch(function (error) {
       fireAmbientStarted = false;
       fireAmbientStarting = false;
+      updateMediaSession(isEnabled() ? "playing" : "paused");
       addFireAmbientRetryListeners();
       console.warn("[codex-audio] fire ambient play failed", reason, activeTheme, error);
     });
@@ -343,6 +392,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    updateMediaSession(isEnabled() ? "playing" : "paused");
 
     if (isEnabled()) {
       window.setTimeout(function () {
@@ -359,6 +409,7 @@
     if (!theme || !THEME_BGM[theme]) return;
 
     activeTheme = theme;
+    updateMediaSession(isEnabled() ? "playing" : "paused");
 
     if (isEnabled()) {
       window.setTimeout(function () {
@@ -373,6 +424,7 @@
   document.addEventListener("codex-extra-theme-change", function (event) {
     var theme = event.detail && event.detail.theme;
     if (theme && THEME_BGM[theme]) activeTheme = theme;
+    updateMediaSession(isEnabled() ? "playing" : "paused");
     syncFireAmbient("extra-theme-event");
   });
 
@@ -394,6 +446,8 @@
     }
     if (isEnabled()) {
       playCurrentTheme("external-theme-switch");
+    } else {
+      updateMediaSession("paused");
     }
     syncFireAmbient("external-theme-switch");
   };
