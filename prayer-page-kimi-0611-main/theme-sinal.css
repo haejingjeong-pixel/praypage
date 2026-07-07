@@ -26,11 +26,10 @@ body[data-extra-theme="sinal"] #sinal-theme-soft-layer {
   position: absolute;
   inset: -8%;
   background:
-    linear-gradient(102deg, transparent 36%, rgba(255, 241, 204, 0.10) 45%, rgba(255, 249, 224, 0.24) 52%, rgba(255, 221, 154, 0.13) 60%, transparent 72%),
-    radial-gradient(ellipse at 53% 36%, rgba(255, 226, 166, 0.23), transparent 28%),
-    radial-gradient(ellipse at 55% 54%, rgba(255, 255, 232, 0.12), transparent 36%);
+    radial-gradient(ellipse at 53% 36%, rgba(255, 226, 166, 0.18), transparent 31%),
+    radial-gradient(ellipse at 55% 54%, rgba(255, 255, 232, 0.09), transparent 39%);
   mix-blend-mode: screen;
-  filter: blur(0.6px);
+  filter: blur(1.8px);
   animation: sinalHolyLight 10s ease-in-out infinite;
 }
 
@@ -78,8 +77,8 @@ button[data-sinal-theme].sinal-theme-active {
 }
 
 @keyframes sinalHolyLight {
-  0%, 100% { opacity: 0.70; transform: translate3d(-0.5%, 0, 0) scale(1); }
-  50% { opacity: 0.96; transform: translate3d(1%, 0.8%, 0) scale(1.025); }
+  0%, 100% { opacity: 0.46; transform: translate3d(-0.5%, 0, 0) scale(1); }
+  50% { opacity: 0.62; transform: translate3d(1%, 0.8%, 0) scale(1.025); }
 }
 
 @keyframes sinalAtmosphere {
