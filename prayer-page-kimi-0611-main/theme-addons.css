@@ -7,6 +7,14 @@ canvas.absolute.inset-0 {
   height: 100vh !important;
 }
 
+@supports (height: 100dvh) {
+  canvas.absolute.inset-0,
+  body[data-theme] [data-codex-theme-background="true"],
+  body[data-current-theme] [data-codex-theme-background="true"] {
+    height: 100dvh !important;
+  }
+}
+
 body[data-theme] #root canvas {
   z-index: 12 !important;
 }

@@ -4,6 +4,8 @@
   var savedViewport = null;
   var restoreTimers = [];
   var preparingSubmit = false;
+  var keyboardFocusActive = false;
+  var viewportLockRaf = 0;
 
   function isEditable(node) {
     if (!node || !node.matches) return false;
@@ -77,6 +79,26 @@
     restoreTimers = [];
   }
 
+  function setKeyboardFocusActive(active) {
+    keyboardFocusActive = !!active;
+    if (document.body) {
+      document.body.classList.toggle("codex-prayer-keyboard-active", keyboardFocusActive);
+    }
+    if (!keyboardFocusActive) {
+      document.documentElement.style.removeProperty("--codex-visual-vh");
+      document.documentElement.style.removeProperty("--codex-visual-offset-top");
+      document.documentElement.style.removeProperty("--codex-keyboard-height");
+    }
+  }
+
+  function syncVisualViewportVars() {
+    var visual = window.visualViewport;
+    if (!visual) return;
+    document.documentElement.style.setProperty("--codex-visual-vh", Math.round(visual.height) + "px");
+    document.documentElement.style.setProperty("--codex-visual-offset-top", Math.round(visual.offsetTop || 0) + "px");
+    document.documentElement.style.setProperty("--codex-keyboard-height", Math.max(0, Math.round(window.innerHeight - visual.height - (visual.offsetTop || 0))) + "px");
+  }
+
   function getRestoreTarget() {
     if (!savedViewport) return null;
     var visual = window.visualViewport;
@@ -108,6 +130,23 @@
     });
     window.scrollTo(target.x, target.y);
     logViewport("after-restore");
+  }
+
+  function restoreSavedScrollPosition() {
+    if (!savedViewport) return;
+    window.scrollTo(savedViewport.scrollX, savedViewport.scrollY);
+  }
+
+  function scheduleViewportLock(reason) {
+    if (!keyboardFocusActive || !savedViewport) return;
+    syncVisualViewportVars();
+    if (viewportLockRaf) return;
+    viewportLockRaf = window.requestAnimationFrame(function () {
+      viewportLockRaf = 0;
+      if (!keyboardFocusActive || !savedViewport) return;
+      restoreSavedScrollPosition();
+      logViewport("viewport-lock-" + reason);
+    });
   }
 
   function waitFrames(count) {
@@ -190,8 +229,11 @@
 
   function reinforceRestore() {
     clearRestoreTimers();
-    [0, 80, 180, 360, 700].forEach(function (delay) {
-      restoreTimers.push(window.setTimeout(restoreScrollPosition, delay));
+    [0, 80, 180, 360, 700, 1100].forEach(function (delay) {
+      restoreTimers.push(window.setTimeout(function () {
+        restoreSavedScrollPosition();
+        restoreScrollPosition();
+      }, delay));
     });
   }
 
@@ -208,6 +250,7 @@
 
     var textarea = findPrayerTextarea();
     if (!savedViewport) saveViewportState();
+    setKeyboardFocusActive(false);
 
     logViewport("submit-requested");
     if (textarea && document.activeElement === textarea) textarea.blur();
@@ -219,6 +262,7 @@
     });
 
     restoreScrollPosition();
+    restoreSavedScrollPosition();
     reinforceRestore();
     logViewport("submit-after-restore");
 
@@ -229,17 +273,92 @@
     }, 900);
   }
 
+  function blurPrayerTextarea(reason) {
+    var textarea = findPrayerTextarea();
+    if (!textarea) return false;
+    if (!savedViewport) saveViewportState();
+    logViewport("blur-requested-" + reason);
+    if (document.activeElement === textarea) textarea.blur();
+    setKeyboardFocusActive(false);
+    reinforceRestore();
+    window.setTimeout(function () {
+      waitForViewportSettle().then(function () {
+        restoreScrollPosition();
+        restoreSavedScrollPosition();
+        savedViewport = null;
+      });
+    }, 160);
+    return true;
+  }
+
+  function isPrayerModalActionTarget(node) {
+    if (!node || !node.closest) return false;
+    if (node.matches && isPrayerTextInput(node)) return false;
+    var button = node.closest("button");
+    if (button) return true;
+    var fixed = node.closest(".fixed");
+    return !!fixed && !node.closest("textarea");
+  }
+
+  function handleViewportChange(event) {
+    if (!keyboardFocusActive) return;
+    scheduleViewportLock(event && event.type || "viewport");
+  }
+
   document.addEventListener("pointerdown", function (event) {
-    if (isPrayerTextInput(event.target)) saveViewportState();
+    if (isPrayerTextInput(event.target)) {
+      saveViewportState();
+      setKeyboardFocusActive(true);
+      syncVisualViewportVars();
+      return;
+    }
+    if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
+      blurPrayerTextarea("pointerdown");
+    }
   }, true);
 
   document.addEventListener("touchstart", function (event) {
-    if (isPrayerTextInput(event.target)) saveViewportState();
+    if (isPrayerTextInput(event.target)) {
+      saveViewportState();
+      setKeyboardFocusActive(true);
+      syncVisualViewportVars();
+      return;
+    }
+    if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
+      blurPrayerTextarea("touchstart");
+    }
   }, true);
 
   document.addEventListener("focusin", function (event) {
-    if (isPrayerTextInput(event.target)) saveViewportState();
+    if (isPrayerTextInput(event.target)) {
+      saveViewportState();
+      setKeyboardFocusActive(true);
+      syncVisualViewportVars();
+      scheduleViewportLock("focusin");
+    }
   }, true);
+
+  document.addEventListener("focusout", function (event) {
+    if (!isPrayerTextInput(event.target)) return;
+    window.setTimeout(function () {
+      if (isPrayerTextInput(document.activeElement)) return;
+      setKeyboardFocusActive(false);
+      reinforceRestore();
+      window.setTimeout(function () {
+        savedViewport = null;
+      }, 900);
+    }, 80);
+  }, true);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", handleViewportChange, { passive: true });
+    window.visualViewport.addEventListener("scroll", handleViewportChange, { passive: true });
+  }
+
+  window.addEventListener("resize", handleViewportChange, { passive: true });
+  window.addEventListener("orientationchange", function () {
+    blurPrayerTextarea("orientationchange");
+  }, { passive: true });
 
   window.__codexPreparePrayerSubmit = function (runSubmit) {
     if (typeof runSubmit !== "function") return;
@@ -249,4 +368,5 @@
       runSubmit();
     });
   };
+  window.__codexBlurPrayerTextarea = blurPrayerTextarea;
 })();

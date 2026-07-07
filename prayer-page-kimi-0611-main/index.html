@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://qspmqsxsxiftejrvkcna.supabase.co; upgrade-insecure-requests" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preload" as="image" href="assets/back_golbang_new.webp" type="image/webp">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-visual" />
     <title>Prayer Page | 기도 타임</title>
     <script>
       document.title = "Prayer Page | 기도 타임";
@@ -107,7 +107,7 @@
     <script src="audio-guard.js?v=fire-ambient-resume-20260707"></script>
     <link rel="stylesheet" crossorigin href="assets/index-BYZbwYUU.css?v=no-webfont-20260629">
     <link rel="stylesheet" href="theme-transition.css?v=prayer-effects-restore-20250620b">
-    <link rel="stylesheet" href="theme-addons-v2.css?v=sinal-light-beam-soften-20260707">
+    <link rel="stylesheet" href="theme-addons-v2.css?v=ios-keyboard-viewport-20260707">
     <style>
       textarea[placeholder*="기도문"] {
         font-size: 16px !important;
@@ -120,6 +120,25 @@
       .fixed:has(textarea[placeholder*="기도문"]) button {
         font-size: 16px !important;
       }
+      @supports (height: 100dvh) {
+        html,
+        body,
+        #root {
+          min-height: 100dvh;
+        }
+      }
+      body.codex-prayer-keyboard-active .fixed:has(textarea[placeholder*="기도문"]) {
+        top: var(--codex-visual-offset-top, 0px) !important;
+        bottom: auto !important;
+        height: var(--codex-visual-vh, 100dvh) !important;
+        min-height: 0 !important;
+        max-height: var(--codex-visual-vh, 100dvh) !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+      body.codex-prayer-keyboard-active .fixed:has(textarea[placeholder*="기도문"]) > div {
+        max-height: calc(var(--codex-visual-vh, 100dvh) - 28px) !important;
+      }
     </style>
     <script type="module" crossorigin src="assets/index-CqKYKs7R.js?v=prayer-submit-animation-restore-20260628c"></script>
   </head>
@@ -130,7 +149,7 @@
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
     <script src="theme-transition.js?v=prayer-effects-restore-20250620b"></script>
     <script src="theme-addons-v2.js?v=ai-disclaimer-copy-20260704"></script>
-    <script src="mobile-focus-restore.js?v=textarea-viewport-restore-20260628b"></script>
+    <script src="mobile-focus-restore.js?v=ios-keyboard-viewport-restore-20260707"></script>
     <script src="golbang-hotfix.js?v=guide-layout-restore-20260627"></script>
     <script src="supabase-prayer-count.js?v=security-hardening-20260706"></script>
     <script>
