@@ -234,16 +234,28 @@
     if (weekly) weekly.textContent = Number(latestStats.weekly || 0).toLocaleString();
     if (today) today.textContent = Number(latestStats.today || 0).toLocaleString();
     if (!themes) return;
+    themes.textContent = "";
 
     if (supportsThemeColumn === false) {
-      themes.innerHTML = '<p><span>테마별 통계</span><strong>컬럼 필요</strong></p>';
+      themes.appendChild(createStatsRow("테마별 통계", "컬럼 필요"));
       return;
     }
 
-    themes.innerHTML = Object.keys(THEME_LABELS).map(function (theme) {
+    Object.keys(THEME_LABELS).forEach(function (theme) {
       var count = latestStats.byTheme[theme] || 0;
-      return '<p><span>' + THEME_LABELS[theme] + '</span><strong>' + Number(count).toLocaleString() + '</strong></p>';
-    }).join("");
+      themes.appendChild(createStatsRow(THEME_LABELS[theme], Number(count).toLocaleString()));
+    });
+  }
+
+  function createStatsRow(label, value) {
+    var row = document.createElement("p");
+    var labelNode = document.createElement("span");
+    var valueNode = document.createElement("strong");
+    labelNode.textContent = label;
+    valueNode.textContent = value;
+    row.appendChild(labelNode);
+    row.appendChild(valueNode);
+    return row;
   }
 
   function openStatsPanel() {

@@ -82,18 +82,33 @@
     var container = document.querySelector("[data-theme-stats]");
     var notice = document.querySelector("[data-stats-notice]");
     if (!container) return;
+    container.textContent = "";
 
     if (!stats) {
-      container.innerHTML = '<div class="theme-row"><span>테마별 통계</span><b>컬럼 필요</b></div>';
+      container.appendChild(createThemeRow("테마별 통계", "컬럼 필요"));
       if (notice) notice.textContent = "현재 prayer_events 테이블에 theme 컬럼이 없어 테마별 통계는 표시할 수 없습니다.";
       return;
     }
 
-    container.innerHTML = Object.keys(THEME_LABELS).map(function (theme) {
-      return '<div class="theme-row"><span>' + THEME_LABELS[theme] + '</span><b>' +
-        Number(stats[theme] || 0).toLocaleString() + '</b></div>';
-    }).join("");
+    Object.keys(THEME_LABELS).forEach(function (theme) {
+      container.appendChild(createThemeRow(
+        THEME_LABELS[theme],
+        Number(stats[theme] || 0).toLocaleString()
+      ));
+    });
     if (notice) notice.textContent = "Supabase public.prayer_events 기준입니다.";
+  }
+
+  function createThemeRow(label, value) {
+    var row = document.createElement("div");
+    var labelNode = document.createElement("span");
+    var valueNode = document.createElement("b");
+    row.className = "theme-row";
+    labelNode.textContent = label;
+    valueNode.textContent = value;
+    row.appendChild(labelNode);
+    row.appendChild(valueNode);
+    return row;
   }
 
   function loadStats() {
