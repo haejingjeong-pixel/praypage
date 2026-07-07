@@ -240,6 +240,46 @@
     playFireAmbient(reason);
   }
 
+  function restoreFireAmbient(reason) {
+    if (!audioUnlocked || document.hidden) return;
+
+    unlockAudioContext();
+
+    var audio = getFireAmbient();
+    if (document.body && !audio.parentNode) {
+      document.body.appendChild(audio);
+    }
+
+    audio.loop = true;
+    audio.muted = false;
+    audio.volume = FIRE_AMBIENT_VOLUME;
+
+    if (!audio.paused && !audio.ended && audio.readyState >= 2 && fireAmbientStarted) {
+      var keepAlive = audio.play();
+      if (keepAlive && typeof keepAlive.catch === "function") {
+        keepAlive.catch(function (error) {
+          console.warn("[codex-audio] fire ambient keep-alive failed", reason, error);
+        });
+      }
+      return;
+    }
+
+    if (audio.readyState === 0 || audio.networkState === 3) {
+      try {
+        audio.load();
+      } catch (error) {}
+    }
+
+    playFireAmbient(reason);
+  }
+
+  function restoreFireAmbientFromLifecycle(event) {
+    if (event && event.type === "visibilitychange" && document.hidden) return;
+    window.setTimeout(function () {
+      restoreFireAmbient(event && event.type || "lifecycle");
+    }, 80);
+  }
+
   function retryFireAmbientFromGesture(event) {
     if (!audioUnlocked || fireAmbientStarted || fireAmbientStarting) return;
     unlockAudioContext();
@@ -365,4 +405,7 @@
   window.addEventListener("pointerup", startBgmFromFirstGesture, true);
   window.addEventListener("touchend", startBgmFromFirstGesture, true);
   window.addEventListener("click", startBgmFromFirstGesture, true);
+  document.addEventListener("visibilitychange", restoreFireAmbientFromLifecycle);
+  window.addEventListener("pageshow", restoreFireAmbientFromLifecycle);
+  window.addEventListener("focus", restoreFireAmbientFromLifecycle);
 })();
