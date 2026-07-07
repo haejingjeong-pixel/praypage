@@ -559,10 +559,10 @@ body[data-theme="gethsemane"] #gethsemane-theme-layer .gethsemane-wind-layer spa
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 54% 36%, rgba(255, 194, 126, 0.24), transparent 20%),
-    linear-gradient(180deg, rgba(210, 235, 255, 0.12), transparent 45%),
-    linear-gradient(96deg, transparent 39%, rgba(255, 234, 190, 0.18) 48%, rgba(210, 235, 255, 0.10) 56%, transparent 68%);
+    radial-gradient(ellipse at 54% 36%, rgba(255, 194, 126, 0.16), transparent 24%),
+    radial-gradient(ellipse at 53% 42%, rgba(210, 235, 255, 0.08), transparent 42%);
   mix-blend-mode: screen;
+  filter: blur(1.6px);
   animation: sinalHolyLight 20s ease-in-out infinite;
 }
 
@@ -880,8 +880,8 @@ button[data-codex-theme].codex-theme-active > span:first-child {
 }
 
 @keyframes sinalHolyLight {
-  0%, 100% { opacity: 0.62; filter: brightness(1); }
-  50% { opacity: 0.86; filter: brightness(1.08); }
+  0%, 100% { opacity: 0.38; filter: brightness(1); }
+  50% { opacity: 0.54; filter: brightness(1.04); }
 }
 
 @keyframes sinalCloudDrift {
