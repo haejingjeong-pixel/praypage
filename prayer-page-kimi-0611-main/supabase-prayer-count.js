@@ -57,7 +57,7 @@
       "?select=id&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString());
 
     return fetch(url, {
-      method: "GET",
+      method: "HEAD",
       headers: supabaseHeaders({ Prefer: "count=exact", Range: "0-0" })
     }).then(function (response) {
       if (!response.ok) throw new Error("Supabase count failed: " + response.status);
