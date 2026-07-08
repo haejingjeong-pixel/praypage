@@ -149,6 +149,13 @@
       body.codex-prayer-keyboard-active .fixed:has(textarea[placeholder*="기도문"]) > div {
         max-height: calc(var(--codex-visual-vh, 100dvh) - 28px) !important;
       }
+      body.codex-prayer-modal-open img[alt="altar"],
+      body.codex-prayer-modal-open img[alt="prayer button"],
+      body.codex-prayer-modal-open .bottom-\[120px\],
+      body.codex-prayer-modal-open .bottom-12,
+      body.codex-prayer-modal-open .bottom-1 {
+        display: none !important;
+      }
     </style>
     <script type="module" crossorigin src="assets/index-CqKYKs7R.js?v=prayer-submit-animation-restore-20260628c"></script>
   </head>
@@ -159,7 +166,7 @@
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
     <script src="theme-transition.js?v=prayer-effects-restore-20250620b"></script>
     <script src="theme-addons-v2.js?v=ai-disclaimer-copy-20260704"></script>
-    <script src="mobile-focus-restore.js?v=ios-keyboard-viewport-restore-20260707"></script>
+    <script src="mobile-focus-restore.js?v=prayer-modal-open-hide-bottom-20260708"></script>
     <script src="golbang-hotfix.js?v=guide-layout-restore-20260627"></script>
     <script src="supabase-prayer-count.js?v=count-head-security-20260708"></script>
     <script>
