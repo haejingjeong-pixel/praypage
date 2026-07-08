@@ -87,7 +87,9 @@
     }
     if (!keyboardFocusActive) {
       document.documentElement.style.removeProperty("--codex-visual-vh");
+      document.documentElement.style.removeProperty("--codex-visual-vw");
       document.documentElement.style.removeProperty("--codex-visual-offset-top");
+      document.documentElement.style.removeProperty("--codex-visual-offset-left");
       document.documentElement.style.removeProperty("--codex-keyboard-height");
     }
   }
@@ -118,7 +120,9 @@
     var visual = window.visualViewport;
     if (!visual) return;
     document.documentElement.style.setProperty("--codex-visual-vh", Math.round(visual.height) + "px");
+    document.documentElement.style.setProperty("--codex-visual-vw", Math.round(visual.width) + "px");
     document.documentElement.style.setProperty("--codex-visual-offset-top", Math.round(visual.offsetTop || 0) + "px");
+    document.documentElement.style.setProperty("--codex-visual-offset-left", Math.round(visual.offsetLeft || 0) + "px");
     document.documentElement.style.setProperty("--codex-keyboard-height", Math.max(0, Math.round(window.innerHeight - visual.height - (visual.offsetTop || 0))) + "px");
   }
 
@@ -331,6 +335,58 @@
     return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도하기";
   }
 
+  function findPrayerSubmitButton() {
+    var buttons = Array.prototype.slice.call(document.querySelectorAll(".fixed button"));
+    return buttons.find(function (button) {
+      return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도하기";
+    }) || null;
+  }
+
+  function getEventPoint(event) {
+    var source = event;
+    if (event.touches && event.touches.length) source = event.touches[0];
+    if (event.changedTouches && event.changedTouches.length) source = event.changedTouches[0];
+    if (typeof source.clientX !== "number" || typeof source.clientY !== "number") return null;
+    return {
+      x: source.clientX,
+      y: source.clientY
+    };
+  }
+
+  function isPointInsideRect(point, rect, padding) {
+    if (!point || !rect) return false;
+    return point.x >= rect.left - padding &&
+      point.x <= rect.right + padding &&
+      point.y >= rect.top - padding &&
+      point.y <= rect.bottom + padding;
+  }
+
+  function getSubmitButtonFromTouch(event) {
+    var directButton = event.target && event.target.closest ? event.target.closest("button") : null;
+    if (directButton && isPrayerSubmitButton(directButton)) return directButton;
+
+    var point = getEventPoint(event);
+    var submitButton = findPrayerSubmitButton();
+    if (!point || !submitButton) return null;
+
+    var hit = document.elementFromPoint ? document.elementFromPoint(point.x, point.y) : null;
+    var rect = submitButton.getBoundingClientRect();
+    var insideVisibleButton = isPointInsideRect(point, rect, 18);
+
+    if (window.console && console.debug) {
+      console.debug("[codex-focus-restore] submit-hit-test", {
+        point: point,
+        hitTag: hit && hit.tagName,
+        hitClass: hit && typeof hit.className === "string" ? hit.className : "",
+        hitText: hit && hit.textContent ? hit.textContent.trim().slice(0, 40) : "",
+        buttonRect: serializeRect(rect),
+        insideVisibleButton: insideVisibleButton
+      });
+    }
+
+    return insideVisibleButton ? submitButton : null;
+  }
+
   function blurBeforeSubmit(reason, skipRestore) {
     var textarea = findPrayerTextarea();
     if (!textarea) return false;
@@ -343,9 +399,14 @@
   }
 
   function handleSubmitPress(event, reason) {
-    var button = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (!button || !isPrayerSubmitButton(button)) return false;
-    if (submitTapLock) return true;
+    var button = getSubmitButtonFromTouch(event);
+    if (!button) return false;
+    if (submitTapLock) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      return true;
+    }
     if (button.disabled) return false;
 
     var textarea = findPrayerTextarea();
