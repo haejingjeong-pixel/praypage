@@ -4,7 +4,10 @@
   var BGM_KEY = "codex-user-bgm-enabled";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
   var MEDIA_ARTWORK_SRC = "assets/media-artwork.png?v=blue-media-artwork-20260708";
+  var BGM_VOLUME = 0.4;
   var FIRE_AMBIENT_VOLUME = 1.0;
+  var GOLBANG_FADE_MS = 1200;
+  var GOLBANG_FADE_BEFORE_END_SEC = 1.4;
   var activeTheme = "golbang";
   var bgm = null;
   var fireAmbient = null;
@@ -15,11 +18,20 @@
   var fireAmbientStarting = false;
   var lastCcmClickAt = 0;
   var audioContext = null;
+  var golbangPlaylistIndex = -1;
+  var golbangTransitioning = false;
+  var bgmFadeTimer = 0;
 
   setEnabled(false);
 
+  var GOLBANG_PLAYLIST = [
+    "assets/golbang_piano_heaven_earth.mp3",
+    "assets/golbang_piano_believe.mp3",
+    "assets/golbang_piano_voyager.mp3"
+  ];
+
   var THEME_BGM = {
-    golbang: "assets/X_golbang_ccm.mp3",
+    golbang: GOLBANG_PLAYLIST[0],
     desert: "assets/ccm_prayer.mp3",
     sinal: "assets/ccm_sinae.mp3",
     mark: "assets/ccm_maga2.mp3",
@@ -104,15 +116,77 @@
     localStorage.setItem(BGM_KEY, value ? "true" : "false");
   }
 
+  function clearBgmFade() {
+    if (bgmFadeTimer) {
+      window.clearInterval(bgmFadeTimer);
+      bgmFadeTimer = 0;
+    }
+  }
+
+  function fadeBgmVolume(audio, targetVolume, duration) {
+    clearBgmFade();
+    return new Promise(function (resolve) {
+      var startVolume = Number(audio.volume) || 0;
+      var startedAt = Date.now();
+      var safeDuration = Math.max(1, duration || 1);
+
+      bgmFadeTimer = window.setInterval(function () {
+        var progress = Math.min(1, (Date.now() - startedAt) / safeDuration);
+        audio.volume = startVolume + (targetVolume - startVolume) * progress;
+        if (progress >= 1) {
+          clearBgmFade();
+          audio.volume = targetVolume;
+          resolve();
+        }
+      }, 50);
+    });
+  }
+
+  function resetGolbangPlaylist() {
+    golbangPlaylistIndex = -1;
+    golbangTransitioning = false;
+    clearBgmFade();
+  }
+
+  function ensureGolbangPlaylistIndex() {
+    if (golbangPlaylistIndex < 0 || golbangPlaylistIndex >= GOLBANG_PLAYLIST.length) {
+      golbangPlaylistIndex = Math.floor(Math.random() * GOLBANG_PLAYLIST.length);
+    }
+    return golbangPlaylistIndex;
+  }
+
+  function getGolbangPlaylistSrc() {
+    return GOLBANG_PLAYLIST[ensureGolbangPlaylistIndex()];
+  }
+
+  function advanceGolbangPlaylist() {
+    ensureGolbangPlaylistIndex();
+    golbangPlaylistIndex = (golbangPlaylistIndex + 1) % GOLBANG_PLAYLIST.length;
+    return getGolbangPlaylistSrc();
+  }
+
+  function setActiveTheme(theme) {
+    if (!theme || !THEME_BGM[theme]) return;
+    if (theme === "golbang" && activeTheme !== "golbang") {
+      resetGolbangPlaylist();
+    }
+    if (theme !== "golbang" && activeTheme === "golbang") {
+      resetGolbangPlaylist();
+    }
+    activeTheme = theme;
+  }
+
   function getBgm() {
     if (!bgm) {
       bgm = new Audio();
       bgm.loop = true;
-      bgm.volume = 0.4;
+      bgm.volume = BGM_VOLUME;
       bgm.preload = "auto";
       bgm.setAttribute("playsinline", "");
       bgm.setAttribute("webkit-playsinline", "");
       bgm.dataset.codexManagedBgm = "true";
+      bgm.addEventListener("ended", handleBgmEnded);
+      bgm.addEventListener("timeupdate", handleBgmTimeupdate);
     }
     return bgm;
   }
@@ -203,16 +277,18 @@
 
   function syncTheme() {
     var theme = getCurrentThemeFromDom();
-    if (theme && THEME_BGM[theme]) activeTheme = theme;
+    if (theme && THEME_BGM[theme]) setActiveTheme(theme);
     return activeTheme;
   }
 
   function setBgmSource(theme) {
-    var src = THEME_BGM[theme];
+    var src = theme === "golbang" ? getGolbangPlaylistSrc() : THEME_BGM[theme];
     if (!src) return null;
 
     var audio = getBgm();
+    audio.loop = theme !== "golbang";
     if (normalizeSrc(audio.getAttribute("src") || audio.src) !== normalizeSrc(src)) {
+      clearBgmFade();
       audio.pause();
       audio.src = src;
       audio.load();
@@ -228,10 +304,19 @@
     if (!audio) return Promise.resolve();
 
     audio.muted = false;
-    audio.volume = 0.4;
-    audio.loop = true;
+    audio.loop = activeTheme !== "golbang";
+    if (activeTheme !== "golbang") {
+      clearBgmFade();
+      audio.volume = BGM_VOLUME;
+    } else if (audio.paused || audio.currentTime < 0.25) {
+      audio.volume = 0;
+    }
 
-    return audio.play().catch(function (error) {
+    return audio.play().then(function () {
+      if (activeTheme === "golbang" && audio.volume < BGM_VOLUME) {
+        return fadeBgmVolume(audio, BGM_VOLUME, GOLBANG_FADE_MS);
+      }
+    }).catch(function (error) {
       updateMediaSession("paused");
       console.warn("[codex-audio] play failed", reason, activeTheme, audio.src, error);
     });
@@ -240,9 +325,58 @@
   function stopBgm() {
     if (!bgm) return;
     try {
+      clearBgmFade();
       bgm.pause();
       updateMediaSession("paused");
     } catch (error) {}
+  }
+
+  function playNextGolbangTrack(reason, skipFadeOut) {
+    if (activeTheme !== "golbang" || !isEnabled() || golbangTransitioning) {
+      return Promise.resolve();
+    }
+
+    golbangTransitioning = true;
+    var audio = getBgm();
+
+    function startNext() {
+      var nextSrc = advanceGolbangPlaylist();
+      clearBgmFade();
+      audio.pause();
+      audio.src = nextSrc;
+      audio.loop = false;
+      audio.volume = 0;
+      audio.load();
+      updateMediaSession("playing");
+      return audio.play().then(function () {
+        return fadeBgmVolume(audio, BGM_VOLUME, GOLBANG_FADE_MS);
+      }).catch(function (error) {
+        updateMediaSession("paused");
+        console.warn("[codex-audio] golbang playlist play failed", reason, nextSrc, error);
+      }).then(function () {
+        golbangTransitioning = false;
+      });
+    }
+
+    if (skipFadeOut || audio.paused || audio.ended) {
+      return startNext();
+    }
+
+    return fadeBgmVolume(audio, 0, GOLBANG_FADE_MS).then(startNext);
+  }
+
+  function handleBgmEnded() {
+    if (activeTheme === "golbang") {
+      playNextGolbangTrack("golbang-ended", true);
+    }
+  }
+
+  function handleBgmTimeupdate() {
+    if (activeTheme !== "golbang" || golbangTransitioning || !isEnabled() || !bgm) return;
+    if (!Number.isFinite(bgm.duration) || bgm.duration <= 0) return;
+    if (bgm.duration - bgm.currentTime <= GOLBANG_FADE_BEFORE_END_SEC) {
+      playNextGolbangTrack("golbang-near-end", false);
+    }
   }
 
   function stopFireAmbient() {
@@ -391,7 +525,7 @@
     var theme = findThemeFromButton(button);
     if (!theme || !THEME_BGM[theme]) return;
 
-    activeTheme = theme;
+    setActiveTheme(theme);
     updateMediaSession(isEnabled() ? "playing" : "paused");
 
     if (isEnabled()) {
@@ -408,7 +542,7 @@
     var theme = event.detail && event.detail.theme;
     if (!theme || !THEME_BGM[theme]) return;
 
-    activeTheme = theme;
+    setActiveTheme(theme);
     updateMediaSession(isEnabled() ? "playing" : "paused");
 
     if (isEnabled()) {
@@ -423,7 +557,7 @@
 
   document.addEventListener("codex-extra-theme-change", function (event) {
     var theme = event.detail && event.detail.theme;
-    if (theme && THEME_BGM[theme]) activeTheme = theme;
+    if (theme && THEME_BGM[theme]) setActiveTheme(theme);
     updateMediaSession(isEnabled() ? "playing" : "paused");
     syncFireAmbient("extra-theme-event");
   });
@@ -432,7 +566,7 @@
   window.codexStopBgm = stopBgm;
   window.codexSyncThemeBgm = function (theme) {
     if (theme && THEME_BGM[theme]) {
-      activeTheme = theme;
+      setActiveTheme(theme);
     } else {
       syncTheme();
     }
@@ -440,7 +574,7 @@
   };
   window.codexSwitchThemeBgm = function (theme) {
     if (theme && THEME_BGM[theme]) {
-      activeTheme = theme;
+      setActiveTheme(theme);
     } else {
       syncTheme();
     }
