@@ -47,6 +47,7 @@
     var url = SUPABASE_URL + "/rest/v1/" + TABLE +
       "?select=id&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString());
     return fetch(url, {
+      method: "HEAD",
       headers: headers({ Prefer: "count=exact", Range: "0-0" })
     }).then(function (response) {
       if (!response.ok) throw new Error("count failed: " + response.status);
