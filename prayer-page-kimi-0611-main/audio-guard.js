@@ -3,7 +3,7 @@
 
   var BGM_KEY = "codex-user-bgm-enabled";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
-  var MEDIA_ARTWORK_SRC = "assets/media-artwork.png";
+  var MEDIA_ARTWORK_SRC = "assets/media-artwork.png?v=blue-media-artwork-20260708";
   var FIRE_AMBIENT_VOLUME = 1.0;
   var activeTheme = "golbang";
   var bgm = null;
