@@ -144,6 +144,7 @@
     viewportLockRaf = window.requestAnimationFrame(function () {
       viewportLockRaf = 0;
       if (!keyboardFocusActive || !savedViewport) return;
+      restoreSavedScrollPosition();
       logViewport("viewport-lock-" + reason);
     });
   }
@@ -272,19 +273,14 @@
     }, 900);
   }
 
-  function blurPrayerTextarea(reason, options) {
-    options = options || {};
+  function blurPrayerTextarea(reason) {
     var textarea = findPrayerTextarea();
     if (!textarea) return false;
     if (!savedViewport) saveViewportState();
     logViewport("blur-requested-" + reason);
     if (document.activeElement === textarea) textarea.blur();
     setKeyboardFocusActive(false);
-    if (options.deferRestore) {
-      window.setTimeout(reinforceRestore, 260);
-    } else {
-      reinforceRestore();
-    }
+    reinforceRestore();
     window.setTimeout(function () {
       waitForViewportSettle().then(function () {
         restoreScrollPosition();
@@ -317,7 +313,7 @@
       return;
     }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
-      blurPrayerTextarea("pointerdown", { deferRestore: true });
+      blurPrayerTextarea("pointerdown");
     }
   }, true);
 
@@ -329,7 +325,7 @@
       return;
     }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
-      blurPrayerTextarea("touchstart", { deferRestore: true });
+      blurPrayerTextarea("touchstart");
     }
   }, true);
 
