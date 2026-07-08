@@ -2,6 +2,7 @@
   "use strict";
 
   var BGM_KEY = "codex-user-bgm-enabled";
+  var GOLBANG_START_KEY = "codex-golbang-last-start-index";
   var FIRE_AMBIENT_SRC = "assets/asmr_fire.mp3";
   var MEDIA_ARTWORK_SRC = "assets/media-artwork.png?v=blue-media-artwork-20260708";
   var BGM_VOLUME = 0.4;
@@ -148,9 +149,38 @@
     clearBgmFade();
   }
 
+  function readLastGolbangStartIndex() {
+    var value = -1;
+    try {
+      value = Number(localStorage.getItem(GOLBANG_START_KEY));
+    } catch (error) {
+      return -1;
+    }
+    if (!Number.isInteger(value) || value < 0 || value >= GOLBANG_PLAYLIST.length) {
+      return -1;
+    }
+    return value;
+  }
+
+  function chooseGolbangStartIndex() {
+    var lastIndex = readLastGolbangStartIndex();
+    var candidates = GOLBANG_PLAYLIST.map(function (_, index) {
+      return index;
+    }).filter(function (index) {
+      return GOLBANG_PLAYLIST.length <= 1 || index !== lastIndex;
+    });
+    var selected = candidates[Math.floor(Math.random() * candidates.length)] || 0;
+
+    try {
+      localStorage.setItem(GOLBANG_START_KEY, String(selected));
+    } catch (error) {}
+
+    return selected;
+  }
+
   function ensureGolbangPlaylistIndex() {
     if (golbangPlaylistIndex < 0 || golbangPlaylistIndex >= GOLBANG_PLAYLIST.length) {
-      golbangPlaylistIndex = Math.floor(Math.random() * GOLBANG_PLAYLIST.length);
+      golbangPlaylistIndex = chooseGolbangStartIndex();
     }
     return golbangPlaylistIndex;
   }
