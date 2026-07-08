@@ -103,16 +103,41 @@
     return textarea && textarea.closest ? textarea.closest(".fixed") : null;
   }
 
+  function getPrayerModalPanel() {
+    var textarea = document.querySelector(".fixed textarea[placeholder*='기도문'], .fixed textarea");
+    if (!textarea || !textarea.closest) return null;
+
+    var layer = textarea.closest(".fixed");
+    var node = textarea.parentElement;
+    while (node && node !== layer) {
+      var hasTextarea = !!node.querySelector("textarea");
+      var hasSubmit = Array.prototype.some.call(node.querySelectorAll("button"), function (button) {
+        return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도하기";
+      });
+      if (hasTextarea && hasSubmit) return node;
+      node = node.parentElement;
+    }
+
+    return textarea.closest(".flex-col") || null;
+  }
+
   function syncPrayerModalOpenState() {
     if (!document.body) return;
     var modalLayer = getPrayerModalLayer();
+    var modalPanel = getPrayerModalPanel();
     document.body.classList.toggle("codex-prayer-modal-open", !!modalLayer);
     Array.prototype.forEach.call(document.querySelectorAll(".codex-prayer-modal-layer"), function (layer) {
       if (layer !== modalLayer) layer.classList.remove("codex-prayer-modal-layer");
     });
+    Array.prototype.forEach.call(document.querySelectorAll(".codex-prayer-modal-panel"), function (panel) {
+      if (panel !== modalPanel) panel.classList.remove("codex-prayer-modal-panel");
+    });
     if (modalLayer) {
       modalLayer.classList.add("codex-prayer-modal-layer");
       syncVisualViewportVars();
+    }
+    if (modalPanel) {
+      modalPanel.classList.add("codex-prayer-modal-panel");
     }
   }
 
