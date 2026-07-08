@@ -177,6 +177,18 @@
     });
   }
 
+  function getButtonText(button) {
+    return (button && button.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function handlePrayerWriteClick(event) {
+    var target = event.target;
+    var button = target && target.closest && target.closest("button");
+    if (!button || getButtonText(button) !== "기도문 작성하기") return;
+
+    insertPrayerEvent();
+  }
+
   function syncPrayerStateForCount() {
     var nextActive = isPrayerActiveNow();
     if (nextActive && !prayerActive) {
@@ -332,6 +344,7 @@
     refreshStats();
 
     observePrayerState();
+    document.addEventListener("click", handlePrayerWriteClick, true);
     document.addEventListener("click", handlePanelClick);
     window.setInterval(function () {
       bindWeeklyBanner();
