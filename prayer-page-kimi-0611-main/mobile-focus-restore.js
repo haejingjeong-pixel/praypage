@@ -6,6 +6,7 @@
   var preparingSubmit = false;
   var keyboardFocusActive = false;
   var viewportLockRaf = 0;
+  var submitTapLock = false;
 
   function isEditable(node) {
     if (!node || !node.matches) return false;
@@ -95,9 +96,22 @@
     return !!document.querySelector(".fixed textarea[placeholder*='기도문'], .fixed textarea");
   }
 
+  function getPrayerModalLayer() {
+    var textarea = document.querySelector(".fixed textarea[placeholder*='기도문'], .fixed textarea");
+    return textarea && textarea.closest ? textarea.closest(".fixed") : null;
+  }
+
   function syncPrayerModalOpenState() {
     if (!document.body) return;
-    document.body.classList.toggle("codex-prayer-modal-open", isPrayerModalOpen());
+    var modalLayer = getPrayerModalLayer();
+    document.body.classList.toggle("codex-prayer-modal-open", !!modalLayer);
+    Array.prototype.forEach.call(document.querySelectorAll(".codex-prayer-modal-layer"), function (layer) {
+      if (layer !== modalLayer) layer.classList.remove("codex-prayer-modal-layer");
+    });
+    if (modalLayer) {
+      modalLayer.classList.add("codex-prayer-modal-layer");
+      syncVisualViewportVars();
+    }
   }
 
   function syncVisualViewportVars() {
@@ -317,14 +331,43 @@
     return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도하기";
   }
 
-  function blurBeforeSubmit(reason) {
+  function blurBeforeSubmit(reason, skipRestore) {
     var textarea = findPrayerTextarea();
     if (!textarea) return false;
     if (!savedViewport) saveViewportState();
     logViewport("submit-blur-" + reason);
     if (document.activeElement === textarea) textarea.blur();
     setKeyboardFocusActive(false);
-    window.setTimeout(reinforceRestore, 320);
+    if (!skipRestore) window.setTimeout(reinforceRestore, 320);
+    return true;
+  }
+
+  function handleSubmitPress(event, reason) {
+    var button = event.target && event.target.closest ? event.target.closest("button") : null;
+    if (!button || !isPrayerSubmitButton(button)) return false;
+    if (submitTapLock) return true;
+    if (button.disabled) return false;
+
+    var textarea = findPrayerTextarea();
+    if (!keyboardFocusActive && document.activeElement !== textarea) return false;
+
+    submitTapLock = true;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+    blurBeforeSubmit(reason, true);
+    syncVisualViewportVars();
+
+    window.setTimeout(function () {
+      try {
+        button.click();
+      } finally {
+        window.setTimeout(function () {
+          submitTapLock = false;
+        }, 500);
+      }
+    }, 120);
     return true;
   }
 
@@ -340,8 +383,7 @@
       syncVisualViewportVars();
       return;
     }
-    if (keyboardFocusActive && isPrayerSubmitButton(event.target)) {
-      blurBeforeSubmit("pointerdown");
+    if (handleSubmitPress(event, "pointerdown")) {
       return;
     }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
@@ -356,8 +398,7 @@
       syncVisualViewportVars();
       return;
     }
-    if (keyboardFocusActive && isPrayerSubmitButton(event.target)) {
-      blurBeforeSubmit("touchstart");
+    if (handleSubmitPress(event, "touchstart")) {
       return;
     }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
