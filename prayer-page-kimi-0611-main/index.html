@@ -155,28 +155,24 @@
         max-width: var(--codex-visual-vw, 100vw) !important;
         max-height: var(--codex-visual-vh, 100dvh) !important;
         align-items: center !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         transform: none !important;
-        contain: layout paint !important;
+        contain: none !important;
       }
-      body.codex-prayer-modal-open .codex-prayer-modal-layer > div,
-      body.codex-prayer-keyboard-active .fixed:has(textarea[placeholder*="기도문"]) > div {
+      body.codex-prayer-modal-open .codex-prayer-modal-panel,
+      body.codex-prayer-keyboard-active .codex-prayer-modal-panel {
         max-height: calc(var(--codex-visual-vh, 100dvh) - 28px) !important;
+        min-height: 0 !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: manipulation !important;
+        contain: none !important;
       }
       body.codex-prayer-modal-open .codex-prayer-modal-layer button {
         position: relative !important;
         z-index: 1002 !important;
         touch-action: manipulation !important;
-      }
-      body.codex-prayer-modal-open img[alt="altar"],
-      body.codex-prayer-modal-open img[alt="prayer button"],
-      body.codex-prayer-modal-open .bottom-\[120px\],
-      body.codex-prayer-modal-open .bottom-12,
-      body.codex-prayer-modal-open .bottom-1 {
-        display: none !important;
       }
     </style>
     <script type="module" crossorigin src="assets/index-CqKYKs7R.js?v=prayer-submit-animation-restore-20260628c"></script>
@@ -188,7 +184,7 @@
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
     <script src="theme-transition.js?v=prayer-effects-restore-20250620b"></script>
     <script src="theme-addons-v2.js?v=ai-disclaimer-copy-20260704"></script>
-    <script src="mobile-focus-restore.js?v=ios-prayer-modal-hit-test-20260708"></script>
+    <script src="mobile-focus-restore.js?v=ios-prayer-modal-unclip-20260708"></script>
     <script src="golbang-hotfix.js?v=guide-layout-restore-20260627"></script>
     <script src="supabase-prayer-count.js?v=theme-count-head-security-20260708"></script>
     <script>
