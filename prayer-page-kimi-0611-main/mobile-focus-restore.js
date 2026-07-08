@@ -91,6 +91,15 @@
     }
   }
 
+  function isPrayerModalOpen() {
+    return !!document.querySelector(".fixed textarea[placeholder*='기도문'], .fixed textarea");
+  }
+
+  function syncPrayerModalOpenState() {
+    if (!document.body) return;
+    document.body.classList.toggle("codex-prayer-modal-open", isPrayerModalOpen());
+  }
+
   function syncVisualViewportVars() {
     var visual = window.visualViewport;
     if (!visual) return;
@@ -300,6 +309,25 @@
     return !!fixed && !node.closest("textarea");
   }
 
+  function isPrayerSubmitButton(node) {
+    if (!node || !node.closest) return false;
+    var button = node.closest("button");
+    if (!button) return false;
+    if (!button.closest(".fixed")) return false;
+    return (button.textContent || "").replace(/\s+/g, " ").trim() === "기도하기";
+  }
+
+  function blurBeforeSubmit(reason) {
+    var textarea = findPrayerTextarea();
+    if (!textarea) return false;
+    if (!savedViewport) saveViewportState();
+    logViewport("submit-blur-" + reason);
+    if (document.activeElement === textarea) textarea.blur();
+    setKeyboardFocusActive(false);
+    window.setTimeout(reinforceRestore, 320);
+    return true;
+  }
+
   function handleViewportChange(event) {
     if (!keyboardFocusActive) return;
     scheduleViewportLock(event && event.type || "viewport");
@@ -312,6 +340,10 @@
       syncVisualViewportVars();
       return;
     }
+    if (keyboardFocusActive && isPrayerSubmitButton(event.target)) {
+      blurBeforeSubmit("pointerdown");
+      return;
+    }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
       blurPrayerTextarea("pointerdown");
     }
@@ -322,6 +354,10 @@
       saveViewportState();
       setKeyboardFocusActive(true);
       syncVisualViewportVars();
+      return;
+    }
+    if (keyboardFocusActive && isPrayerSubmitButton(event.target)) {
+      blurBeforeSubmit("touchstart");
       return;
     }
     if (keyboardFocusActive && isPrayerModalActionTarget(event.target)) {
@@ -359,6 +395,13 @@
   window.addEventListener("orientationchange", function () {
     blurPrayerTextarea("orientationchange");
   }, { passive: true });
+
+  syncPrayerModalOpenState();
+  new MutationObserver(syncPrayerModalOpenState).observe(document.body || document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+  window.setInterval(syncPrayerModalOpenState, 500);
 
   window.__codexPreparePrayerSubmit = function (runSubmit) {
     if (typeof runSubmit !== "function") return;
