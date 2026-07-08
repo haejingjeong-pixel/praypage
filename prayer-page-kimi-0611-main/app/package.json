@@ -1,0 +1,12 @@
+{
+  "name": "prayer-page-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/sync-static.mjs",
+    "clean": "node scripts/clean-public.mjs",
+    "dev": "node scripts/sync-static.mjs && node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs"
+  }
+}
