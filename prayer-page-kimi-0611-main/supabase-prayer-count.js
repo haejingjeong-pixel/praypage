@@ -70,27 +70,34 @@
       return Promise.resolve({});
     }
 
-    var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=theme&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
+    return Promise.all(Object.keys(THEME_LABELS).map(function (theme) {
+      var url = SUPABASE_URL + "/rest/v1/" + TABLE +
+        "?select=id&event_type=eq.prayer&theme=eq." + encodeURIComponent(theme) +
+        "&created_at=gte." + encodeURIComponent(startDate.toISOString());
 
-    return fetch(url, { headers: supabaseHeaders() })
-      .then(function (response) {
+      return fetch(url, {
+        method: "HEAD",
+        headers: supabaseHeaders({ Prefer: "count=exact", Range: "0-0" })
+      }).then(function (response) {
         if (response.status === 400) {
           supportsThemeColumn = false;
           console.warn("[codex-supabase] prayer_events.theme column is not available; theme stats are skipped.");
-          return [];
+          return null;
         }
         if (!response.ok) throw new Error("Supabase theme stats failed: " + response.status);
         supportsThemeColumn = true;
-        return response.json();
-      })
-      .then(function (rows) {
-        return rows.reduce(function (stats, row) {
-          var theme = row && row.theme || "unknown";
-          stats[theme] = (stats[theme] || 0) + 1;
-          return stats;
-        }, {});
+        return {
+          theme: theme,
+          count: parseContentRange(response.headers.get("content-range"))
+        };
       });
+    })).then(function (rows) {
+      if (supportsThemeColumn === false) return {};
+      return rows.reduce(function (stats, row) {
+        if (row) stats[row.theme] = row.count;
+        return stats;
+      }, {});
+    });
   }
 
   function getCurrentTheme() {

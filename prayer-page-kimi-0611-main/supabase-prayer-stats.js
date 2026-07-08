@@ -56,22 +56,29 @@
   }
 
   function fetchThemeStats(startDate) {
-    var url = SUPABASE_URL + "/rest/v1/" + TABLE +
-      "?select=theme&event_type=eq.prayer&created_at=gte." + encodeURIComponent(startDate.toISOString()) + "&limit=10000";
-    return fetch(url, { headers: headers() })
-      .then(function (response) {
+    return Promise.all(Object.keys(THEME_LABELS).map(function (theme) {
+      var url = SUPABASE_URL + "/rest/v1/" + TABLE +
+        "?select=id&event_type=eq.prayer&theme=eq." + encodeURIComponent(theme) +
+        "&created_at=gte." + encodeURIComponent(startDate.toISOString());
+
+      return fetch(url, {
+        method: "HEAD",
+        headers: headers({ Prefer: "count=exact", Range: "0-0" })
+      }).then(function (response) {
         if (response.status === 400) return null;
         if (!response.ok) throw new Error("theme stats failed: " + response.status);
-        return response.json();
-      })
-      .then(function (rows) {
-        if (!rows) return null;
-        return rows.reduce(function (stats, row) {
-          var theme = row && row.theme || "unknown";
-          stats[theme] = (stats[theme] || 0) + 1;
-          return stats;
-        }, {});
+        return {
+          theme: theme,
+          count: parseContentRange(response.headers.get("content-range"))
+        };
       });
+    })).then(function (rows) {
+      if (rows.some(function (row) { return row === null; })) return null;
+      return rows.reduce(function (stats, row) {
+        stats[row.theme] = row.count;
+        return stats;
+      }, {});
+    });
   }
 
   function setText(selector, value) {
