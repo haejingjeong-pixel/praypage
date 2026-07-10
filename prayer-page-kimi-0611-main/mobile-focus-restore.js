@@ -7,6 +7,8 @@
   var keyboardFocusActive = false;
   var viewportLockRaf = 0;
   var submitTapLock = false;
+  var stablePanel = null;
+  var stablePanelReleaseTimer = 0;
 
   function isEditable(node) {
     if (!node || !node.matches) return false;
@@ -126,6 +128,7 @@
     var modalLayer = getPrayerModalLayer();
     var modalPanel = getPrayerModalPanel();
     document.body.classList.toggle("codex-prayer-modal-open", !!modalLayer);
+    if (!modalPanel) releasePrayerModalPanel();
     Array.prototype.forEach.call(document.querySelectorAll(".codex-prayer-modal-layer"), function (layer) {
       if (layer !== modalLayer) layer.classList.remove("codex-prayer-modal-layer");
     });
@@ -139,6 +142,51 @@
     if (modalPanel) {
       modalPanel.classList.add("codex-prayer-modal-panel");
     }
+  }
+
+  function freezePrayerModalPanel() {
+    var panel = getPrayerModalPanel();
+    if (!panel || panel.classList.contains("prayer-paper-shrinking") || panel.classList.contains("prayer-paper-rising")) return;
+
+    if (stablePanelReleaseTimer) {
+      window.clearTimeout(stablePanelReleaseTimer);
+      stablePanelReleaseTimer = 0;
+    }
+
+    var rect = panel.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    stablePanel = panel;
+    panel.classList.add("codex-prayer-keyboard-stable");
+    panel.style.setProperty("--codex-prayer-panel-top", Math.max(12, rect.top).toFixed(2) + "px");
+    panel.style.setProperty("--codex-prayer-panel-left", Math.max(0, rect.left).toFixed(2) + "px");
+    panel.style.setProperty("--codex-prayer-panel-width", rect.width.toFixed(2) + "px");
+    panel.style.setProperty("--codex-prayer-panel-height", rect.height.toFixed(2) + "px");
+    if (document.body) document.body.classList.add("codex-prayer-panel-stable");
+  }
+
+  function releasePrayerModalPanel() {
+    if (stablePanelReleaseTimer) {
+      window.clearTimeout(stablePanelReleaseTimer);
+      stablePanelReleaseTimer = 0;
+    }
+    if (document.body) document.body.classList.remove("codex-prayer-panel-stable");
+    Array.prototype.forEach.call(document.querySelectorAll(".codex-prayer-keyboard-stable"), function (panel) {
+      panel.classList.remove("codex-prayer-keyboard-stable");
+      panel.style.removeProperty("--codex-prayer-panel-top");
+      panel.style.removeProperty("--codex-prayer-panel-left");
+      panel.style.removeProperty("--codex-prayer-panel-width");
+      panel.style.removeProperty("--codex-prayer-panel-height");
+    });
+    stablePanel = null;
+  }
+
+  function schedulePrayerModalPanelRelease() {
+    if (stablePanelReleaseTimer) window.clearTimeout(stablePanelReleaseTimer);
+    stablePanelReleaseTimer = window.setTimeout(function () {
+      if (isPrayerTextInput(document.activeElement)) return;
+      releasePrayerModalPanel();
+    }, 360);
   }
 
   function syncVisualViewportVars() {
@@ -192,6 +240,10 @@
   function scheduleViewportLock(reason) {
     if (!keyboardFocusActive || !savedViewport) return;
     syncVisualViewportVars();
+    if (stablePanel && document.body && document.body.classList.contains("codex-prayer-panel-stable")) {
+      logViewport("viewport-sync-only-" + reason);
+      return;
+    }
     if (viewportLockRaf) return;
     viewportLockRaf = window.requestAnimationFrame(function () {
       viewportLockRaf = 0;
@@ -467,6 +519,7 @@
       saveViewportState();
       setKeyboardFocusActive(true);
       syncVisualViewportVars();
+      freezePrayerModalPanel();
       return;
     }
     if (handleSubmitPress(event, "pointerdown")) {
@@ -482,6 +535,7 @@
       saveViewportState();
       setKeyboardFocusActive(true);
       syncVisualViewportVars();
+      freezePrayerModalPanel();
       return;
     }
     if (handleSubmitPress(event, "touchstart")) {
@@ -497,6 +551,7 @@
       saveViewportState();
       setKeyboardFocusActive(true);
       syncVisualViewportVars();
+      freezePrayerModalPanel();
       scheduleViewportLock("focusin");
     }
   }, true);
@@ -506,6 +561,7 @@
     window.setTimeout(function () {
       if (isPrayerTextInput(document.activeElement)) return;
       setKeyboardFocusActive(false);
+      schedulePrayerModalPanelRelease();
       reinforceRestore();
       window.setTimeout(function () {
         savedViewport = null;
