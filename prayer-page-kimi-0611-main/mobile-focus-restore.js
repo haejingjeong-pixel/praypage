@@ -5,7 +5,10 @@
   var restoreTimers = [];
   var preparingSubmit = false;
   var keyboardFocusActive = false;
+  var keyboardFocusPending = false;
   var viewportLockRaf = 0;
+  var viewportApplyTimer = 0;
+  var viewportApplyDeadline = 0;
   var submitTapLock = false;
 
   function isEditable(node) {
@@ -80,10 +83,18 @@
     restoreTimers = [];
   }
 
+  function clearViewportApplyTimer() {
+    if (viewportApplyTimer) {
+      window.clearTimeout(viewportApplyTimer);
+      viewportApplyTimer = 0;
+    }
+  }
+
   function setKeyboardFocusActive(active) {
     keyboardFocusActive = !!active;
     if (document.body) {
       document.body.classList.toggle("codex-prayer-keyboard-active", keyboardFocusActive);
+      document.body.classList.toggle("codex-prayer-keyboard-settling", keyboardFocusPending && !keyboardFocusActive);
     }
     if (!keyboardFocusActive) {
       document.documentElement.style.removeProperty("--codex-visual-vh");
@@ -92,6 +103,14 @@
       document.documentElement.style.removeProperty("--codex-visual-offset-left");
       document.documentElement.style.removeProperty("--codex-keyboard-height");
     }
+  }
+
+  function setKeyboardFocusPending(active) {
+    keyboardFocusPending = !!active;
+    if (document.body) {
+      document.body.classList.toggle("codex-prayer-keyboard-settling", keyboardFocusPending && !keyboardFocusActive);
+    }
+    if (!keyboardFocusPending) clearViewportApplyTimer();
   }
 
   function isPrayerModalOpen() {
@@ -149,6 +168,32 @@
     document.documentElement.style.setProperty("--codex-visual-offset-top", Math.round(visual.offsetTop || 0) + "px");
     document.documentElement.style.setProperty("--codex-visual-offset-left", Math.round(visual.offsetLeft || 0) + "px");
     document.documentElement.style.setProperty("--codex-keyboard-height", Math.max(0, Math.round(window.innerHeight - visual.height - (visual.offsetTop || 0))) + "px");
+  }
+
+  function applyKeyboardViewport(reason) {
+    if (!keyboardFocusPending && !keyboardFocusActive) return;
+    syncVisualViewportVars();
+    setKeyboardFocusPending(false);
+    setKeyboardFocusActive(true);
+    logViewport("viewport-applied-" + reason);
+  }
+
+  function scheduleKeyboardViewportApply(reason, delay) {
+    if (!isPrayerModalOpen()) return;
+    clearViewportApplyTimer();
+    viewportApplyTimer = window.setTimeout(function () {
+      viewportApplyTimer = 0;
+      applyKeyboardViewport(reason);
+    }, delay);
+  }
+
+  function beginKeyboardFocus(reason) {
+    saveViewportState();
+    setKeyboardFocusActive(false);
+    setKeyboardFocusPending(true);
+    syncVisualViewportVars();
+    viewportApplyDeadline = Date.now() + 1200;
+    scheduleKeyboardViewportApply(reason, 320);
   }
 
   function getRestoreTarget() {
@@ -462,15 +507,17 @@
   }
 
   function handleViewportChange(event) {
+    if (keyboardFocusPending) {
+      scheduleKeyboardViewportApply(event && event.type || "viewport", Date.now() > viewportApplyDeadline ? 0 : 220);
+      return;
+    }
     if (!keyboardFocusActive) return;
     scheduleViewportLock(event && event.type || "viewport");
   }
 
   document.addEventListener("pointerdown", function (event) {
     if (isPrayerTextInput(event.target)) {
-      saveViewportState();
-      setKeyboardFocusActive(true);
-      syncVisualViewportVars();
+      beginKeyboardFocus("pointerdown");
       return;
     }
     if (handleSubmitPress(event, "pointerdown")) {
@@ -483,9 +530,7 @@
 
   document.addEventListener("touchstart", function (event) {
     if (isPrayerTextInput(event.target)) {
-      saveViewportState();
-      setKeyboardFocusActive(true);
-      syncVisualViewportVars();
+      beginKeyboardFocus("touchstart");
       return;
     }
     if (handleSubmitPress(event, "touchstart")) {
@@ -498,10 +543,7 @@
 
   document.addEventListener("focusin", function (event) {
     if (isPrayerTextInput(event.target)) {
-      saveViewportState();
-      setKeyboardFocusActive(true);
-      syncVisualViewportVars();
-      scheduleViewportLock("focusin");
+      beginKeyboardFocus("focusin");
     }
   }, true);
 
@@ -509,6 +551,7 @@
     if (!isPrayerTextInput(event.target)) return;
     window.setTimeout(function () {
       if (isPrayerTextInput(document.activeElement)) return;
+      setKeyboardFocusPending(false);
       setKeyboardFocusActive(false);
       reinforceRestore();
       window.setTimeout(function () {
