@@ -1,12 +1,14 @@
 # Prayer Page App
 
-This folder wraps the existing static Prayer Page files in an npm project without changing the deployed root files.
+This folder is a self-contained static npm project for Prayer Page.
+
+All runtime files are included under `public/`, including HTML, CSS, JavaScript, images, UI assets, BGM, and ASMR audio. The app does not depend on files outside this folder.
 
 ## Commands
 
-- `npm run build`: copy the current root static site into `app/public`
-- `npm run dev`: copy files and serve `app/public` locally
-- `npm run preview`: serve the already-built `app/public`
-- `npm run clean`: clear generated files from `app/public`
+- `npm install`: install npm metadata; there are no runtime dependencies
+- `npm run build`: validate that required static files exist in `public/`
+- `npm run dev`: serve `public/` locally
+- `npm run preview`: serve `public/` locally
 
-The current GitHub Pages deployment still uses the root static files. This app folder is a safer npm project layer around the same files.
+The local preview URL defaults to `http://127.0.0.1:4173`.
