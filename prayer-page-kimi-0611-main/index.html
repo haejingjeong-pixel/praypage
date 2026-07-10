@@ -151,7 +151,22 @@
         backdrop-filter: blur(4px) !important;
         transform: translateZ(0) !important;
       }
-      body.codex-prayer-modal-open .codex-prayer-modal-layer,
+      body.codex-prayer-modal-open .codex-prayer-modal-layer {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        min-height: 0 !important;
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        max-height: 100dvh !important;
+        align-items: center !important;
+        overflow: visible !important;
+        transform: none !important;
+        contain: none !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
       body.codex-prayer-keyboard-active .fixed:has(textarea[placeholder*="기도문"]) {
         position: fixed !important;
         top: var(--codex-visual-offset-top, 0px) !important;
@@ -196,7 +211,7 @@
     <p class="fullscreen-guide">더 몰입감 있는 기도 시간을 위해<br>전체화면으로 이용해 주세요.</p>
     <script src="theme-transition.js?v=prayer-effects-restore-20250620b"></script>
     <script src="theme-addons-v2.js?v=ai-disclaimer-copy-20260704"></script>
-    <script src="mobile-focus-restore.js?v=ios-prayer-full-blur-20260710"></script>
+    <script src="mobile-focus-restore.js?v=ios-prayer-keyboard-settle-20260710"></script>
     <script src="golbang-hotfix.js?v=guide-layout-restore-20260627"></script>
     <script src="supabase-prayer-count.js?v=theme-count-head-security-20260708"></script>
     <script>
