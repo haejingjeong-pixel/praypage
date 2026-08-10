@@ -1,0 +1,12 @@
+/* 마음약국 — Fonts
+   Pretendard(jsdelivr CDN) 본문/제목 + Noto Serif KR 명조(오늘의 말씀). */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+:root {
+  --font-title: "Pretendard", "Noto Sans KR", sans-serif; /* 제목/증상명 */
+  --font-body:  "Pretendard", "Noto Sans KR", sans-serif; /* 설명문 */
+  --font-verse: "Pretendard", "Noto Sans KR", sans-serif; /* 오늘의 말씀 */
+  --font-label: "Pretendard", "Noto Sans KR", sans-serif; /* 처방전 라벨 */
+}

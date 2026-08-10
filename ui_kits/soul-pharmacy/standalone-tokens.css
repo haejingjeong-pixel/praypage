@@ -1,0 +1,162 @@
+/* 마음약국 standalone tokens — fonts injected online at runtime */
+/* 마음약국 — Color tokens
+   Sampled from the product mockups. Warm apothecary + faith palette:
+   ivory paper, soft pastel "mood" envelopes, a coral brand accent and
+   a prescription-blue ink. Avoid clinical white / hospital red-blue. */
+
+:root {
+  /* ---- Brand: 처방 코랄 (prescription coral) ---- */
+  --coral-50:  #FBEFE9;
+  --coral-100: #F7DDD1;
+  --coral-200: #F1C3B0;
+  --coral-300: #EAA491;
+  --coral-400: #E28A72;
+  --coral-500: #DF7A5F; /* primary */
+  --coral-600: #C9634A;
+  --coral-700: #A94F39;
+
+  /* ---- Prescription ink (처방전 blue) ---- */
+  --rx-blue-100: #DCE6F2;
+  --rx-blue-300: #8FA9D0;
+  --rx-blue-500: #3E63A6; /* linework / rx headings */
+  --rx-blue-700: #2C4677;
+
+  /* ---- Paper neutrals (cool, near-neutral gray — not yellow) ---- */
+  --paper:      #EFEEEB; /* page background */
+  --paper-warm: #EAE9E5;
+  --cream:      #FBFAF8; /* card / prescription paper */
+  --cream-edge: #E6E4DF;
+  --line-soft:  #E1DFD9; /* hairlines, dotted dividers */
+
+  /* ---- Ink (dark brown/ink, never pure black) ---- */
+  --ink-900: #362E27; /* headings */
+  --ink-700: #55493D; /* body */
+  --ink-500: #8B7F70; /* muted / secondary */
+  --ink-300: #C7BEAE; /* faint, disabled, rule */
+
+  /* ---- 8 Mood colors (증상) — quiet, paper-soft pastels (brightened per feedback) ---- */
+  --mood-anxious-fill: #B7D0C1;  --mood-anxious-ink: #3E5C48;  /* 불안해요 → 믿음 */
+  --mood-broken-fill:  #EFB6A3;  --mood-broken-ink:  #8C4632;  /* 마음이 무너졌어요 → 긍휼 */
+  --mood-compare-fill: #D0C2DE;  --mood-compare-ink: #5F4C77;  /* 비교돼요 → 사랑 */
+  --mood-waiting-fill: #EAC983;  --mood-waiting-ink: #7A5A20;  /* 기다리기 힘들어요 → 인내 */
+  --mood-forgive-fill: #EBB9BE;  --mood-forgive-ink: #7C3F49;  /* 용서가 안 돼요 → 용서 */
+  --mood-distant-fill: #B9CEE0;  --mood-distant-ink: #3C5876;  /* 하나님이 멀게 느껴져요 → 말씀 */
+  --mood-calling-fill: #C3CB9E;  --mood-calling-ink: #4E5726;  /* 사명이 버거워요 → 사명 */
+  --mood-thanks-fill:  #E8CD86;  --mood-thanks-ink:  #7A5F20;  /* 감사가 사라졌어요 → 감사 */
+
+  /* ---- Semantic aliases ---- */
+  --bg-page:        var(--paper);
+  --surface-card:   var(--cream);
+  --surface-rx:     var(--cream);
+  --border-card:    var(--cream-edge);
+  --divider:        var(--line-soft);
+
+  --text-strong:    var(--ink-900);
+  --text-body:      var(--ink-700);
+  --text-muted:     var(--ink-500);
+  --text-faint:     var(--ink-300);
+
+  --accent:         var(--coral-500);
+  --accent-hover:   var(--coral-600);
+  --accent-soft:    var(--coral-50);
+  --on-accent:      #FFF9F4;
+
+  --rx-ink:         var(--rx-blue-500);
+}
+
+/* 마음약국 — Typography scale
+   Body gothic + warm rounded titles + verse serif + tidy prescription labels. */
+
+:root {
+  /* Font sizes */
+  --fs-display:   34px; /* 마음약국 hero title */
+  --fs-title:     26px; /* screen titles: 오늘 마음이 어디가 아픈가요? */
+  --fs-heading:   20px; /* card headings */
+  --fs-subhead:   17px;
+  --fs-body:      16px; /* base body */
+  --fs-body-sm:   14px;
+  --fs-label:     13px; /* 처방전 필드 라벨 */
+  --fs-caption:   12px;
+  --fs-verse:     22px; /* 오늘의 말씀 verse */
+
+  /* Line heights */
+  --lh-tight:  1.2;   /* @kind other */
+  --lh-snug:   1.35;  /* @kind other */
+  --lh-body:   1.7;   /* @kind other */ /* Korean body needs generous leading */
+  --lh-verse:  1.75;  /* @kind other */
+
+  /* Letter spacing */
+  --ls-label:  0.14em; /* @kind other */ /* 처방전 라벨 */
+  --ls-tight: -0.01em; /* @kind other */
+  --ls-normal: 0;      /* @kind other */
+
+  /* Weights */
+  --fw-regular: 400;  /* @kind other */
+  --fw-medium:  500;  /* @kind other */
+  --fw-bold:    700;  /* @kind other */
+}
+
+/* ---- Text-style utility classes ---- */
+.t-display { font-family: var(--font-title); font-size: var(--fs-display); line-height: var(--lh-tight); color: var(--text-strong); }
+.t-title   { font-family: var(--font-title); font-size: var(--fs-title); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-heading { font-family: var(--font-title); font-size: var(--fs-heading); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-subhead { font-family: var(--font-body); font-weight: var(--fw-medium); font-size: var(--fs-subhead); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-body    { font-family: var(--font-body); font-size: var(--fs-body); line-height: var(--lh-body); color: var(--text-body); }
+.t-body-sm { font-family: var(--font-body); font-size: var(--fs-body-sm); line-height: var(--lh-body); color: var(--text-body); }
+.t-verse   { font-family: var(--font-verse); font-size: var(--fs-verse); line-height: var(--lh-verse); color: var(--text-strong); }
+.t-label   { font-family: var(--font-label); font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: none; color: var(--text-muted); }
+.t-caption { font-family: var(--font-body); font-size: var(--fs-caption); line-height: var(--lh-snug); color: var(--text-muted); }
+
+/* 마음약국 — Spacing, radii, shadows, motion
+   Soft apothecary surfaces: gentle rounding, low warm shadows, calm easing. */
+
+:root {
+  /* Spacing scale (4-based, but keep exact where the design asks) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Radii — quiet, mostly-square paper; only slight easing of corners */
+  --radius-sm:   4px;
+  --radius-md:   6px;  /* mood cards, inputs */
+  --radius-lg:   10px; /* buttons */
+  --radius-xl:   14px; /* prescription card */
+  --radius-pill: 999px;
+
+  /* Shadows — soft paper-lift only, never 3D/hard */
+  --shadow-sm:  0 1px 2px rgba(70, 58, 45, 0.06);
+  --shadow-md:  0 3px 10px rgba(70, 58, 45, 0.08);
+  --shadow-lg:  0 8px 22px rgba(70, 58, 45, 0.10);
+  --shadow-rx:  0 12px 30px rgba(70, 58, 45, 0.12); /* floating prescription card */
+
+  /* Envelope / paper inner edge */
+  --inset-paper: inset 0 0 0 1px var(--cream-edge);
+
+  /* Subtle paper-grain overlay (pure CSS/SVG turbulence, not artwork) */
+  --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); /* @kind other */
+
+  /* Motion */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);      /* @kind other */
+  --dur-fast:  140ms; /* @kind other */
+  --dur-base:  240ms; /* @kind other */
+  --dur-slow:  420ms; /* @kind other */
+
+  /* Layout */
+  --container-mobile: 400px; /* @kind spacing */ /* phone-first faith content */
+  --container-card:   340px; /* @kind spacing */ /* prescription card width */
+}
+
+:root{
+  --font-title: "Pretendard", "Noto Sans KR", sans-serif;
+  --font-body:  "Pretendard", "Noto Sans KR", sans-serif;
+  --font-verse: "Pretendard", "Noto Sans KR", sans-serif;
+  --font-label: "Pretendard", "Noto Sans KR", sans-serif;
+}

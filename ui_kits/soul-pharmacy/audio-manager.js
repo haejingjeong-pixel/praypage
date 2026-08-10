@@ -1,0 +1,93 @@
+// audio-manager.js — 마음약국 배경음악 매니저 (전역 window.__bgm 싱글턴)
+// - 화면별 트랙: 1=인트로 안내, 2=감정선택·문진·처방전, 3=저장/공유 확인·완료
+// - 크로스페이드(기본 3s), 같은 트랙이면 이어서 재생(재시작 없음), 자연 루프
+// - 지연 로딩: 요청된 트랙 + 다음 트랙만 미리 불러옴
+// - 자동재생 제한 대응: 첫 사용자 제스처(클릭/터치/키) 이후 재생 시작
+(function () {
+  if (window.__bgm) return;
+
+  var SRC = {
+    1: "assets/bgm-1-web.mp3",
+    2: "assets/bgm-2-web.mp3",
+    3: "assets/bgm-3-web.mp3",
+  };
+  var TARGET = 0.62;          // 최대 볼륨
+  var FADE_MS = 3000;         // 크로스페이드 시간
+  var els = {};               // 트랙별 Audio 요소 캐시
+  var fades = {};             // 트랙별 진행중 fade 타이머
+  var current = null;         // 현재(또는 목표) 트랙 번호
+  var unlocked = false;
+  var pending = null;         // 잠금 해제 전 예약된 트랙
+
+  function make(n) {
+    if (els[n]) return els[n];
+    var a = new Audio();
+    a.src = SRC[n];
+    a.loop = true;
+    a.preload = "auto";
+    a.volume = 0;
+    els[n] = a;
+    return a;
+  }
+
+  function fadeTo(n, target, ms, onEnd) {
+    var a = els[n];
+    if (!a) return;
+    if (fades[n]) { clearInterval(fades[n]); fades[n] = null; }
+    var from = a.volume;
+    var start = performance.now();
+    if (ms <= 0) { a.volume = target; if (onEnd) onEnd(); return; }
+    fades[n] = setInterval(function () {
+      var t = Math.min(1, (performance.now() - start) / ms);
+      var v = from + (target - from) * t;
+      a.volume = v < 0 ? 0 : v > 1 ? 1 : v;
+      if (t >= 1) {
+        clearInterval(fades[n]); fades[n] = null;
+        if (onEnd) onEnd();
+      }
+    }, 60);
+  }
+
+  function startTrack(n, ms) {
+    var a = make(n);
+    var p = a.play();
+    if (p && p.catch) p.catch(function () {}); // 자동재생 거부는 조용히 무시
+    fadeTo(n, TARGET, ms);
+  }
+
+  function play(n, opts) {
+    n = Number(n);
+    if (!SRC[n]) return;
+    opts = opts || {};
+    var ms = opts.ms != null ? opts.ms : FADE_MS;
+
+    if (!unlocked) { pending = n; return; }      // 제스처 대기중
+    if (current === n) {                          // 같은 트랙: 이어서 재생만 보장
+      var a = els[n];
+      if (a && a.paused) { startTrack(n, ms); }
+      else if (a) { fadeTo(n, TARGET, ms); }
+      current = n;
+      return;
+    }
+    var prev = current;
+    current = n;
+    startTrack(n, ms);
+    if (prev != null && els[prev]) {              // 이전 트랙 페이드아웃 후 일시정지(위치 보존)
+      fadeTo(prev, 0, ms, function () { try { els[prev].pause(); } catch (e) {} });
+    }
+    // 다음에 올 법한 트랙 살짝 미리 로드 (2 다음 3)
+    var nxt = n === 1 ? 2 : n === 2 ? 3 : null;
+    if (nxt && !els[nxt]) { var pre = make(nxt); pre.load(); }
+  }
+
+  function unlock() {
+    if (unlocked) return;
+    unlocked = true;
+    if (pending != null) { var n = pending; pending = null; play(n, { ms: 1200 }); }
+  }
+  ["pointerdown", "touchstart", "keydown"].forEach(function (ev) {
+    window.addEventListener(ev, unlock, { once: false, passive: true });
+  });
+
+  window.__bgm = { play: play, unlock: unlock, get current() { return current; } };
+})();

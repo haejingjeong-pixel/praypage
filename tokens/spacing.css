@@ -1,0 +1,46 @@
+/* 마음약국 — Spacing, radii, shadows, motion
+   Soft apothecary surfaces: gentle rounding, low warm shadows, calm easing. */
+
+:root {
+  /* Spacing scale (4-based, but keep exact where the design asks) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Radii — quiet, mostly-square paper; only slight easing of corners */
+  --radius-sm:   4px;
+  --radius-md:   6px;  /* mood cards, inputs */
+  --radius-lg:   10px; /* buttons */
+  --radius-xl:   14px; /* prescription card */
+  --radius-pill: 999px;
+
+  /* Shadows — soft paper-lift only, never 3D/hard */
+  --shadow-sm:  0 1px 2px rgba(70, 58, 45, 0.06);
+  --shadow-md:  0 3px 10px rgba(70, 58, 45, 0.08);
+  --shadow-lg:  0 8px 22px rgba(70, 58, 45, 0.10);
+  --shadow-rx:  0 12px 30px rgba(70, 58, 45, 0.12); /* floating prescription card */
+
+  /* Envelope / paper inner edge */
+  --inset-paper: inset 0 0 0 1px var(--cream-edge);
+
+  /* Subtle paper-grain overlay (pure CSS/SVG turbulence, not artwork) */
+  --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); /* @kind other */
+
+  /* Motion */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);      /* @kind other */
+  --dur-fast:  140ms; /* @kind other */
+  --dur-base:  240ms; /* @kind other */
+  --dur-slow:  420ms; /* @kind other */
+
+  /* Layout */
+  --container-mobile: 400px; /* @kind spacing */ /* phone-first faith content */
+  --container-card:   340px; /* @kind spacing */ /* prescription card width */
+}

@@ -1,0 +1,43 @@
+<!-- @dsCard group="Components" viewport="700x230" name="Button" subtitle="Coral · prescription-blue · outline · ghost" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: #FFFFFF; font-family: var(--font-body); }
+  #root { padding: 26px; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Button, Icon } = window.DesignSystem_d4e5a3;
+  function Demo() {
+    return (
+      <div>
+        <div className="row">
+          <Button tone="coral" size="lg">말씀 처방받기</Button>
+          <Button tone="rx" icon={<Icon name="book-open" size={18} color="#F7FAFF" />}>말씀광장에서 열어보기</Button>
+          <Button tone="outline" icon={<Icon name="download" size={18} />}>이미지로 저장하기</Button>
+          <Button tone="ghost" icon={<Icon name="rotate-cw" size={18} />}>다시 처방받기</Button>
+        </div>
+        <div className="row">
+          <Button tone="coral" size="sm">Small</Button>
+          <Button tone="coral" size="md">Medium</Button>
+          <Button tone="coral" size="lg">Large</Button>
+          <Button tone="coral" disabled>Disabled</Button>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

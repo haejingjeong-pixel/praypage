@@ -1,0 +1,17 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Shadows" subtitle="Soft, warm, low elevation" -->
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body{margin:0;background:var(--bg-page);font-family:var(--font-body)}
+  .w{padding:26px;display:flex;gap:22px;align-items:center}
+  .c{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .box{width:100px;height:64px;background:var(--cream);border-radius:16px}
+  .c span{font-size:11px;color:var(--text-muted)}
+</style></head>
+<body><div class="w">
+  <div class="c"><div class="box" style="box-shadow:var(--shadow-sm)"></div><span>sm</span></div>
+  <div class="c"><div class="box" style="box-shadow:var(--shadow-md)"></div><span>md</span></div>
+  <div class="c"><div class="box" style="box-shadow:var(--shadow-lg)"></div><span>lg</span></div>
+  <div class="c"><div class="box" style="box-shadow:var(--shadow-rx)"></div><span>rx (card)</span></div>
+</div></body></html>

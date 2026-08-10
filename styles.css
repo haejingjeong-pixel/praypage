@@ -1,0 +1,8 @@
+/* 마음약국 (Soul Pharmacy) — Design System
+   Global CSS entry. Consumers link only this file.
+   Import order: fonts → colors → typography → spacing. */
+
+@import url("tokens/fonts.css");
+@import url("tokens/colors.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");

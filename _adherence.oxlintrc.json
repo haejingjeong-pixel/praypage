@@ -1,0 +1,384 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/actions/**",
+              "components/brand/**",
+              "components/core/**",
+              "components/forms/**",
+              "components/prescription/**",
+              "doc-page.js",
+              "mind-pharmacy/**",
+              "mind-pharmacy/data/**",
+              "ui_kits/soul-pharmacy/**",
+              "ui_kits/soul-pharmacy/animation/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Noto Serif KR|Noto Sans KR))/i]",
+        "message": "Font not provided by the design system. Available: Noto Serif KR, Noto Sans KR."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AssessmentGroup'] > JSXAttribute > JSXIdentifier[name!=/^(?:number|question|options|key|ref|className|style|children)$/]",
+        "message": "<AssessmentGroup> doesn't accept that prop. Declared props: number, question, options."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|size|icon|block|disabled|key|ref|className|style|children)$/]",
+        "message": "<Button> doesn't accept that prop. Declared props: tone, size, icon, block, disabled."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:coral|rx|outline|ghost)$/]",
+        "message": "<Button> tone must be one of 'coral' | 'rx' | 'outline' | 'ghost'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md|lg)$/]",
+        "message": "<Button> size must be one of 'sm' | 'md' | 'lg'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Checkbox'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|checked|onChange|disabled|style|key|ref|className|style|children)$/]",
+        "message": "<Checkbox> doesn't accept that prop. Declared props: label, checked, onChange, disabled, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Divider'] > JSXAttribute > JSXIdentifier[name!=/^(?:color|spacing|style|key|ref|className|style|children)$/]",
+        "message": "<Divider> doesn't accept that prop. Declared props: color, spacing, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Icon'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|size|stroke|color|key|ref|className|style|children)$/]",
+        "message": "<Icon> doesn't accept that prop. Declared props: name, size, stroke, color."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IntakeSheet'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|subtitle|width|children|style|key|ref|className|style|children)$/]",
+        "message": "<IntakeSheet> doesn't accept that prop. Declared props: title, subtitle, width, children, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MoodDef'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|icon|fill|ink|word|key|ref|className|style|children)$/]",
+        "message": "<MoodDef> doesn't accept that prop. Declared props: label, icon, fill, ink, word."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='PrescriptionCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:brand|title|footer|width|children|style|key|ref|className|style|children)$/]",
+        "message": "<PrescriptionCard> doesn't accept that prop. Declared props: brand, title, footer, width, children, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='PrescriptionWord'] > JSXAttribute > JSXIdentifier[name!=/^(?:word|label|style|key|ref|className|style|children)$/]",
+        "message": "<PrescriptionWord> doesn't accept that prop. Declared props: word, label, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='RxField'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|label|value|verse|reference|inline|style|key|ref|className|style|children)$/]",
+        "message": "<RxField> doesn't accept that prop. Declared props: icon, label, value, verse, reference, inline, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='StepIndicator'] > JSXAttribute > JSXIdentifier[name!=/^(?:total|current|tone|style|key|ref|className|style|children)$/]",
+        "message": "<StepIndicator> doesn't accept that prop. Declared props: total, current, tone, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='StepIndicator'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:rx|coral)$/]",
+        "message": "<StepIndicator> tone must be one of 'rx' | 'coral'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='WoodShelf'] > JSXAttribute > JSXIdentifier[name!=/^(?:width|style|key|ref|className|style|children)$/]",
+        "message": "<WoodShelf> doesn't accept that prop. Declared props: width, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Wordmark'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|tagline|mark|color|size|style|key|ref|className|style|children)$/]",
+        "message": "<Wordmark> doesn't accept that prop. Declared props: name, tagline, mark, color, size, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Wordmark'] > JSXAttribute[name.name='mark'] > Literal[value!=/^(?:cross|heart|none)$/]",
+        "message": "<Wordmark> mark must be one of 'cross' | 'heart' | 'none'."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "AssessmentGroup": {
+        "replaces": []
+      },
+      "Button": {
+        "replaces": []
+      },
+      "Checkbox": {
+        "replaces": []
+      },
+      "Divider": {
+        "replaces": []
+      },
+      "Icon": {
+        "replaces": []
+      },
+      "IntakeSheet": {
+        "replaces": []
+      },
+      "MoodDef": {
+        "replaces": []
+      },
+      "PrescriptionCard": {
+        "replaces": []
+      },
+      "PrescriptionWord": {
+        "replaces": []
+      },
+      "RxField": {
+        "replaces": []
+      },
+      "StepIndicator": {
+        "replaces": []
+      },
+      "WoodShelf": {
+        "replaces": []
+      },
+      "Wordmark": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--accent",
+      "--accent-hover",
+      "--accent-soft",
+      "--bg-page",
+      "--border-card",
+      "--container-card",
+      "--container-mobile",
+      "--coral-100",
+      "--coral-200",
+      "--coral-300",
+      "--coral-400",
+      "--coral-50",
+      "--coral-500",
+      "--coral-600",
+      "--coral-700",
+      "--cream",
+      "--cream-edge",
+      "--divider",
+      "--dur-base",
+      "--dur-fast",
+      "--dur-slow",
+      "--ease-out",
+      "--ease-soft",
+      "--font-body",
+      "--font-label",
+      "--font-title",
+      "--font-verse",
+      "--fs-body",
+      "--fs-body-sm",
+      "--fs-caption",
+      "--fs-display",
+      "--fs-heading",
+      "--fs-label",
+      "--fs-subhead",
+      "--fs-title",
+      "--fs-verse",
+      "--fw-bold",
+      "--fw-medium",
+      "--fw-regular",
+      "--ink-300",
+      "--ink-500",
+      "--ink-700",
+      "--ink-900",
+      "--inset-paper",
+      "--lh-body",
+      "--lh-snug",
+      "--lh-tight",
+      "--lh-verse",
+      "--line-soft",
+      "--ls-label",
+      "--ls-normal",
+      "--ls-tight",
+      "--mood-anxious-fill",
+      "--mood-anxious-ink",
+      "--mood-broken-fill",
+      "--mood-broken-ink",
+      "--mood-calling-fill",
+      "--mood-calling-ink",
+      "--mood-compare-fill",
+      "--mood-compare-ink",
+      "--mood-distant-fill",
+      "--mood-distant-ink",
+      "--mood-forgive-fill",
+      "--mood-forgive-ink",
+      "--mood-thanks-fill",
+      "--mood-thanks-ink",
+      "--mood-waiting-fill",
+      "--mood-waiting-ink",
+      "--on-accent",
+      "--paper",
+      "--paper-noise",
+      "--paper-warm",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--radius-xl",
+      "--rx-blue-100",
+      "--rx-blue-300",
+      "--rx-blue-500",
+      "--rx-blue-700",
+      "--rx-ink",
+      "--shadow-lg",
+      "--shadow-md",
+      "--shadow-rx",
+      "--shadow-sm",
+      "--sp-1",
+      "--sp-10",
+      "--sp-12",
+      "--sp-16",
+      "--sp-2",
+      "--sp-3",
+      "--sp-4",
+      "--sp-5",
+      "--sp-6",
+      "--sp-8",
+      "--surface-card",
+      "--surface-rx",
+      "--text-body",
+      "--text-faint",
+      "--text-muted",
+      "--text-strong"
+    ],
+    "tokenKinds": {
+      "--font-title": "font",
+      "--font-body": "font",
+      "--font-verse": "font",
+      "--font-label": "font",
+      "--coral-50": "color",
+      "--coral-100": "color",
+      "--coral-200": "color",
+      "--coral-300": "color",
+      "--coral-400": "color",
+      "--coral-500": "color",
+      "--coral-600": "color",
+      "--coral-700": "color",
+      "--rx-blue-100": "color",
+      "--rx-blue-300": "color",
+      "--rx-blue-500": "color",
+      "--rx-blue-700": "color",
+      "--paper": "color",
+      "--paper-warm": "color",
+      "--cream": "color",
+      "--cream-edge": "color",
+      "--line-soft": "color",
+      "--ink-900": "color",
+      "--ink-700": "color",
+      "--ink-500": "color",
+      "--ink-300": "color",
+      "--mood-anxious-fill": "color",
+      "--mood-anxious-ink": "color",
+      "--mood-broken-fill": "color",
+      "--mood-broken-ink": "color",
+      "--mood-compare-fill": "color",
+      "--mood-compare-ink": "color",
+      "--mood-waiting-fill": "color",
+      "--mood-waiting-ink": "color",
+      "--mood-forgive-fill": "color",
+      "--mood-forgive-ink": "color",
+      "--mood-distant-fill": "color",
+      "--mood-distant-ink": "color",
+      "--mood-calling-fill": "color",
+      "--mood-calling-ink": "color",
+      "--mood-thanks-fill": "color",
+      "--mood-thanks-ink": "color",
+      "--bg-page": "color",
+      "--surface-card": "color",
+      "--surface-rx": "color",
+      "--border-card": "color",
+      "--divider": "color",
+      "--text-strong": "font",
+      "--text-body": "font",
+      "--text-muted": "font",
+      "--text-faint": "font",
+      "--accent": "color",
+      "--accent-hover": "color",
+      "--accent-soft": "color",
+      "--on-accent": "color",
+      "--rx-ink": "color",
+      "--fs-display": "spacing",
+      "--fs-title": "spacing",
+      "--fs-heading": "spacing",
+      "--fs-subhead": "spacing",
+      "--fs-body": "spacing",
+      "--fs-body-sm": "spacing",
+      "--fs-label": "spacing",
+      "--fs-caption": "spacing",
+      "--fs-verse": "spacing",
+      "--lh-tight": "other",
+      "--lh-snug": "other",
+      "--lh-body": "other",
+      "--lh-verse": "other",
+      "--ls-label": "other",
+      "--ls-tight": "other",
+      "--ls-normal": "other",
+      "--fw-regular": "other",
+      "--fw-medium": "other",
+      "--fw-bold": "other",
+      "--sp-1": "spacing",
+      "--sp-2": "spacing",
+      "--sp-3": "spacing",
+      "--sp-4": "spacing",
+      "--sp-5": "spacing",
+      "--sp-6": "spacing",
+      "--sp-8": "spacing",
+      "--sp-10": "spacing",
+      "--sp-12": "spacing",
+      "--sp-16": "spacing",
+      "--radius-sm": "radius",
+      "--radius-md": "radius",
+      "--radius-lg": "radius",
+      "--radius-xl": "radius",
+      "--radius-pill": "radius",
+      "--shadow-sm": "shadow",
+      "--shadow-md": "shadow",
+      "--shadow-lg": "shadow",
+      "--shadow-rx": "shadow",
+      "--inset-paper": "spacing",
+      "--paper-noise": "other",
+      "--ease-soft": "other",
+      "--ease-out": "other",
+      "--dur-fast": "other",
+      "--dur-base": "other",
+      "--dur-slow": "other",
+      "--container-mobile": "spacing",
+      "--container-card": "spacing"
+    },
+    "fontFamilies": [
+      "Noto Sans KR",
+      "Noto Serif KR"
+    ]
+  }
+}

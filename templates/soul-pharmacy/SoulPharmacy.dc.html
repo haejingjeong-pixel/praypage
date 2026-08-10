@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="마음약국 · 마음 접수대" description="16:9 말씀 처방전 main screen: title, 2 wood shelves of 8 symptom envelopes, footer CTA" -->
+<helmet>
+<script src="./ds-base.js"></script>
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+</helmet>
+<div style="width:1280px;height:720px;background:var(--bg-page);box-sizing:border-box;padding:56px 60px;display:flex;flex-direction:column;align-items:center">
+<div style="text-align:center;margin-bottom:26px">
+<div style="font-family:var(--font-body);font-size:13px;letter-spacing:0.2em;color:var(--text-muted);margin-bottom:8px">· 말씀 처방전 ·</div>
+<h1 style="font-family:var(--font-title);font-weight:500;font-size:32px;white-space:nowrap;color:var(--ink-900);margin:0 0 10px">오늘 마음이 어디가 아픈가요?</h1>
+<p style="font-family:var(--font-body);font-size:14px;color:var(--text-muted);margin:0">내 마음 카드를 하나 고르면, 그 마음에 맞는 말씀 약봉투가 발급됩니다.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:40px;width:908px">
+<div>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.WoodShelf" width="{{ 908 }}" hint-size="908px,12px"></x-import>
+<div style="display:flex;gap:36px">
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="anxious" width="{{ 200 }}" selected="{{ selected === 'anxious' }}" onClick="{{ selectMood('anxious') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="broken" width="{{ 200 }}" selected="{{ selected === 'broken' }}" onClick="{{ selectMood('broken') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="compare" width="{{ 200 }}" selected="{{ selected === 'compare' }}" onClick="{{ selectMood('compare') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="waiting" width="{{ 200 }}" selected="{{ selected === 'waiting' }}" onClick="{{ selectMood('waiting') }}" hint-size="200px,180px"></x-import>
+</div>
+</div>
+<div>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.WoodShelf" width="{{ 908 }}" hint-size="908px,12px"></x-import>
+<div style="display:flex;gap:36px">
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="forgive" width="{{ 200 }}" selected="{{ selected === 'forgive' }}" onClick="{{ selectMood('forgive') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="distant" width="{{ 200 }}" selected="{{ selected === 'distant' }}" onClick="{{ selectMood('distant') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="calling" width="{{ 200 }}" selected="{{ selected === 'calling' }}" onClick="{{ selectMood('calling') }}" hint-size="200px,180px"></x-import>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.MoodEnvelope" mood="thanks" width="{{ 200 }}" selected="{{ selected === 'thanks' }}" onClick="{{ selectMood('thanks') }}" hint-size="200px,180px"></x-import>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:44px">
+<x-import component-from-global-scope="DesignSystem_d4e5a3.Icon" name="sprout" size="{{ 16 }}" color="var(--mood-calling-ink)" hint-size="16px,16px"></x-import>
+<span style="font-family:var(--font-title);font-weight:600;font-size:20px;color:var(--ink-900)">마음 카드를 하나 골라주세요</span>
+<x-import component-from-global-scope="DesignSystem_d4e5a3.Icon" name="sprout" size="{{ 16 }}" color="var(--mood-calling-ink)" style="transform:scaleX(-1)" hint-size="16px,16px"></x-import>
+</div>
+<p style="font-family:var(--font-body);font-size:13px;color:var(--text-muted);margin:8px 0 0">선택하면 카드가 살짝 올라오고, 말씀 처방전이 발급돼요.</p>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:720}}">
+class Component extends DCLogic {
+  state = { selected: null };
+  renderVals() {
+    return {
+      selected: this.state.selected,
+      selectMood: (k) => () => this.setState({ selected: k }),
+    };
+  }
+}
+</script>
+</body>
+</html>

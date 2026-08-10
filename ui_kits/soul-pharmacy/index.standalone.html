@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>마음약국 · 말씀 처방전</title>
+<meta name="ext-resource-dependency" content="assets-min/env-anxious.webp" data-resource-id="env_anxious" />
+<meta name="ext-resource-dependency" content="assets-min/env-broken.webp" data-resource-id="env_broken" />
+<meta name="ext-resource-dependency" content="assets-min/env-compare.webp" data-resource-id="env_compare" />
+<meta name="ext-resource-dependency" content="assets-min/env-waiting.webp" data-resource-id="env_waiting" />
+<meta name="ext-resource-dependency" content="assets-min/env-forgive.webp" data-resource-id="env_forgive" />
+<meta name="ext-resource-dependency" content="assets-min/env-distant.webp" data-resource-id="env_distant" />
+<meta name="ext-resource-dependency" content="assets-min/env-calling.webp" data-resource-id="env_calling" />
+<meta name="ext-resource-dependency" content="assets-min/env-thanks.webp" data-resource-id="env_thanks" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-anxious.webp" data-resource-id="envFront_anxious" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-broken.webp" data-resource-id="envFront_broken" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-compare.webp" data-resource-id="envFront_compare" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-waiting.webp" data-resource-id="envFront_waiting" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-forgive.webp" data-resource-id="envFront_forgive" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-distant.webp" data-resource-id="envFront_distant" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-calling.webp" data-resource-id="envFront_calling" />
+<meta name="ext-resource-dependency" content="assets-min/env-front-thanks.webp" data-resource-id="envFront_thanks" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-anxious.webp" data-resource-id="envBack_anxious" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-broken.webp" data-resource-id="envBack_broken" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-compare.webp" data-resource-id="envBack_compare" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-waiting.webp" data-resource-id="envBack_waiting" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-forgive.webp" data-resource-id="envBack_forgive" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-distant.webp" data-resource-id="envBack_distant" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-calling.webp" data-resource-id="envBack_calling" />
+<meta name="ext-resource-dependency" content="assets-min/env-back-thanks.webp" data-resource-id="envBack_thanks" />
+<meta name="ext-resource-dependency" content="assets-min/wood-bar.webp" data-resource-id="woodBar" />
+<link rel="stylesheet" href="standalone-tokens.css" />
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; background: var(--bg-page); font-family: var(--font-body); }
+  #root { min-height: 100vh; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+  #root > * { width: 100%; }
+  #root .ios-device-frame { width: auto; margin: 24px auto; }
+</style>
+<template id="__bundler_thumbnail" data-bg-color="#F3EEE9">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#F3EEE9"/>
+    <rect x="250" y="300" width="700" height="34" rx="10" fill="#C8A578"/>
+    <g>
+      <rect x="360" y="320" width="200" height="250" rx="16" fill="#B7D3C1"/>
+      <path d="M360 320 h200 v40 l-100 46 -100 -46 z" fill="#A6C6B1"/>
+      <rect x="640" y="320" width="200" height="250" rx="16" fill="#EFB19A"/>
+      <path d="M640 320 h200 v40 l-100 46 -100 -46 z" fill="#E59E85"/>
+    </g>
+    <text x="600" y="680" font-family="serif" font-size="60" fill="#3E3730" text-anchor="middle">마음약국</text>
+  </svg>
+</template>
+<script>
+(function(){
+  var fonts = [
+    'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css',
+    'https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap'
+  ];
+  for (var i=0;i<fonts.length;i++){ var l=document.createElement('link'); l.rel='stylesheet'; l.href=fonts[i]; document.head.appendChild(l); }
+})();
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script src="image-slot.js"></script>
+<script src="assessment-data.js"></script>
+<script src="rx-data.js"></script>
+<script src="rx-prescriptions.js"></script>
+<script type="text/babel" src="MainScreen.standalone.jsx"></script>
+<script type="text/babel" src="AssessmentScreen.standalone.jsx"></script>
+<script type="text/babel" src="ResultScreen.jsx"></script>
+<script type="text/babel" src="StickerScreen.jsx"></script>
+<script type="text/babel">
+  function readShared() {
+    try {
+      const h = window.location.hash.replace(/^#/, "");
+      if (!h) return null;
+      return JSON.parse(decodeURIComponent(escape(atob(h))));
+    } catch (e) { return null; }
+  }
+  function App() {
+    const shared = readShared();
+    const [step, setStep] = React.useState(shared ? "sticker" : "main");
+    const [mood, setMood] = React.useState(shared ? shared.mood : null);
+    const [sharedStickers] = React.useState(shared ? shared.stickers || [] : []);
+    const [rx, setRx] = React.useState(shared && shared.rx ? shared.rx : null);
+    if (step === "main") {
+      return <window.MainScreen selected={mood} onSelect={setMood} onNext={(k) => setStep("assessment")} />;
+    }
+    if (step === "assessment") {
+      return <window.AssessmentScreen mood={mood} onBack={() => setStep("main")} onSubmit={(selections) => {
+        const chosen = window.resolvePrescription(mood, selections, null);
+        setRx(chosen); setStep("result");
+      }} />;
+    }
+    if (step === "result") {
+      return <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("sticker")} />;
+    }
+    return step === "sticker" ? (
+      <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} onBack={() => setStep("result")} onNext={() => setStep("main")} />
+    ) : null;
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

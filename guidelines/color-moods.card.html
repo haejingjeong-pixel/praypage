@@ -1,0 +1,22 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="8 Mood Palette" subtitle="증상별 envelope fill + icon ink" -->
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body{margin:0;background:var(--bg-page);font-family:var(--font-body)}
+  .wrap{padding:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .sw{height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative}
+  .dot{width:20px;height:20px;border-radius:50%}
+  .lbl{font-size:11px;color:var(--text-body);text-align:center;margin-top:5px}
+  .cell{display:flex;flex-direction:column}
+</style></head>
+<body><div class="wrap">
+  <div class="cell"><div class="sw" style="background:var(--mood-anxious-fill)"><div class="dot" style="background:var(--mood-anxious-ink)"></div></div><div class="lbl">불안 · 믿음</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-broken-fill)"><div class="dot" style="background:var(--mood-broken-ink)"></div></div><div class="lbl">무너짐 · 긍휼</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-compare-fill)"><div class="dot" style="background:var(--mood-compare-ink)"></div></div><div class="lbl">비교 · 사랑</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-waiting-fill)"><div class="dot" style="background:var(--mood-waiting-ink)"></div></div><div class="lbl">기다림 · 인내</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-forgive-fill)"><div class="dot" style="background:var(--mood-forgive-ink)"></div></div><div class="lbl">용서 · 용서</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-distant-fill)"><div class="dot" style="background:var(--mood-distant-ink)"></div></div><div class="lbl">멀게 · 말씀</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-calling-fill)"><div class="dot" style="background:var(--mood-calling-ink)"></div></div><div class="lbl">사명 · 사명</div></div>
+  <div class="cell"><div class="sw" style="background:var(--mood-thanks-fill)"><div class="dot" style="background:var(--mood-thanks-ink)"></div></div><div class="lbl">감사 · 감사</div></div>
+</div></body></html>

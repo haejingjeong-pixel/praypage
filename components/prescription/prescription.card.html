@@ -1,0 +1,68 @@
+<!-- @dsCard group="Components" viewport="700x820" name="Prescription Card & Intake" subtitle="PrescriptionCard · RxField · PrescriptionWord · IntakeSheet" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--bg-page); font-family: var(--font-body); }
+  #root { padding: 26px; display: flex; gap: 34px; align-items: flex-start; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { PrescriptionCard, RxField, Divider, PrescriptionWord, Button, Icon, IntakeSheet, Checkbox } = window.DesignSystem_d4e5a3;
+  function Demo() {
+    return (
+      <>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <PrescriptionCard>
+            <RxField icon="calendar" label="처방일" value="2026.07.03" inline />
+            <Divider />
+            <RxField icon="user" label="환자명" value="오늘의 나" inline />
+            <Divider />
+            <RxField icon="heart-pulse" label="증상" value="불안이 올라옴" inline />
+            <Divider />
+            <RxField icon="book-open" label="오늘의 말씀"
+              verse="너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라" reference="요한복음 14:1" />
+            <Divider />
+            <RxField icon="pill" label="복용법" value="오늘 자기 전, 이 말씀을 천천히 3번 읽기" />
+            <Divider />
+            <RxField icon="triangle-alert" label="주의사항" value="억지로 괜찮은 척하지 말고, 말씀을 정죄가 아닌 초대로 받기" />
+            <Divider />
+            <PrescriptionWord word="믿음" />
+          </PrescriptionCard>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", maxWidth: 340 }}>
+            <Button tone="rx" icon={<Icon name="book-open" size={17} color="#F7FAFF" />}>말씀광장에서 '믿음' 열어보기</Button>
+            <Button tone="outline" size="sm" icon={<Icon name="download" size={16} />}>이미지로 저장</Button>
+            <Button tone="outline" size="sm" icon={<Icon name="rotate-cw" size={16} />}>다시 처방받기</Button>
+          </div>
+        </div>
+
+        <IntakeSheet width={420}>
+          <IntakeSheet.Group number="01" question="지금 마음의 강도는 어떤가요?" columns={2}>
+            <Checkbox label="참을 만해요" checked={false} onChange={()=>{}} />
+            <Checkbox label="계속 신경 쓰여요" checked={true} onChange={()=>{}} />
+            <Checkbox label="마음이 꽉 찼어요" checked={false} onChange={()=>{}} />
+            <Checkbox label="지금은 버거워요" checked={false} onChange={()=>{}} />
+          </IntakeSheet.Group>
+          <IntakeSheet.Group number="02" question="오늘 받고 싶은 처방은?" columns={2}>
+            <Checkbox label="평안" checked={true} onChange={()=>{}} />
+            <Checkbox label="위로" checked={false} onChange={()=>{}} />
+            <Checkbox label="믿음" checked={false} onChange={()=>{}} />
+            <Checkbox label="다시 시작할 힘" checked={false} onChange={()=>{}} />
+          </IntakeSheet.Group>
+        </IntakeSheet>
+      </>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

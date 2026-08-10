@@ -1,0 +1,34 @@
+<!-- @dsCard group="Soul Pharmacy" viewport="720x1280" name="마음약국 · 인트로 영상" subtitle="로고 → 증상 선택 → 접수 → 처방전 → 처방 단어" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  html, body { margin: 0; background: #d9d3ca; font-family: "Pretendard","Noto Sans KR",sans-serif; }
+  #root { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>window.OM_SCENES = '[{"name":"Opening","dur":3.4},{"name":"Ask","dur":4},{"name":"Select","dur":2.8},{"name":"Rise","dur":3.4},{"name":"Prescribe","dur":4.6},{"name":"Word","dur":3.6}]';</script>
+<script>window.OM_PLAYBACK = '{"mode":"loop"}';</script>
+<script type="text/babel" src="animations-v2.jsx"></script>
+<script type="text/babel" src="scenes.jsx"></script>
+<script type="text/babel">
+  const { SceneStage } = window;
+  function App() {
+    return (
+      <SceneStage width={720} height={1280} scenes={window.OM_SCENES} playback={window.OM_PLAYBACK} bg="#EFEEEB">
+        {{ Opening: window.MP_Opening, Ask: window.MP_Ask, Select: window.MP_Select, Rise: window.MP_Rise, Prescribe: window.MP_Prescribe, Word: window.MP_Word }}
+      </SceneStage>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

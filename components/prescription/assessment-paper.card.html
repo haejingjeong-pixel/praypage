@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" viewport="700x620" name="Assessment Paper — 자가문답진" subtitle="Envelope-rise questionnaire card (placeholder data)" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--paper-warm)}#root{padding:30px;display:flex;justify-content:center}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { AssessmentPaper } = window.DesignSystem_d4e5a3;
+  function Demo() {
+    const [sel, setSel] = React.useState({});
+    const groups = [
+      { number: "01", question: "지금 마음의 강도는 어떤가요?", options: ["참을 만해요","계속 신경 쓰여요","마음이 꽉 찼어요","지금은 버거워요"] },
+      { number: "02", question: "오늘 받고 싶은 처방은?", options: ["평안","위로","믿음","쉼","용기","사랑"] },
+    ];
+    return (
+      <AssessmentPaper
+        icon="heart-crack" iconColor="var(--mood-broken-ink)"
+        groups={groups} selections={sel}
+        onToggle={(g,o,v) => setSel(s => ({ ...s, [`${g}-${o}`]: v }))}
+        onSubmit={() => {}}
+      />
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

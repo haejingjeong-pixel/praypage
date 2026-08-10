@@ -1,0 +1,148 @@
+<!-- @dsCard group="Soul Pharmacy" viewport="1000x860" name="마음약국 · 메인 화면" subtitle="마음 증상 선택 (PC 4×2) → 자가문진" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#F3EEE9">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#F3EEE9"/>
+    <rect x="250" y="300" width="700" height="34" rx="10" fill="#C8A578"/>
+    <rect x="360" y="320" width="200" height="250" rx="16" fill="#B7D3C1"/>
+    <path d="M360 320 h200 v40 l-100 46 -100 -46 z" fill="#A6C6B1"/>
+    <rect x="640" y="320" width="200" height="250" rx="16" fill="#EFB19A"/>
+    <path d="M640 320 h200 v40 l-100 46 -100 -46 z" fill="#E59E85"/>
+    <text x="600" y="680" font-family="serif" font-size="60" fill="#3E3730" text-anchor="middle">마음약국</text>
+  </svg>
+</template>
+<style>
+  html, body { margin: 0; background: var(--bg-page); font-family: var(--font-body); }
+  #root { min-height: 100vh; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+  #root > * { width: 100%; }
+  /* 폰 프레임 화면은 가운데 정렬 + 여백 유지 */
+  #root .ios-device-frame { width: auto; margin: 24px auto; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="audio-manager.js"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script src="image-slot.js"></script>
+<script src="assessment-data.js"></script>
+<script src="rx-data.js"></script>
+<script src="stickers-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script src="rx-prescriptions.js"></script>
+<script type="text/babel" src="LogoMark.jsx"></script>
+<script type="text/babel" src="IntroSequence.jsx"></script>
+<script type="text/babel" src="MainScreen.jsx"></script>
+<script type="text/babel" src="AssessmentScreen.jsx"></script>
+<script type="text/babel" src="ResultScreen.jsx"></script>
+<script type="text/babel" src="StickerScreen.jsx"></script>
+<script type="text/babel">
+  // 링크 공유 상태 (서버리스): 스티커 + 감정을 URL #해시에 담아 전달한다.
+  // 링크를 받은 사람은 같은 스티커가 얹힌 카드에서 이어서 스티커를 붙일 수 있다.
+  function readShared() {
+    try {
+      const h = window.location.hash.replace(/^#/, "");
+      if (!h) return null;
+      return JSON.parse(decodeURIComponent(escape(atob(h))));
+    } catch (e) { return null; }
+  }
+
+  // 화면 전환 크로스페이드: step이 바뀌면 이전 화면이 부드럽게 사라지고 새 화면이 페이드 인.
+  function Fade({ step, children }) {
+    const [shown, setShown] = React.useState({ step, children });
+    const [visible, setVisible] = React.useState(true);
+    React.useEffect(() => {
+      if (step === shown.step) { setShown({ step, children }); return; }
+      setVisible(false);
+      const t = setTimeout(() => { setShown({ step, children }); setVisible(true); }, 340);
+      return () => clearTimeout(t);
+    }, [step, children]);
+    return (
+      <div style={{ width: "100%", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(10px)", transition: "opacity 340ms cubic-bezier(0.22,0.61,0.36,1), transform 340ms cubic-bezier(0.22,0.61,0.36,1)" }}>
+        {shown.children}
+      </div>
+    );
+  }
+
+  // 처방전 꾸미기 안내 막 — 결과 → 꾸미기 사이. 문구가 페이드인, 약 2초 머문 뒤 페이드아웃.
+  function DecorateIntro({ mood, onDone }) {
+    const { Icon, MOODS } = window.DesignSystem_d4e5a3;
+    const m = (MOODS && MOODS[mood]) || null;
+    const [phase, setPhase] = React.useState(0);
+    const [vis, setVis] = React.useState(false);
+    React.useEffect(() => {
+      const t0 = setTimeout(() => setVis(true), 60);
+      const t1 = setTimeout(() => setVis(false), 2200);
+      const t2 = setTimeout(() => { setPhase(1); }, 3000);
+      return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
+    }, []);
+    React.useEffect(() => {
+      if (phase !== 1) return;
+      const t0 = setTimeout(() => setVis(true), 60);
+      const t1 = setTimeout(() => setVis(false), 2600);
+      const t2 = setTimeout(() => onDone && onDone(), 3400);
+      return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
+    }, [phase]);
+    const tStyle = { fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 22, lineHeight: 1.7, color: "var(--ink-900)", margin: 0 };
+    return (
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", background: "linear-gradient(180deg, #F2EBE6 0%, #EEF1F4 100%)" }}>
+        <div style={{ maxWidth: 520, textAlign: "center", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)", transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1), transform 900ms cubic-bezier(0.22,0.61,0.36,1)" }}>
+          {m && <div style={{ width: 72, height: 72, borderRadius: "50%", background: m.fill, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(120,92,64,0.16)", margin: "0 auto 26px" }}><Icon name={m.icon} size={32} color={m.ink} stroke={1.5} /></div>}
+          {phase === 0
+            ? <p style={tStyle}>이제 받은 마음의 처방을<br/>나만의 방식으로 꾸며볼까요?</p>
+            : <p style={tStyle}>완성된 처방전을 소중한 사람들에게 건네면,<br/>당신을 응원하는 사람들이<br/>마음을 담은 스티커를 붙여줄 거예요.</p>}
+        </div>
+      </div>
+    );
+  }
+
+  function App() {
+    const shared = readShared();
+    const [step, setStep] = React.useState(shared ? "sticker" : "intro"); // intro | main | assessment | result | sticker
+    const [mood, setMood] = React.useState(shared ? shared.mood : null);
+    const [sharedStickers] = React.useState(shared ? shared.stickers || [] : []);
+    const [rx, setRx] = React.useState(shared && shared.rx ? shared.rx : null);
+
+    // 화면별 배경음악: 1=인트로 안내, 2=감정선택·문진·처방전, 3=저장/공유(스티커 화면에서 세부 제어)
+    React.useEffect(() => {
+      if (!window.__bgm) return;
+      // 트랙 시작 시점은 화면 내부에서 정밀 제어: 2번은 AssessmentScreen Q1 종이 등장,
+      // 3번은 ResultScreen 처방전 등장. 여기서는 1번(인트로·감정선택)만 담당.
+      if (step === "intro" || step === "loading" || step === "main") window.__bgm.play(1);
+    }, [step]);
+
+    let screen = null;
+    if (step === "intro") {
+      screen = <window.IntroSequence onDone={() => setStep("loading")} />;
+    } else if (step === "loading") {
+      screen = <window.IntroLoading onDone={() => setStep("main")} />;
+    } else if (step === "main") {
+      screen = <window.MainScreen selected={mood} onSelect={setMood} onNext={(k) => setStep("assessment")} />;
+    } else if (step === "assessment") {
+      screen = <window.AssessmentScreen mood={mood} onBack={() => setStep("main")} onSubmit={(selections) => {
+        const chosen = window.resolvePrescription(mood, selections, null);
+        setRx(chosen);
+        setStep("result");
+      }} />;
+    } else if (step === "result") {
+      screen = <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("decorateIntro")} />;
+    } else if (step === "decorateIntro") {
+      screen = <DecorateIntro mood={mood} onDone={() => setStep("sticker")} />;
+    } else if (step === "sticker") {
+      screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
+    }
+    return <Fade step={step}>{screen}</Fade>;
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+/* 마음약국 — Typography scale
+   Body gothic + warm rounded titles + verse serif + tidy prescription labels. */
+
+:root {
+  /* Font sizes */
+  --fs-display:   34px; /* 마음약국 hero title */
+  --fs-title:     26px; /* screen titles: 오늘 마음이 어디가 아픈가요? */
+  --fs-heading:   20px; /* card headings */
+  --fs-subhead:   17px;
+  --fs-body:      16px; /* base body */
+  --fs-body-sm:   14px;
+  --fs-label:     13px; /* 처방전 필드 라벨 */
+  --fs-caption:   12px;
+  --fs-verse:     22px; /* 오늘의 말씀 verse */
+
+  /* Line heights */
+  --lh-tight:  1.2;   /* @kind other */
+  --lh-snug:   1.35;  /* @kind other */
+  --lh-body:   1.7;   /* @kind other */ /* Korean body needs generous leading */
+  --lh-verse:  1.75;  /* @kind other */
+
+  /* Letter spacing */
+  --ls-label:  0.14em; /* @kind other */ /* 처방전 라벨 */
+  --ls-tight: -0.01em; /* @kind other */
+  --ls-normal: 0;      /* @kind other */
+
+  /* Weights */
+  --fw-regular: 400;  /* @kind other */
+  --fw-medium:  500;  /* @kind other */
+  --fw-bold:    700;  /* @kind other */
+}
+
+/* ---- Text-style utility classes ---- */
+.t-display { font-family: var(--font-title); font-size: var(--fs-display); line-height: var(--lh-tight); color: var(--text-strong); }
+.t-title   { font-family: var(--font-title); font-size: var(--fs-title); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-heading { font-family: var(--font-title); font-size: var(--fs-heading); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-subhead { font-family: var(--font-body); font-weight: var(--fw-medium); font-size: var(--fs-subhead); line-height: var(--lh-snug); color: var(--text-strong); }
+.t-body    { font-family: var(--font-body); font-size: var(--fs-body); line-height: var(--lh-body); color: var(--text-body); }
+.t-body-sm { font-family: var(--font-body); font-size: var(--fs-body-sm); line-height: var(--lh-body); color: var(--text-body); }
+.t-verse   { font-family: var(--font-verse); font-size: var(--fs-verse); line-height: var(--lh-verse); color: var(--text-strong); }
+.t-label   { font-family: var(--font-label); font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: none; color: var(--text-muted); }
+.t-caption { font-family: var(--font-body); font-size: var(--fs-caption); line-height: var(--lh-snug); color: var(--text-muted); }

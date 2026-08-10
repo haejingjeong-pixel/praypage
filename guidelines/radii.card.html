@@ -1,0 +1,18 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Radii" subtitle="Rounded, friendly — sm → xl · pill" -->
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body{margin:0;background:var(--bg-page);font-family:var(--font-body)}
+  .w{padding:22px;display:flex;gap:16px;align-items:center}
+  .c{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .box{width:74px;height:56px;background:var(--cream);border:1.5px solid var(--coral-300)}
+  .c span{font-size:11px;color:var(--text-muted)}
+</style></head>
+<body><div class="w">
+  <div class="c"><div class="box" style="border-radius:var(--radius-sm)"></div><span>sm 10</span></div>
+  <div class="c"><div class="box" style="border-radius:var(--radius-md)"></div><span>md 16</span></div>
+  <div class="c"><div class="box" style="border-radius:var(--radius-lg)"></div><span>lg 22</span></div>
+  <div class="c"><div class="box" style="border-radius:var(--radius-xl)"></div><span>xl 28</span></div>
+  <div class="c"><div class="box" style="border-radius:var(--radius-pill)"></div><span>pill</span></div>
+</div></body></html>
