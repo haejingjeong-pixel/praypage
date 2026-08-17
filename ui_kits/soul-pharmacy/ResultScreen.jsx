@@ -17,7 +17,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     return () => window.removeEventListener("resize", pick);
   }, []);
 
-  // loading → reveal
+  // loading → envelope(봉투에서 종이가 올라오는 장면) → reveal(종이만 남아 읽는 장면)
   const [phase, setPhase] = React.useState("loading");
   const [msg, setMsg] = React.useState(0);
   const [skipAnim, setSkipAnim] = React.useState(false); // 클릭하면 전체 즉시 표시
@@ -25,12 +25,14 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
   React.useEffect(() => {
     setPhase("loading"); setMsg(0);
     const t1 = setTimeout(() => setMsg(1), 2200);
-    const t2 = setTimeout(() => setPhase("reveal"), 4400);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t2 = setTimeout(() => setPhase("envelope"), 4400);
+    const t2b = setTimeout(() => setPhase("envExit"), 9600);
+    const t3 = setTimeout(() => setPhase("reveal"), 10600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t2b); clearTimeout(t3); };
   }, [mood]);
 
-  // 말씀 처방전이 등장하는 시점(reveal)부터 3번 배경음악으로 크로스페이드
-  React.useEffect(() => { if (window.__bgm && phase === "reveal") window.__bgm.play(3); }, [phase]);
+  // 말씀 처방전이 등장하는 시점부터 3번 배경음악으로 크로스페이드
+  React.useEffect(() => { if (window.__bgm && (phase === "envelope" || phase === "reveal")) window.__bgm.play(3); }, [phase]);
 
   const messages = ["말씀 처방전을 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
 
@@ -49,6 +51,33 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
           {[0, 1, 2].map((i) => (
             <span key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: m.ink, animation: `rxdot2 1.2s ${i * 0.16}s infinite ease-in-out` }} />
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── 봉투 장면 (시안 1컷: 봉투에서 처방전 종이가 올라오는 순간) ──
+  if (phase === "envelope" || phase === "envExit") {
+    return (
+      <div onClick={() => setPhase("reveal")} style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", cursor: "pointer", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", opacity: phase === "envExit" ? 0 : 1, transition: "opacity 1000ms ease", animation: "rxfade 900ms ease-out" }}>
+        <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        {/* 완성 이미지 1장(봉투+편지지, 브랜딩 텍스트는 이미지에 포함). 이미지 먼저 페이드인 → 상단 문구 순차 등장 */}
+        <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
+          {/* 상단 안내 텍스트 — 이미지가 충분히 드러난 뒤(1.2s~) 순차 페이드업 */}
+          <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 1400ms 1300ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 1600ms 2100ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 1600ms 3100ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
+            <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 1600ms 4100ms cubic-bezier(0.22,1,0.32,1) both" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7em" }}>
+                <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto", transform: "scaleX(-1)" }} />
+                <span style={{ fontFamily: "'Noto Serif KR', serif", fontWeight: 500, fontSize: "clamp(16px,1.55vw,22px)", letterSpacing: "-0.02em", color: "#5B4A3C" }}>내가 너와 함께 함이라</span>
+                <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto" }} />
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(13px,1.2vw,17px)", color: "#8C7565", marginTop: "0.5em" }}>이사야 41:10</div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -78,17 +107,17 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     </div>
   );
 
-  const hr = <div style={{ borderTop: "1px solid rgba(62,99,166,0.22)" }} />;
-  const BORD = "rgba(62,99,166,0.38)";  // 연한 파란 테두리
-  const LBL = "rgba(62,99,166,0.06)";   // 라벨칸 배경
-  const TL = ({ children }) => (<span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 14 : 12.5, color: RX, letterSpacing: "0.02em" }}>{children}</span>);
+  const hr = <div style={{ borderTop: "1px solid rgba(120,104,78,0.18)" }} />;
+  const BORD = "rgba(120,104,78,0.18)";  // 웜 종이 해어라인
+  const LBL = "transparent";
+  const TL = ({ children }) => (<span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", paddingRight: 8, whiteSpace: "nowrap" }}>{children}</span>);
   const TV = ({ children, accent }) => (<span style={{ fontFamily: "var(--font-body)", fontSize: pc ? 15 : 13.5, fontWeight: accent ? 700 : 400, color: accent ? RX : "var(--ink-900)" }}>{children}</span>);
 
   // 처방전 각 구획이 위에서부터 순차적으로 차분히 나타나는 연출 (문진지와 동일 감성)
-  let _rt = 400, _gap = 1200;
+  let _rt = 260, _gap = 780;
   const Reveal = ({ children }) => {
-    const delay = _rt; _rt += _gap; _gap += 700; // 섹션마다 간격을 키워 뒤로 갈수록 더 천천히 등장
-    return <div style={{ animation: skipAnim ? "none" : "rxrise 1800ms cubic-bezier(0.22,1,0.32,1) both", animationDelay: skipAnim ? undefined : `${delay}ms` }}>{children}</div>;
+    const delay = _rt; _rt += _gap; _gap += 420; // 섹션마다 간격을 키워 뒤로 갈수록 더 천천히 등장
+    return <div style={{ animation: skipAnim ? "none" : "rxrise 1150ms cubic-bezier(0.22,1,0.32,1) both", animationDelay: skipAnim ? undefined : `${delay}ms` }}>{children}</div>;
   };
 
   // 타이핑 연출 — 본문 문장이 한 글자씩 순차적으로 나타난다. 앞 문장이 끝난 뒤 다음 문장 시작.
@@ -99,37 +128,35 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
   const Typewriter = ({ text = "", style }) => <span style={style}>{text}</span>;
 
   const sheet = (
-    <div style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "#FCFBF6", border: `1.5px solid ${BORD}`, borderRadius: 24, boxShadow: "0 12px 40px rgba(70,58,45,0.12)", boxSizing: "border-box", animation: "rxstep 950ms ease-out" }}>
-      <div style={{ position: "absolute", inset: 8, border: `1px solid ${BORD}`, borderRadius: 18, pointerEvents: "none" }} />
+    <div style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box", animation: "rxstep 950ms ease-out" }}>
+      <div style={{ position: "absolute", inset: 10, border: "1px solid rgba(120,104,78,0.14)", borderRadius: 4, pointerEvents: "none" }} />
 
       <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${padX}px ${pc ? 34 : 26}px` }}>
         {/* 마스트헤드 — 차분한 문서 헤더 */}
         <Reveal><div style={{ textAlign: "center", marginBottom: pc ? 14 : 11 }}>
           <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>오늘의 말씀 처방전</div>
-          <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 31 : 24, color: RX, letterSpacing: "0.06em", paddingLeft: "0.06em" }}>마음약국 처방전</div>
+          <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
           <div style={{ borderTop: `1px solid ${BORD}`, width: "100%", marginTop: pc ? 16 : 12 }} />
         </div></Reveal>
 
         {/* 접수 정보 표 */}
-        <Reveal><div style={{ border: `1px solid ${BORD}`, borderRadius: 2, overflow: "hidden", margin: `${pc ? 4 : 2}px 0 0` }}>
+        <Reveal><div style={{ margin: `${pc ? 4 : 2}px 0 0` }}>
           {[["처방일", "2026.08.01", "증상", rx.symptom], ["마음 강도", rx.intensity, "처방 단어", rx.word]].map((row, ri) => (
-            <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "108px 1fr 108px 1fr" : "66px 1fr 70px 1fr", borderTop: ri ? `1px solid ${BORD}` : "none" }}>
-              <div style={{ padding: pc ? "14px 16px" : "10px 10px", background: LBL, borderRight: `1px solid ${BORD}` }}><TL>{row[0]}</TL></div>
-              <div style={{ padding: pc ? "14px 16px" : "10px 10px", borderRight: `1px solid ${BORD}`, display: "flex", alignItems: "center" }}><TV>{row[1]}</TV></div>
-              <div style={{ padding: pc ? "14px 16px" : "10px 10px", background: LBL, borderRight: `1px solid ${BORD}` }}><TL>{row[2]}</TL></div>
-              <div style={{ padding: pc ? "14px 16px" : "10px 10px", display: "flex", alignItems: "center" }}><TV accent={ri === 1}>{row[3]}</TV></div>
+            <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${BORD}` : "none" }}>
+              <TL>{row[0]}</TL><TV>{row[1]}</TV>
+              <TL>{row[2]}</TL><TV accent={ri === 1}>{row[3]}</TV>
             </div>
           ))}
         </div></Reveal>
 
         {/* 처방 말씀 */}
         <Reveal><div style={{ marginTop: pc ? 26 : 20 }}>
-          <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15 : 13.5, color: RX, marginBottom: pc ? 6 : 4 }}>처방 말씀</div>
-          <div style={{ position: "relative", padding: `${pc ? 12 : 10}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
-            <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 34 : 26, color: BORD, lineHeight: 1 }}>“</span>
+          <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
+          <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
+            <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>“</span>
             <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
-            <span style={{ position: "absolute", right: 0, bottom: pc ? 2 : 0, fontFamily: "var(--font-verse)", fontSize: pc ? 34 : 26, color: BORD, lineHeight: 1 }}>”</span>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 12.5, color: RX, letterSpacing: "0.02em", marginTop: pc ? 12 : 9 }}>{rx.reference}</div>
+            <span style={{ position: "absolute", right: 0, bottom: pc ? 2 : 0, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>”</span>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: pc ? 14 : 10 }}>{rx.reference}</div>
           </div>
           <div style={{ borderTop: `1px solid ${BORD}`, marginTop: pc ? 16 : 12 }} />
         </div></Reveal>
@@ -188,26 +215,29 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
       <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 15.5 : 14.5, color: "var(--rx-ink)" }}>{title}</span>
     </button>
   );
+  const paperBtn = (icon, label, onClick, w, accent) => (
+    <button onClick={onClick} style={{ width: pc ? w : "auto", flex: pc ? "0 0 auto" : 1, height: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 16px", borderRadius: 14, border: accent ? "1px solid rgba(126,116,190,0.55)" : "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: accent ? "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)" : "#F7EBDD", boxShadow: accent ? "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)" : "0 5px 14px rgba(97,68,42,0.09)", color: accent ? "#fff" : "#6A533F", animation: accent ? "rxGlow 2.6s ease-in-out infinite" : undefined }}>
+      <Icon name={icon} size={18} color={accent ? "#fff" : "#6A533F"} stroke={1.7} />
+      <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: accent ? 600 : 500, fontSize: 16, color: accent ? "#fff" : "#6A533F", letterSpacing: "0.01em" }}>{label}</span>
+    </button>
+  );
   const actions = (
-    <div style={{ width: sheetW, maxWidth: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 12, animation: "rxstep 1050ms ease-out 260ms both" }}>
-      {shareCard}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {softCard("download", "이미지로 저장", "처방전을 저장해보세요", undefined)}
-        {softCard("rotate-cw", "다시 처방받기", "처음부터 다시 시작해요", onAgain)}
-      </div>
-      <button onClick={() => {}} style={{ marginTop: 2, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--rx-ink)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 0", alignSelf: "center" }}>
-        <Icon name="book-open" size={16} color="var(--rx-ink)" stroke={1.7} /> 말씀광장에서 ‘{rx.word}’ 열어보기
-      </button>
+    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", gap: 14, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
+      {paperBtn("rotate-cw", "다시하기", onAgain, 158)}
+      {paperBtn("share-2", "스티커 붙여 공유하기", onDecorate, 235, true)}
     </div>
   );
 
   return (
-    <div onDoubleClick={() => setSkipAnim(true)} style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", background: "radial-gradient(120% 60% at 50% 0%, #FBF7F0 0%, var(--bg-page) 55%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "34px 28px 56px" : "22px 16px 44px", overflowX: "hidden" }}>
-      <style>{`@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      <div style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.22em", color: m.ink, marginBottom: 18, animation: "rxstep 700ms ease-out" }}>오늘의 말씀 처방전</div>
+    <div onDoubleClick={() => setSkipAnim(true)} style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", boxSizing: "border-box" }}>
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", zIndex: 0, pointerEvents: "none" }} />
+      <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100vh", overflowY: "auto", overflowX: "hidden", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "34px 28px 28px" : "22px 16px 24px" }}>
+      <style>{`@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`}</style>
       {sheet}
-      <div style={{ height: 20 }} />
+      <div style={{ height: 28, flex: "0 0 auto" }} />
       {actions}
+      <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: "14px 0 0", animation: "rxstep 1050ms ease-out 360ms both" }}><span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span> 이 말씀은 당신을 위해 준비되었어요 <span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span></p>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"DesignSystem_d4e5a3","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"StepIndicator","sourcePath":"components/forms/StepIndicator.jsx"},{"name":"AssessmentPaper","sourcePath":"components/prescription/AssessmentPaper.jsx"},{"name":"Divider","sourcePath":"components/prescription/Divider.jsx"},{"name":"IntakeSheet","sourcePath":"components/prescription/IntakeSheet.jsx"},{"name":"MOODS","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"MoodEnvelope","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"PrescriptionCard","sourcePath":"components/prescription/PrescriptionCard.jsx"},{"name":"PrescriptionWord","sourcePath":"components/prescription/PrescriptionWord.jsx"},{"name":"RxField","sourcePath":"components/prescription/RxField.jsx"},{"name":"WoodShelf","sourcePath":"components/prescription/WoodShelf.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f1c1a01bcfcc","components/brand/Wordmark.jsx":"ffac84e8995f","components/core/Icon.jsx":"810e3556184d","components/forms/Checkbox.jsx":"9d7345e82d79","components/forms/StepIndicator.jsx":"f0e100d788cf","components/prescription/AssessmentPaper.jsx":"a8da5fd58766","components/prescription/Divider.jsx":"3254f53877e4","components/prescription/IntakeSheet.jsx":"25c90730a4bb","components/prescription/MoodEnvelope.jsx":"15133bc19d38","components/prescription/PrescriptionCard.jsx":"bcaaf72df6b4","components/prescription/PrescriptionWord.jsx":"466a85af6e0f","components/prescription/RxField.jsx":"f0a1ebe4ad70","components/prescription/WoodShelf.jsx":"d79b56492176","doc-page.js":"371bab66f42d","mind-pharmacy/app.js":"0fcf9f28fef2","mind-pharmacy/audio.js":"e5d95a24d1ac","mind-pharmacy/data/assessment-data.js":"9df5807165d2","mind-pharmacy/data/rx-data.js":"042643421459","mind-pharmacy/data/rx-prescriptions.js":"e6ac5013ffc1","mind-pharmacy/data/stickers-data.js":"ae28fcc9bda3","ui_kits/soul-pharmacy/AssessmentScreen.jsx":"6b2e0c620cf2","ui_kits/soul-pharmacy/AssessmentScreen.standalone.jsx":"0cceea7d7fd8","ui_kits/soul-pharmacy/IntroScreen.jsx":"2c932eb1017c","ui_kits/soul-pharmacy/IntroSequence.jsx":"072d5ba90ab2","ui_kits/soul-pharmacy/LogoMark.jsx":"84d231d44b7c","ui_kits/soul-pharmacy/MainScreen.jsx":"6cda3c5f783d","ui_kits/soul-pharmacy/MainScreen.standalone.jsx":"b7e4006dcdc5","ui_kits/soul-pharmacy/MainWide.jsx":"79999ebb08be","ui_kits/soul-pharmacy/MoodWallScreen.jsx":"6df1315b6ff8","ui_kits/soul-pharmacy/ResultScreen.jsx":"506a962b014c","ui_kits/soul-pharmacy/StickerScreen.jsx":"a9e28ab6df64","ui_kits/soul-pharmacy/animation/animations-v2.jsx":"33e9200b93f5","ui_kits/soul-pharmacy/animation/scenes.jsx":"06cfa3628e8d","ui_kits/soul-pharmacy/animation/tweaks-panel.jsx":"d259e3a86f73","ui_kits/soul-pharmacy/assessment-data.js":"bb3975bc795b","ui_kits/soul-pharmacy/audio-manager.js":"ab64dc7a0e92","ui_kits/soul-pharmacy/deck-stage.js":"f3d3d0a662c0","ui_kits/soul-pharmacy/image-slot.js":"0394ad34f685","ui_kits/soul-pharmacy/ios-frame.jsx":"d20b42e0fa28","ui_kits/soul-pharmacy/rx-data.js":"fe8015a60938","ui_kits/soul-pharmacy/rx-prescriptions.js":"6e074c387633","ui_kits/soul-pharmacy/stickers-data.js":"559799cbbe22"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"DesignSystem_d4e5a3","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"StepIndicator","sourcePath":"components/forms/StepIndicator.jsx"},{"name":"AssessmentPaper","sourcePath":"components/prescription/AssessmentPaper.jsx"},{"name":"Divider","sourcePath":"components/prescription/Divider.jsx"},{"name":"IntakeSheet","sourcePath":"components/prescription/IntakeSheet.jsx"},{"name":"MOODS","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"MoodEnvelope","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"PrescriptionCard","sourcePath":"components/prescription/PrescriptionCard.jsx"},{"name":"PrescriptionWord","sourcePath":"components/prescription/PrescriptionWord.jsx"},{"name":"RxField","sourcePath":"components/prescription/RxField.jsx"},{"name":"WoodShelf","sourcePath":"components/prescription/WoodShelf.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f1c1a01bcfcc","components/brand/Wordmark.jsx":"ffac84e8995f","components/core/Icon.jsx":"810e3556184d","components/forms/Checkbox.jsx":"9d7345e82d79","components/forms/StepIndicator.jsx":"f0e100d788cf","components/prescription/AssessmentPaper.jsx":"a8da5fd58766","components/prescription/Divider.jsx":"3254f53877e4","components/prescription/IntakeSheet.jsx":"25c90730a4bb","components/prescription/MoodEnvelope.jsx":"15133bc19d38","components/prescription/PrescriptionCard.jsx":"bcaaf72df6b4","components/prescription/PrescriptionWord.jsx":"466a85af6e0f","components/prescription/RxField.jsx":"f0a1ebe4ad70","components/prescription/WoodShelf.jsx":"d79b56492176","doc-page.js":"371bab66f42d","mind-pharmacy/app.js":"0fcf9f28fef2","mind-pharmacy/audio.js":"e5d95a24d1ac","mind-pharmacy/data/assessment-data.js":"9df5807165d2","mind-pharmacy/data/rx-data.js":"042643421459","mind-pharmacy/data/rx-prescriptions.js":"e6ac5013ffc1","mind-pharmacy/data/stickers-data.js":"ae28fcc9bda3","ui_kits/soul-pharmacy/AssessmentScreen.jsx":"6b2e0c620cf2","ui_kits/soul-pharmacy/AssessmentScreen.standalone.jsx":"0cceea7d7fd8","ui_kits/soul-pharmacy/IntroScreen.jsx":"2c932eb1017c","ui_kits/soul-pharmacy/IntroSequence.jsx":"06123de2c6e8","ui_kits/soul-pharmacy/LogoMark.jsx":"84d231d44b7c","ui_kits/soul-pharmacy/MainScreen.jsx":"6cda3c5f783d","ui_kits/soul-pharmacy/MainScreen.standalone.jsx":"b7e4006dcdc5","ui_kits/soul-pharmacy/MainWide.jsx":"79999ebb08be","ui_kits/soul-pharmacy/MoodWallScreen.jsx":"6df1315b6ff8","ui_kits/soul-pharmacy/ResultScreen.jsx":"3b7f0dca4131","ui_kits/soul-pharmacy/StickerScreen.jsx":"8102f2243fc1","ui_kits/soul-pharmacy/animation/animations-v2.jsx":"33e9200b93f5","ui_kits/soul-pharmacy/animation/scenes.jsx":"06cfa3628e8d","ui_kits/soul-pharmacy/animation/tweaks-panel.jsx":"d259e3a86f73","ui_kits/soul-pharmacy/assessment-data.js":"64a1b8e09032","ui_kits/soul-pharmacy/audio-manager.js":"ab64dc7a0e92","ui_kits/soul-pharmacy/deck-stage.js":"f3d3d0a662c0","ui_kits/soul-pharmacy/image-slot.js":"0394ad34f685","ui_kits/soul-pharmacy/ios-frame.jsx":"d20b42e0fa28","ui_kits/soul-pharmacy/rx-data.js":"fe8015a60938","ui_kits/soul-pharmacy/rx-prescriptions.js":"6e074c387633","ui_kits/soul-pharmacy/stickers-data.js":"559799cbbe22"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -4681,7 +4681,7 @@ function IntroSequence({
     sub: ["잘 생각해 낸 답보다", "지금 마음에 가까운 답을 골라 주세요."]
   }, {
     logo: true,
-    title: ["먼저,", "오늘 내 마음에 가장 가까운", "감정 하나를 선택해 주세요."],
+    title: ["먼저,", "오늘 내 마음에 가장 가까운", "마음 하나를 선택해 주세요."],
     sub: ["천천히 살펴본 뒤", "가장 마음이 머무는 카드를 선택해 주세요."]
   }];
   const [i, setI] = React.useState(0);
@@ -5836,7 +5836,7 @@ function ResultScreen({
     return () => window.removeEventListener("resize", pick);
   }, []);
 
-  // loading → reveal
+  // loading → envelope(봉투에서 종이가 올라오는 장면) → reveal(종이만 남아 읽는 장면)
   const [phase, setPhase] = React.useState("loading");
   const [msg, setMsg] = React.useState(0);
   const [skipAnim, setSkipAnim] = React.useState(false); // 클릭하면 전체 즉시 표시
@@ -5847,16 +5847,20 @@ function ResultScreen({
     setPhase("loading");
     setMsg(0);
     const t1 = setTimeout(() => setMsg(1), 2200);
-    const t2 = setTimeout(() => setPhase("reveal"), 4400);
+    const t2 = setTimeout(() => setPhase("envelope"), 4400);
+    const t2b = setTimeout(() => setPhase("envExit"), 9600);
+    const t3 = setTimeout(() => setPhase("reveal"), 10600);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t2b);
+      clearTimeout(t3);
     };
   }, [mood]);
 
-  // 말씀 처방전이 등장하는 시점(reveal)부터 3번 배경음악으로 크로스페이드
+  // 말씀 처방전이 등장하는 시점부터 3번 배경음악으로 크로스페이드
   React.useEffect(() => {
-    if (window.__bgm && phase === "reveal") window.__bgm.play(3);
+    if (window.__bgm && (phase === "envelope" || phase === "reveal")) window.__bgm.play(3);
   }, [phase]);
   const messages = ["말씀 처방전을 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
 
@@ -5918,6 +5922,135 @@ function ResultScreen({
         animation: `rxdot2 1.2s ${i * 0.16}s infinite ease-in-out`
       }
     }))));
+  }
+
+  // ── 봉투 장면 (시안 1컷: 봉투에서 처방전 종이가 올라오는 순간) ──
+  if (phase === "envelope" || phase === "envExit") {
+    return /*#__PURE__*/React.createElement("div", {
+      onClick: () => setPhase("reveal"),
+      style: {
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        cursor: "pointer",
+        background: "#F3E7D6",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: phase === "envExit" ? 0 : 1,
+        transition: "opacity 1000ms ease",
+        animation: "rxfade 900ms ease-out"
+      }
+    }, /*#__PURE__*/React.createElement("style", null, `@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`), /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%"
+      }
+    }, /*#__PURE__*/React.createElement("img", {
+      src: "assets-web/envelope-scene.png",
+      alt: "",
+      style: {
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        objectPosition: "center",
+        display: "block",
+        opacity: 0,
+        animation: "rximg 1600ms ease-out both"
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "absolute",
+        left: "50%",
+        top: "9%",
+        transform: "translateX(-50%)",
+        width: "86%",
+        maxWidth: 720,
+        textAlign: "center",
+        pointerEvents: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-body)",
+        fontWeight: 600,
+        fontSize: "clamp(14px,1.35vw,18px)",
+        color: "#9B7B5E",
+        letterSpacing: "0.2em",
+        opacity: 0,
+        animation: "rxup 1400ms 1300ms cubic-bezier(0.22,1,0.32,1) both"
+      }
+    }, "\uB9D0\uC500 \uCC98\uBC29\uC804"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-title)",
+        fontWeight: 600,
+        fontSize: "clamp(26px,3.1vw,42px)",
+        color: "#5B4A3C",
+        letterSpacing: "0.02em",
+        marginTop: "0.5em",
+        opacity: 0,
+        animation: "rxup 1600ms 2100ms cubic-bezier(0.22,1,0.32,1) both"
+      }
+    }, "\uB2F9\uC2E0\uC744 \uC704\uD55C \uCC98\uBC29\uC804\uC774 \uC900\uBE44\uB418\uC5C8\uC5B4\uC694"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-body)",
+        fontWeight: 400,
+        fontSize: "clamp(14px,1.5vw,20px)",
+        lineHeight: 1.7,
+        color: "#8C7565",
+        marginTop: "0.55em",
+        opacity: 0,
+        animation: "rxup 1600ms 3100ms cubic-bezier(0.22,1,0.32,1) both"
+      }
+    }, "\uC9C0\uAE08 \uD558\uB098\uB2D8\uAED8\uC11C \uB2F9\uC2E0\uC758 \uB9C8\uC74C\uC5D0 \uB9DE\uB294 \uB9D0\uC500\uC744 \uAEBC\uB0B4\uACE0 \uC788\uC5B4\uC694."), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: "1.7em",
+        opacity: 0,
+        animation: "rxup 1600ms 4100ms cubic-bezier(0.22,1,0.32,1) both"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.7em"
+      }
+    }, /*#__PURE__*/React.createElement("img", {
+      src: "assets-web/leaf-purple.png",
+      alt: "",
+      style: {
+        width: "clamp(26px,2.4vw,36px)",
+        height: "auto",
+        transform: "scaleX(-1)"
+      }
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "'Noto Serif KR', serif",
+        fontWeight: 500,
+        fontSize: "clamp(16px,1.55vw,22px)",
+        letterSpacing: "-0.02em",
+        color: "#5B4A3C"
+      }
+    }, "\uB0B4\uAC00 \uB108\uC640 \uD568\uAED8 \uD568\uC774\uB77C"), /*#__PURE__*/React.createElement("img", {
+      src: "assets-web/leaf-purple.png",
+      alt: "",
+      style: {
+        width: "clamp(26px,2.4vw,36px)",
+        height: "auto"
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-body)",
+        fontWeight: 400,
+        fontSize: "clamp(13px,1.2vw,17px)",
+        color: "#8C7565",
+        marginTop: "0.5em"
+      }
+    }, "\uC774\uC0AC\uC57C 41:10")))));
   }
 
   // ── 처방전 조각들 ──
@@ -5996,20 +6129,22 @@ function ResultScreen({
   }, note)), children);
   const hr = /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: "1px solid rgba(62,99,166,0.22)"
+      borderTop: "1px solid rgba(120,104,78,0.18)"
     }
   });
-  const BORD = "rgba(62,99,166,0.38)"; // 연한 파란 테두리
-  const LBL = "rgba(62,99,166,0.06)"; // 라벨칸 배경
+  const BORD = "rgba(120,104,78,0.18)"; // 웜 종이 해어라인
+  const LBL = "transparent";
   const TL = ({
     children
   }) => /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "var(--font-body)",
       fontWeight: 700,
-      fontSize: pc ? 14 : 12.5,
-      color: RX,
-      letterSpacing: "0.02em"
+      fontSize: pc ? 13 : 12,
+      color: "#5a7099",
+      letterSpacing: "0.04em",
+      paddingRight: 8,
+      whiteSpace: "nowrap"
     }
   }, children);
   const TV = ({
@@ -6025,17 +6160,17 @@ function ResultScreen({
   }, children);
 
   // 처방전 각 구획이 위에서부터 순차적으로 차분히 나타나는 연출 (문진지와 동일 감성)
-  let _rt = 400,
-    _gap = 1200;
+  let _rt = 260,
+    _gap = 780;
   const Reveal = ({
     children
   }) => {
     const delay = _rt;
     _rt += _gap;
-    _gap += 700; // 섹션마다 간격을 키워 뒤로 갈수록 더 천천히 등장
+    _gap += 420; // 섹션마다 간격을 키워 뒤로 갈수록 더 천천히 등장
     return /*#__PURE__*/React.createElement("div", {
       style: {
-        animation: skipAnim ? "none" : "rxrise 1800ms cubic-bezier(0.22,1,0.32,1) both",
+        animation: skipAnim ? "none" : "rxrise 1150ms cubic-bezier(0.22,1,0.32,1) both",
         animationDelay: skipAnim ? undefined : `${delay}ms`
       }
     }, children);
@@ -6057,19 +6192,19 @@ function ResultScreen({
       position: "relative",
       width: sheetW,
       maxWidth: "100%",
-      background: "#FCFBF6",
-      border: `1.5px solid ${BORD}`,
-      borderRadius: 24,
-      boxShadow: "0 12px 40px rgba(70,58,45,0.12)",
+      background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)",
+      border: "1px solid rgba(120,104,78,0.16)",
+      borderRadius: 8,
+      boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)",
       boxSizing: "border-box",
       animation: "rxstep 950ms ease-out"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      inset: 8,
-      border: `1px solid ${BORD}`,
-      borderRadius: 18,
+      inset: 10,
+      border: "1px solid rgba(120,104,78,0.14)",
+      borderRadius: 4,
       pointerEvents: "none"
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -6094,10 +6229,10 @@ function ResultScreen({
     style: {
       fontFamily: "var(--font-title)",
       fontWeight: 500,
-      fontSize: pc ? 31 : 24,
-      color: RX,
-      letterSpacing: "0.06em",
-      paddingLeft: "0.06em"
+      fontSize: pc ? 27 : 22,
+      color: "#3f5a86",
+      letterSpacing: "0.12em",
+      paddingLeft: "0.12em"
     }
   }, "\uB9C8\uC74C\uC57D\uAD6D \uCC98\uBC29\uC804"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6107,46 +6242,22 @@ function ResultScreen({
     }
   }))), /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("div", {
     style: {
-      border: `1px solid ${BORD}`,
-      borderRadius: 2,
-      overflow: "hidden",
       margin: `${pc ? 4 : 2}px 0 0`
     }
   }, [["처방일", "2026.08.01", "증상", rx.symptom], ["마음 강도", rx.intensity, "처방 단어", rx.word]].map((row, ri) => /*#__PURE__*/React.createElement("div", {
     key: ri,
     style: {
       display: "grid",
-      gridTemplateColumns: pc ? "108px 1fr 108px 1fr" : "66px 1fr 70px 1fr",
+      gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr",
+      columnGap: pc ? 14 : 12,
+      rowGap: pc ? 0 : 7,
+      alignItems: "baseline",
+      padding: `${pc ? 11 : 9}px 2px`,
       borderTop: ri ? `1px solid ${BORD}` : "none"
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      background: LBL,
-      borderRight: `1px solid ${BORD}`
-    }
-  }, /*#__PURE__*/React.createElement(TL, null, row[0])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      borderRight: `1px solid ${BORD}`,
-      display: "flex",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement(TV, null, row[1])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      background: LBL,
-      borderRight: `1px solid ${BORD}`
-    }
-  }, /*#__PURE__*/React.createElement(TL, null, row[2])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      display: "flex",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement(TV, {
+  }, /*#__PURE__*/React.createElement(TL, null, row[0]), /*#__PURE__*/React.createElement(TV, null, row[1]), /*#__PURE__*/React.createElement(TL, null, row[2]), /*#__PURE__*/React.createElement(TV, {
     accent: ri === 1
-  }, row[3])))))), /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("div", {
+  }, row[3]))))), /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: pc ? 26 : 20
     }
@@ -6154,14 +6265,16 @@ function ResultScreen({
     style: {
       fontFamily: "var(--font-body)",
       fontWeight: 700,
-      fontSize: pc ? 15 : 13.5,
-      color: RX,
-      marginBottom: pc ? 6 : 4
+      fontSize: pc ? 12.5 : 11.5,
+      color: "#5a7099",
+      letterSpacing: "0.14em",
+      textAlign: "center",
+      marginBottom: pc ? 12 : 9
     }
   }, "\uCC98\uBC29 \uB9D0\uC500"), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
-      padding: `${pc ? 12 : 10}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`,
+      padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`,
       textAlign: "center"
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -6170,8 +6283,8 @@ function ResultScreen({
       left: 0,
       top: 2,
       fontFamily: "var(--font-verse)",
-      fontSize: pc ? 34 : 26,
-      color: BORD,
+      fontSize: pc ? 24 : 19,
+      color: "rgba(120,104,78,0.28)",
       lineHeight: 1
     }
   }, "\u201C"), /*#__PURE__*/React.createElement("p", {
@@ -6190,17 +6303,17 @@ function ResultScreen({
       right: 0,
       bottom: pc ? 2 : 0,
       fontFamily: "var(--font-verse)",
-      fontSize: pc ? 34 : 26,
-      color: BORD,
+      fontSize: pc ? 24 : 19,
+      color: "rgba(120,104,78,0.28)",
       lineHeight: 1
     }
   }, "\u201D"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "var(--font-body)",
-      fontSize: pc ? 13.5 : 12.5,
-      color: RX,
-      letterSpacing: "0.02em",
-      marginTop: pc ? 12 : 9
+      fontSize: pc ? 13 : 12,
+      color: "#5a7099",
+      letterSpacing: "0.04em",
+      marginTop: pc ? 14 : 10
     }
   }, rx.reference)), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6426,72 +6539,112 @@ function ResultScreen({
       color: "var(--rx-ink)"
     }
   }, title));
+  const paperBtn = (icon, label, onClick, w, accent) => /*#__PURE__*/React.createElement("button", {
+    onClick: onClick,
+    style: {
+      width: pc ? w : "auto",
+      flex: pc ? "0 0 auto" : 1,
+      height: 48,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      padding: "0 16px",
+      borderRadius: 14,
+      border: accent ? "1px solid rgba(126,116,190,0.55)" : "1px solid rgba(171,136,96,0.22)",
+      cursor: "pointer",
+      background: accent ? "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)" : "#F7EBDD",
+      boxShadow: accent ? "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)" : "0 5px 14px rgba(97,68,42,0.09)",
+      color: accent ? "#fff" : "#6A533F",
+      animation: accent ? "rxGlow 2.6s ease-in-out infinite" : undefined
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: icon,
+    size: 18,
+    color: accent ? "#fff" : "#6A533F",
+    stroke: 1.7
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      fontWeight: accent ? 600 : 500,
+      fontSize: 16,
+      color: accent ? "#fff" : "#6A533F",
+      letterSpacing: "0.01em"
+    }
+  }, label));
   const actions = /*#__PURE__*/React.createElement("div", {
     style: {
-      width: sheetW,
+      width: "100%",
       maxWidth: "100%",
       boxSizing: "border-box",
       display: "flex",
-      flexDirection: "column",
-      gap: 12,
+      gap: 14,
+      justifyContent: "center",
       animation: "rxstep 1050ms ease-out 260ms both"
     }
-  }, shareCard, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12
-    }
-  }, softCard("download", "이미지로 저장", "처방전을 저장해보세요", undefined), softCard("rotate-cw", "다시 처방받기", "처음부터 다시 시작해요", onAgain)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {},
-    style: {
-      marginTop: 2,
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      fontFamily: "var(--font-body)",
-      fontSize: 13.5,
-      color: "var(--rx-ink)",
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 6,
-      padding: "8px 0",
-      alignSelf: "center"
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "book-open",
-    size: 16,
-    color: "var(--rx-ink)",
-    stroke: 1.7
-  }), " \uB9D0\uC500\uAD11\uC7A5\uC5D0\uC11C \u2018", rx.word, "\u2019 \uC5F4\uC5B4\uBCF4\uAE30"));
+  }, paperBtn("rotate-cw", "다시하기", onAgain, 158), paperBtn("share-2", "스티커 붙여 공유하기", onDecorate, 235, true));
   return /*#__PURE__*/React.createElement("div", {
     onDoubleClick: () => setSkipAnim(true),
     style: {
-      minHeight: "100vh",
+      position: "relative",
       width: "100%",
+      height: "100vh",
+      overflow: "hidden",
+      boxSizing: "border-box"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "#F3E8DA",
+      backgroundImage: "url(assets-web/decorate-bg.png)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
+      zIndex: 0,
+      pointerEvents: "none"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      zIndex: 1,
+      width: "100%",
+      height: "100vh",
+      overflowY: "auto",
+      overflowX: "hidden",
       boxSizing: "border-box",
-      background: "radial-gradient(120% 60% at 50% 0%, #FBF7F0 0%, var(--bg-page) 55%, #EDE7DE 100%)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      padding: pc ? "34px 28px 56px" : "22px 16px 44px",
-      overflowX: "hidden"
+      padding: pc ? "34px 28px 28px" : "22px 16px 24px"
     }
-  }, /*#__PURE__*/React.createElement("style", null, `@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("style", null, `@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`), sheet, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 28,
+      flex: "0 0 auto"
+    }
+  }), actions, /*#__PURE__*/React.createElement("p", {
     style: {
       fontFamily: "var(--font-body)",
-      fontSize: 12,
-      letterSpacing: "0.22em",
-      color: m.ink,
-      marginBottom: 18,
-      animation: "rxstep 700ms ease-out"
+      fontSize: 12.5,
+      color: "#8a6f4a",
+      opacity: 0.55,
+      textAlign: "center",
+      margin: "14px 0 0",
+      animation: "rxstep 1050ms ease-out 360ms both"
     }
-  }, "\uC624\uB298\uC758 \uB9D0\uC500 \uCC98\uBC29\uC804"), sheet, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", {
     style: {
-      height: 20
+      color: "#E0917E",
+      opacity: 1.4
     }
-  }), actions);
+  }, "\u2665"), " \uC774 \uB9D0\uC500\uC740 \uB2F9\uC2E0\uC744 \uC704\uD574 \uC900\uBE44\uB418\uC5C8\uC5B4\uC694 ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#E0917E",
+      opacity: 1.4
+    }
+  }, "\u2665"))));
 }
 window.ResultScreen = ResultScreen;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/soul-pharmacy/ResultScreen.jsx", error: String((e && e.message) || e) }); }
@@ -6890,8 +7043,8 @@ function StickerScreen({
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", endPointer);
   };
-  const INK = "#2f5596"; // 인쇄 잉크 (파랑)
-  const LINE = "rgba(47,85,150,0.5)"; // 표/구분선
+  const INK = "#3f5a86"; // 인쇄 잉크 (톤다운 블루)
+  const LINE = "rgba(120,104,78,0.22)"; // 종이 구분선 (웜 그레이)
   const PURPLE = "#6B5FCF"; // 메인 액션(저장·스티커 추가)
   // 표 셀 (라벨칸 + 값칸)
   const TLabel = ({
@@ -6900,9 +7053,11 @@ function StickerScreen({
     style: {
       fontFamily: "var(--font-body)",
       fontWeight: 700,
-      fontSize: pc ? 14 : 12.5,
-      color: INK,
-      letterSpacing: "0.02em"
+      fontSize: pc ? 13 : 12,
+      color: "#5a7099",
+      letterSpacing: "0.04em",
+      paddingRight: 8,
+      whiteSpace: "nowrap"
     }
   }, children);
   const TVal = ({
@@ -7034,35 +7189,35 @@ function StickerScreen({
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: 4
+      gap: 3
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onClick,
     style: {
-      width: 48,
-      height: 48,
+      width: 38,
+      height: 38,
       borderRadius: "50%",
-      border: main ? "none" : "1px solid rgba(70,58,45,0.12)",
+      border: main ? "none" : "1px solid rgba(120,104,78,0.16)",
       cursor: "pointer",
-      background: main ? PURPLE : "#fff",
+      background: main ? "#8f86c9" : "rgba(253,251,246,0.85)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      boxShadow: main ? "0 6px 16px rgba(107,95,207,0.32)" : "0 3px 10px rgba(70,58,45,0.10)"
+      boxShadow: main ? "0 4px 12px rgba(120,104,78,0.18)" : "0 2px 7px rgba(90,74,52,0.08)"
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: icon,
-    size: 20,
+    size: 17,
     color: main ? "#fff" : "var(--text-body)",
     stroke: 1.7
   })), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "var(--font-body)",
-      fontSize: 11,
+      fontSize: 10,
       lineHeight: 1.2,
       color: "var(--text-muted)",
       textAlign: "center",
-      maxWidth: 56
+      maxWidth: 52
     }
   }, label));
   const toolbar = /*#__PURE__*/React.createElement("div", {
@@ -7242,18 +7397,18 @@ function StickerScreen({
       position: "relative",
       width: sheetW,
       maxWidth: "100%",
-      background: "#FCFBF6",
-      border: "1.5px solid rgba(62,99,166,0.38)",
-      borderRadius: 24,
-      boxShadow: "0 12px 40px rgba(70,58,45,0.12)",
+      background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)",
+      border: "1px solid rgba(120,104,78,0.16)",
+      borderRadius: 8,
+      boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)",
       boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      inset: 8,
-      border: "1px solid rgba(62,99,166,0.38)",
-      borderRadius: 18,
+      inset: 10,
+      border: "1px solid rgba(120,104,78,0.14)",
+      borderRadius: 4,
       pointerEvents: "none"
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -7284,77 +7439,55 @@ function StickerScreen({
     style: {
       fontFamily: "var(--font-title)",
       fontWeight: 500,
-      fontSize: pc ? 31 : 24,
-      color: RX,
-      letterSpacing: "0.06em",
-      paddingLeft: "0.06em"
+      fontSize: pc ? 27 : 22,
+      color: "#3f5a86",
+      letterSpacing: "0.12em",
+      paddingLeft: "0.12em"
     }
   }, "\uB9C8\uC74C\uC57D\uAD6D \uCC98\uBC29\uC804"), /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: "1px solid rgba(62,99,166,0.38)",
+      borderTop: `1px solid ${LINE}`,
       width: "100%",
       marginTop: pc ? 16 : 12
     }
   })), /*#__PURE__*/React.createElement("div", {
     "data-protect": true,
     style: {
-      width: "100%",
-      border: "1px solid rgba(62,99,166,0.38)",
-      borderRadius: 2,
-      overflow: "hidden"
+      width: "100%"
     }
   }, [["처방일", rxDate, "증상", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "처방 단어", rx.word]].map((row, ri) => /*#__PURE__*/React.createElement("div", {
     key: ri,
     style: {
       display: "grid",
-      gridTemplateColumns: pc ? "108px 1fr 108px 1fr" : "66px 1fr 70px 1fr",
-      borderTop: ri ? "1px solid rgba(62,99,166,0.38)" : "none"
+      gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr",
+      columnGap: pc ? 14 : 12,
+      rowGap: pc ? 0 : 7,
+      alignItems: "baseline",
+      padding: `${pc ? 11 : 9}px 2px`,
+      borderTop: ri ? `1px solid ${LINE}` : "none"
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      background: "rgba(62,99,166,0.06)",
-      borderRight: "1px solid rgba(62,99,166,0.38)"
-    }
-  }, /*#__PURE__*/React.createElement(TLabel, null, row[0])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      borderRight: "1px solid rgba(62,99,166,0.38)",
-      display: "flex",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement(TVal, null, row[1])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      background: "rgba(62,99,166,0.06)",
-      borderRight: "1px solid rgba(62,99,166,0.38)"
-    }
-  }, /*#__PURE__*/React.createElement(TLabel, null, row[2])), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: pc ? "14px 16px" : "10px 10px",
-      display: "flex",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement(TVal, {
+  }, /*#__PURE__*/React.createElement(TLabel, null, row[0]), /*#__PURE__*/React.createElement(TVal, null, row[1]), /*#__PURE__*/React.createElement(TLabel, null, row[2]), /*#__PURE__*/React.createElement(TVal, {
     accent: ri === 1
-  }, row[3]))))), /*#__PURE__*/React.createElement("div", {
+  }, row[3])))), /*#__PURE__*/React.createElement("div", {
     "data-protect": true,
     style: {
       width: "100%",
-      marginTop: pc ? 26 : 20
+      marginTop: pc ? 30 : 22
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "var(--font-body)",
       fontWeight: 700,
-      fontSize: pc ? 15 : 13.5,
-      color: RX,
-      marginBottom: pc ? 6 : 4
+      fontSize: pc ? 12.5 : 11.5,
+      color: "#5a7099",
+      letterSpacing: "0.14em",
+      textAlign: "center",
+      marginBottom: pc ? 12 : 9
     }
   }, "\uCC98\uBC29 \uB9D0\uC500"), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
-      padding: `${pc ? 12 : 10}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`,
+      padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`,
       textAlign: "center"
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -7363,8 +7496,8 @@ function StickerScreen({
       left: 0,
       top: 2,
       fontFamily: "var(--font-verse)",
-      fontSize: pc ? 34 : 26,
-      color: "rgba(62,99,166,0.38)",
+      fontSize: pc ? 24 : 19,
+      color: "rgba(120,104,78,0.28)",
       lineHeight: 1
     }
   }, "\u201C"), /*#__PURE__*/React.createElement("p", {
@@ -7383,17 +7516,17 @@ function StickerScreen({
       right: 0,
       bottom: pc ? 2 : 0,
       fontFamily: "var(--font-verse)",
-      fontSize: pc ? 34 : 26,
-      color: "rgba(62,99,166,0.38)",
+      fontSize: pc ? 24 : 19,
+      color: "rgba(120,104,78,0.28)",
       lineHeight: 1
     }
   }, "\u201D"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "var(--font-body)",
-      fontSize: pc ? 13.5 : 12.5,
-      color: RX,
-      letterSpacing: "0.02em",
-      marginTop: pc ? 12 : 9
+      fontSize: pc ? 13 : 12,
+      color: "#5a7099",
+      letterSpacing: "0.04em",
+      marginTop: pc ? 14 : 10
     }
   }, rx.reference))), /*#__PURE__*/React.createElement("div", {
     "data-sticker-zone": true,
@@ -7461,97 +7594,17 @@ function StickerScreen({
       margin: 0,
       flex: 1
     }
-  }, oneLine))), /*#__PURE__*/React.createElement("div", {
-    "data-protect": true,
-    style: {
-      width: "100%",
-      borderTop: `1px solid ${LINE}`,
-      paddingTop: pc ? 16 : 12,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "assets-web/logo-mark.webp",
-    alt: "",
-    style: {
-      width: pc ? 26 : 22,
-      height: "auto"
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: "var(--font-title)",
-      fontWeight: 700,
-      fontSize: pc ? 20 : 17,
-      color: INK
-    }
-  }, "\uB9C8\uC74C\uC57D\uAD6D")), !finalizing && /*#__PURE__*/React.createElement("div", {
-    "data-export-ignore": "true",
-    style: {
-      display: "flex",
-      flexDirection: pc ? "row" : "column-reverse",
-      gap: pc ? 14 : 11,
-      justifyContent: "center",
-      marginTop: pc ? 20 : 16,
-      width: "100%",
-      maxWidth: 460
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => openConfirm("save"),
-    style: {
-      flex: pc ? 4 : "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-      padding: "15px 20px",
-      borderRadius: "var(--radius-lg)",
-      border: "1px solid rgba(142,134,222,0.4)",
-      cursor: "pointer",
-      background: "rgba(255,255,255,0.7)",
-      color: "var(--rx-blue-500)",
-      fontFamily: "var(--font-body)",
-      fontWeight: 700,
-      fontSize: 15
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "download",
-    size: 17,
-    color: "var(--rx-blue-500)"
-  }), " \uC774\uBBF8\uC9C0\uB85C \uC800\uC7A5\uD558\uAE30"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => openConfirm("share"),
-    style: {
-      flex: pc ? 6 : "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-      padding: "15px 20px",
-      borderRadius: "var(--radius-lg)",
-      border: "none",
-      cursor: "pointer",
-      background: PURPLE,
-      color: "#fff",
-      fontFamily: "var(--font-body)",
-      fontWeight: 700,
-      fontSize: 15,
-      boxShadow: "0 8px 20px rgba(107,95,207,0.28)"
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "share-2",
-    size: 17,
-    color: "#fff"
-  }), " \uC18C\uC911\uD55C \uC0AC\uB78C\uC5D0\uAC8C \uACF5\uC720\uD558\uAE30")), /*#__PURE__*/React.createElement("p", {
+  }, oneLine))), /*#__PURE__*/React.createElement("p", {
     "data-export-ignore": "true",
     style: {
       fontFamily: "var(--font-body)",
-      fontSize: 12,
-      color: "var(--text-muted)",
+      fontSize: 12.5,
+      color: "#8a6f4a",
+      opacity: 0.55,
       textAlign: "center",
       margin: `${pc ? 16 : 12}px 0 0`
     }
-  }, "\uD83D\uDCA1 \uB9C8\uC74C\uC57D\uAD6D \uCC98\uBC29\uC804\uC740 \uB2F9\uC2E0\uC758 \uB9C8\uC74C\uC744 \uC704\uD55C \uB9DE\uCDA4 \uCC98\uBC29\uC785\uB2C8\uB2E4."))), showTip && /*#__PURE__*/React.createElement("div", {
+  }, "\uB9C8\uC74C\uC57D\uAD6D \uCC98\uBC29\uC804\uC740 \uB2F9\uC2E0\uC758 \uB9C8\uC74C\uC744 \uC704\uD55C \uB9DE\uCDA4 \uCC98\uBC29\uC785\uB2C8\uB2E4."))), showTip && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: 10,
@@ -7730,15 +7783,38 @@ function StickerScreen({
   }, "\uC774 \uB9C1\uD06C\uB97C \uBC1B\uC740 \uC0AC\uB78C\uB3C4 \uC2A4\uD2F0\uCEE4\uB97C \uC774\uC5B4 \uBD99\uC77C \uC218 \uC788\uC5B4\uC694."));
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      minHeight: "100vh",
+      position: "relative",
       width: "100%",
+      height: "100vh",
+      overflow: "hidden",
+      boxSizing: "border-box"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "#F3E8DA",
+      backgroundImage: "url(assets-web/decorate-bg.png)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat",
+      zIndex: 0,
+      pointerEvents: "none"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      zIndex: 1,
+      width: "100%",
+      height: "100vh",
+      overflowY: "auto",
+      overflowX: "hidden",
       boxSizing: "border-box",
-      background: "linear-gradient(180deg,#F1ECE3 0%,#EDE8DF 100%)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      padding: pc ? "26px 32px 96px" : "20px 16px 96px",
-      overflowX: "hidden"
+      padding: pc ? "26px 32px 40px" : "20px 16px 32px"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -7788,7 +7864,67 @@ function StickerScreen({
       alignItems: "center",
       maxWidth: "100%"
     }
-  }, board, finalizing && confirmType && flow === "idle" && /*#__PURE__*/React.createElement("div", {
+  }, board, !finalizing && flow === "idle" && !confirmType && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: pc ? "row" : "column-reverse",
+      gap: pc ? 14 : 11,
+      justifyContent: "center",
+      marginTop: pc ? 22 : 18,
+      width: sheetW,
+      maxWidth: "100%",
+      boxSizing: "border-box"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => openConfirm("save"),
+    style: {
+      flex: pc ? 4 : "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      height: 50,
+      padding: "0 20px",
+      borderRadius: 14,
+      border: "1px solid rgba(171,136,96,0.22)",
+      cursor: "pointer",
+      background: "#F7EBDD",
+      boxShadow: "0 5px 14px rgba(97,68,42,0.09)",
+      color: "#6A533F",
+      fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: 600,
+      fontSize: 16
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "download",
+    size: 18,
+    color: "#6A533F"
+  }), " \uC774\uBBF8\uC9C0\uB85C \uC800\uC7A5\uD558\uAE30"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => openConfirm("share"),
+    style: {
+      flex: pc ? 6 : "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      height: 50,
+      padding: "0 20px",
+      borderRadius: 14,
+      border: "1px solid rgba(126,116,190,0.55)",
+      cursor: "pointer",
+      background: "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)",
+      boxShadow: "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)",
+      color: "#fff",
+      fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: 600,
+      fontSize: 16,
+      animation: "rxGlow 2.6s ease-in-out infinite"
+    }
+  }, /*#__PURE__*/React.createElement("style", null, `@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`), /*#__PURE__*/React.createElement(Icon, {
+    name: "share-2",
+    size: 18,
+    color: "#fff"
+  }), " \uC18C\uC911\uD55C \uC0AC\uB78C\uC5D0\uAC8C \uACF5\uC720\uD558\uAE30")), finalizing && confirmType && flow === "idle" && /*#__PURE__*/React.createElement("div", {
     "data-export-ignore": "true",
     style: {
       width: sheetW,
@@ -7931,7 +8067,11 @@ function StickerScreen({
       justifyContent: "center",
       textAlign: "center",
       padding: 32,
-      background: "linear-gradient(180deg,#F5F0E8 0%,#F1ECE3 100%)"
+      backgroundColor: "#F3E8DA",
+      backgroundImage: "url(assets-web/decorate-bg.png)",
+      backgroundSize: "cover",
+      backgroundPosition: "center center",
+      backgroundRepeat: "no-repeat"
     }
   }, /*#__PURE__*/React.createElement("style", null, "@keyframes revealUp{to{opacity:1;transform:translateY(0)}}"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -8019,7 +8159,7 @@ function StickerScreen({
       transform: "translateY(12px)",
       animation: "revealUp 480ms ease-out 900ms forwards"
     }
-  }, "\uC7A0\uC2DC \uD6C4 \uBA54\uC778\uC73C\uB85C \uB3CC\uC544\uAC11\uB2C8\uB2E4"))));
+  }, "\uC7A0\uC2DC \uD6C4 \uBA54\uC778\uC73C\uB85C \uB3CC\uC544\uAC11\uB2C8\uB2E4")))));
 }
 window.StickerScreen = StickerScreen;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/soul-pharmacy/StickerScreen.jsx", error: String((e && e.message) || e) }); }
@@ -10800,9 +10940,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["예전에는 감사했던 것도 이제 당연하게 느껴져요", "계속되는 돌봄보다 부족한 것만 보여요", "감사해야 한다는 말이 부담스럽게 느껴져요", "상황이 나아져야 감사할 수 있을 것 같아요", "감사하지 못하는 내가 믿음 없는 사람처럼 느껴져요", "하나님께 받은 사랑이 잘 느껴지지 않아요", "다른 사람과 비교할수록 내게 있는 것이 작게 느껴져요", "감사하고 싶지만 마음이 지쳐 반응할 힘이 없어요"]
+      "options": ["예전에는 감사했던 것도 이제 당연하게 느껴져요", "계속되는 돌봄보다 부족한 것만 보여요", "감사해야 한다는 말이 부담스럽게 느껴져요", "상황이 나아져야 감사할 수 있을 것 같아요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["감사하지 못하는 내가 믿음 없는 사람처럼 느껴져요", "하나님께 받은 사랑이 잘 느껴지지 않아요", "다른 사람과 비교할수록 내게 있는 것이 작게 느껴져요", "감사하고 싶지만 마음이 지쳐 반응할 힘이 없어요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["변하지 않는 하나님의 사랑", "감사하지 못하는 나를 책망하지 않는 시간", "지친 마음이 먼저 쉬어 갈 자리", "하나님께 솔직하게 말할 수 있는 마음", "이미 받은 것을 천천히 알아보는 시선", "다시 감사할 수 있는 작은 힘"]
@@ -10820,9 +10965,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은 무엇인가요?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["내가 끝까지 챙겨야 마음이 놓여요", "실수하면 누군가에게 피해를 줄 것 같아요", "다른 사람에게 부탁하는 것이 어렵게 느껴져요", "책임에서 잠시 손을 떼는 것도 불안해요", "하나님께 맡기고 싶지만 결국 내가 다 해야 할 것 같아요", "아무것도 결정하거나 책임지고 싶지 않을 만큼 지쳤어요", "쉬고 있으면 해야 할 일을 외면하는 것 같아 마음이 불편해요", "내가 놓으면 모든 것이 무너질 것 같아요"]
+      "options": ["내가 끝까지 챙겨야 마음이 놓여요", "실수하면 누군가에게 피해를 줄 것 같아요", "다른 사람에게 부탁하는 것이 어렵게 느껴져요", "책임에서 잠시 손을 떼는 것도 불안해요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["하나님께 맡기고 싶지만 결국 내가 다 해야 할 것 같아요", "아무것도 결정하거나 책임지고 싶지 않을 만큼 지쳤어요", "쉬고 있으면 해야 할 일을 외면하는 것 같아 마음이 불편해요", "내가 놓으면 모든 것이 무너질 것 같아요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은 무엇인가요?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["모든 것을 혼자 하지 않아도 된다는 안도감", "내가 책임질 범위를 다시 나누는 지혜", "도움을 요청하고 함께 조율할 수 있는 용기", "필요한 책임을 정리한 뒤 멈출 수 있는 마음", "결과 전체를 하나님께 맡길 수 있는 믿음", "다시 움직일 힘이 생길 때까지 회복할 시간"]
@@ -10840,9 +10990,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["용서해야 한다는 것은 알지만 마음이 따라주지 않아요", "그 일을 그냥 넘기면 잘못까지 괜찮다고 인정하는 것 같아요", "상대가 사과하지 않았는데 내가 먼저 용서하고 싶지 않아요", "다시 상처받을까 봐 마음을 놓을 수 없어요", "하나님께 맡기고 싶지만 억울함이 계속 올라와요", "지금은 용서보다 내 상처를 먼저 알아주셨으면 좋겠어요", "용서하면 다시 가까워져야 할 것 같아 두려워요", "미워하고 싶지 않은데 마음이 자꾸 그 일로 돌아가요"]
+      "options": ["용서해야 한다는 것은 알지만 마음이 따라주지 않아요", "그 일을 그냥 넘기면 잘못까지 괜찮다고 인정하는 것 같아요", "상대가 사과하지 않았는데 내가 먼저 용서하고 싶지 않아요", "다시 상처받을까 봐 마음을 놓을 수 없어요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["하나님께 맡기고 싶지만 억울함이 계속 올라와요", "지금은 용서보다 내 상처를 먼저 알아주셨으면 좋겠어요", "용서하면 다시 가까워져야 할 것 같아 두려워요", "미워하고 싶지 않은데 마음이 자꾸 그 일로 돌아가요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["하나님의 사랑을 다시 느끼는 시간", "내 상처를 알아주시는 위로", "억울함을 하나님께 맡길 수 있는 믿음", "상대와 나를 분리해 바라보는 지혜", "용서를 시작할 수 있는 작은 마음", "안전하게 쉬며 회복할 시간"]
@@ -10860,9 +11015,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은 무엇인가요?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["예전처럼 하나님을 가까이 느끼고 싶어요", "기도하려 해도 무슨 말을 해야 할지 모르겠어요", "특별한 감동이 없어서 믿음이 약해진 것 같아요", "마음에 걸리는 일이 있어 하나님 앞에 가기 어려워요", "오랫동안 기다렸지만 아무 응답도 없는 것 같아요", "다른 사람은 하나님을 잘 느끼는 것 같은데 나만 멀어진 것 같아요", "말씀을 읽어도 마음에 잘 들어오지 않아요", "하나님께 솔직한 마음을 드러내도 괜찮을지 망설여져요"]
+      "options": ["예전처럼 하나님을 가까이 느끼고 싶어요", "기도하려 해도 무슨 말을 해야 할지 모르겠어요", "특별한 감동이 없어서 믿음이 약해진 것 같아요", "마음에 걸리는 일이 있어 하나님 앞에 가기 어려워요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["오랫동안 기다렸지만 아무 응답도 없는 것 같아요", "다른 사람은 하나님을 잘 느끼는 것 같은데 나만 멀어진 것 같아요", "말씀을 읽어도 마음에 잘 들어오지 않아요", "하나님께 솔직한 마음을 드러내도 괜찮을지 망설여져요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은 무엇인가요?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["하나님이 여전히 나를 사랑하신다는 확신", "하나님이 나를 떠나지 않으셨다는 확인", "정죄하지 않고 다시 시작할 수 있는 마음", "아무 말 없이 하나님 앞에서 잠시 쉬는 시간", "다시 기도할 수 있는 작은 힘", "말씀을 통해 하나님의 마음을 다시 알아가는 시간"]
@@ -10880,9 +11040,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["내가 더 움직여야 할 것 같아요", "언제까지 기다려야 할지 몰라 불안해요", "아무 변화가 없으면 잘못된 것 같아요", "지금까지의 기다림이 맞는지 자꾸 의심돼요", "기도했는데도 답이 없는 것처럼 느껴져요", "하나님을 믿고 싶지만 마음이 자꾸 조급해져요", "기다리는 동안 중요한 것을 놓칠까 봐 걱정돼요", "하나님이 지금도 일하고 계신지 확인하고 싶어요"]
+      "options": ["내가 더 움직여야 할 것 같아요", "언제까지 기다려야 할지 몰라 불안해요", "아무 변화가 없으면 잘못된 것 같아요", "지금까지의 기다림이 맞는지 자꾸 의심돼요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["기도했는데도 답이 없는 것처럼 느껴져요", "하나님을 믿고 싶지만 마음이 자꾸 조급해져요", "기다리는 동안 중요한 것을 놓칠까 봐 걱정돼요", "하나님이 지금도 일하고 계신지 확인하고 싶어요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["기다릴 수 있는 믿음", "조급함을 내려놓는 평안", "오늘 해야 할 일을 분별하는 지혜", "하나님의 인도를 신뢰하는 마음", "지친 마음이 쉬어 갈 시간", "다시 소망할 수 있는 작은 힘"]
@@ -10900,9 +11065,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 나에게 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["다른 사람의 좋은 점이 먼저 보여요", "나만 뒤처진 것처럼 느껴져요", "잘하고 있어도 충분하지 않은 것 같아요", "다른 사람의 시선이 신경 쓰여요", "비교한 뒤에는 내 장점이 잘 보이지 않아요", "하나님이 주신 내 모습을 믿고 싶지만 흔들려요", "내 속도보다 다른 사람의 속도가 더 크게 보여요", "하나님이 나를 어떻게 바라보시는지 다시 붙잡고 싶어요"]
+      "options": ["다른 사람의 좋은 점이 먼저 보여요", "나만 뒤처진 것처럼 느껴져요", "잘하고 있어도 충분하지 않은 것 같아요", "다른 사람의 시선이 신경 쓰여요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["비교한 뒤에는 내 장점이 잘 보이지 않아요", "하나님이 주신 내 모습을 믿고 싶지만 흔들려요", "내 속도보다 다른 사람의 속도가 더 크게 보여요", "하나님이 나를 어떻게 바라보시는지 다시 붙잡고 싶어요"]
+    }, {
+      "number": "04",
       "question": "오늘 내 마음에 필요한 것은?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["비교를 잠시 멈추고 쉬는 시간", "내 장점을 다시 바라보는 시선", "지금도 잘하고 있다는 따뜻한 말", "나만의 걸음을 이어갈 작은 용기", "다른 사람의 속도와 내 속도를 나누어 보는 마음", "하나님이 바라보시는 나를 생각하는 시간"]
@@ -10920,9 +11090,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 상태에 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["괜찮은 척하기 힘들어요", "기도하려 해도 말이 안 나와요", "누가 건드리면 울 것 같아요", "하나님께 기대고 싶은데 잘 안 돼요", "마음이 텅 빈 것 같아요", "누가 내 마음을 알아줬으면 좋겠어요", "아무 말도 하고 싶지 않아요", "지금의 마음을 하나님께 그대로 가져가고 싶어요"]
+      "options": ["괜찮은 척하기 힘들어요", "기도하려 해도 말이 안 나와요", "누가 건드리면 울 것 같아요", "하나님께 기대고 싶은데 잘 안 돼요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["마음이 텅 빈 것 같아요", "누가 내 마음을 알아줬으면 좋겠어요", "아무 말도 하고 싶지 않아요", "지금의 마음을 하나님께 그대로 가져가고 싶어요"]
+    }, {
+      "number": "04",
       "question": "오늘 받고 싶은 처방은 무엇인가요?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["내 마음을 알아주는 위로", "지금도 괜찮다고 품어주는 말", "하나님 품에 머물며 쉬는 시간", "다시 일어설 수 있는 작은 힘", "오늘 하루를 견디도록 붙들어 주시는 힘", "마음껏 울어도 되는 안전한 자리"]
@@ -10940,9 +11115,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 상태에 가까운 말은?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["앞으로가 자꾸 걱정돼요", "생각이 자꾸 이어져요", "자꾸 안 좋은 쪽으로 상상돼요", "마음이 쉽게 진정되지 않아요", "내가 붙잡고 있어야 안심돼요", "기도하려 해도 걱정이 먼저 올라와요", "하나님께 맡기고 싶지만 잘 안 돼요", "이 마음을 하나님께 그대로 가져가고 싶어요"]
+      "options": ["앞으로가 자꾸 걱정돼요", "생각이 자꾸 이어져요", "자꾸 안 좋은 쪽으로 상상돼요", "마음이 쉽게 진정되지 않아요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["내가 붙잡고 있어야 안심돼요", "기도하려 해도 걱정이 먼저 올라와요", "하나님께 맡기고 싶지만 잘 안 돼요", "이 마음을 하나님께 그대로 가져가고 싶어요"]
+    }, {
+      "number": "04",
       "question": "오늘 받고 싶은 처방은 무엇인가요?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
       "options": ["마음을 가라앉히는 평안", "하나님을 신뢰할 수 있는 믿음", "지친 마음이 쉬어 갈 시간", "다시 움직일 수 있는 용기", "걱정을 하나님께 맡길 수 있는 마음", "생각을 가라앉히고 다시 숨 쉴 힘"]
@@ -10960,9 +11140,14 @@ window.ASSESSMENT_DATA = {
       "number": "02",
       "question": "지금 마음에 가장 가까운 말은 무엇인가요?",
       "hint": "천천히 읽어보고, 오늘의 나와 가장 닮은 문장을 골라주세요.",
-      "options": ["괜찮은 척 중이에요", "말하면 울 것 같아요", "생각이 너무 많아요", "해야 할 건 아는데 마음이 안 따라와요", "열심히 했는데 안이 비어가는 느낌이에요", "사람의 반응에 마음이 흔들려요", "말은 못 했지만 하나님이 알아주셨으면 해요", "그냥 조용히 쉬고 싶어요"]
+      "options": ["괜찮은 척 중이에요", "말하면 울 것 같아요", "생각이 너무 많아요", "해야 할 건 아는데 마음이 안 따라와요"]
     }, {
       "number": "03",
+      "question": "이 중에서도 마음에 더 가까운 말은?",
+      "hint": "앞에서 고른 마음과 별개로, 지금 떠오르는 문장을 하나 더 골라주세요.",
+      "options": ["열심히 했는데 안이 비어가는 느낌이에요", "사람의 반응에 마음이 흔들려요", "말은 못 했지만 하나님이 알아주셨으면 해요", "그냥 조용히 쉬고 싶어요"]
+    }, {
+      "number": "04",
       "question": "오늘 어떤 말씀을 처방받고 싶으세요?",
       "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요. 그 마음에 맞춰 말씀을 담아드릴게요.",
       "options": ["평안", "위로", "믿음", "쉼", "용기", "사랑", "중심 회복", "다시 시작할 힘"]

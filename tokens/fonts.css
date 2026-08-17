@@ -7,6 +7,6 @@
 :root {
   --font-title: "Pretendard", "Noto Sans KR", sans-serif; /* 제목/증상명 */
   --font-body:  "Pretendard", "Noto Sans KR", sans-serif; /* 설명문 */
-  --font-verse: "Pretendard", "Noto Sans KR", sans-serif; /* 오늘의 말씀 */
+  --font-verse: "Noto Serif KR", "Nanum Myeongjo", serif; /* 오늘의 말씀 — 명조 */
   --font-label: "Pretendard", "Noto Sans KR", sans-serif; /* 처방전 라벨 */
 }

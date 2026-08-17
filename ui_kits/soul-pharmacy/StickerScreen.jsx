@@ -237,12 +237,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     window.removeEventListener("pointerup", endPointer);
   };
 
-  const INK = "#2f5596";        // 인쇄 잉크 (파랑)
-  const LINE = "rgba(47,85,150,0.5)";  // 표/구분선
+  const INK = "#3f5a86";        // 인쇄 잉크 (톤다운 블루)
+  const LINE = "rgba(120,104,78,0.22)";  // 종이 구분선 (웜 그레이)
   const PURPLE = "#6B5FCF";            // 메인 액션(저장·스티커 추가)
   // 표 셀 (라벨칸 + 값칸)
   const TLabel = ({ children }) => (
-    <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 14 : 12.5, color: INK, letterSpacing: "0.02em" }}>{children}</div>
+    <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", paddingRight: 8, whiteSpace: "nowrap" }}>{children}</div>
   );
   const TVal = ({ children, accent }) => (
     <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13, fontWeight: accent ? 700 : 400, color: accent ? INK : "var(--ink-900)" }}>{children}</div>
@@ -287,12 +287,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const catItems = (STICKER_FILES && STICKER_FILES[pickerCat]) || [];
   const openPicker = (e) => { e.stopPropagation(); setShowPicker(true); setHintSeen(true); };
   const ToolBtn = ({ icon, label, onClick, main }) => (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
       <button onClick={onClick}
-        style={{ width: 48, height: 48, borderRadius: "50%", border: main ? "none" : "1px solid rgba(70,58,45,0.12)", cursor: "pointer", background: main ? PURPLE : "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: main ? "0 6px 16px rgba(107,95,207,0.32)" : "0 3px 10px rgba(70,58,45,0.10)" }}>
-        <Icon name={icon} size={20} color={main ? "#fff" : "var(--text-body)"} stroke={1.7} />
+        style={{ width: 38, height: 38, borderRadius: "50%", border: main ? "none" : "1px solid rgba(120,104,78,0.16)", cursor: "pointer", background: main ? "#8f86c9" : "rgba(253,251,246,0.85)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: main ? "0 4px 12px rgba(120,104,78,0.18)" : "0 2px 7px rgba(90,74,52,0.08)" }}>
+        <Icon name={icon} size={17} color={main ? "#fff" : "var(--text-body)"} stroke={1.7} />
       </button>
-      <span style={{ fontFamily: "var(--font-body)", fontSize: 11, lineHeight: 1.2, color: "var(--text-muted)", textAlign: "center", maxWidth: 56 }}>{label}</span>
+      <span style={{ fontFamily: "var(--font-body)", fontSize: 10, lineHeight: 1.2, color: "var(--text-muted)", textAlign: "center", maxWidth: 52 }}>{label}</span>
     </div>
   );
   const toolbar = (
@@ -342,36 +342,34 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
         transition: "opacity 950ms ease-out",
       }}
     >
-      <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "#FCFBF6", border: "1.5px solid rgba(62,99,166,0.38)", borderRadius: 24, boxShadow: "0 12px 40px rgba(70,58,45,0.12)", boxSizing: "border-box" }}>
-        <div style={{ position: "absolute", inset: 8, border: "1px solid rgba(62,99,166,0.38)", borderRadius: 18, pointerEvents: "none" }} />
+      <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box" }}>
+        <div style={{ position: "absolute", inset: 10, border: "1px solid rgba(120,104,78,0.14)", borderRadius: 4, pointerEvents: "none" }} />
         <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${pc ? 52 : 24}px ${pc ? 30 : 22}px`, minHeight: pc ? 560 : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* 마스트헤드 — 발급 화면과 동일 */}
           <div data-protect style={{ width: "100%", textAlign: "center", marginBottom: pc ? 14 : 11 }}>
             <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>오늘의 말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 31 : 24, color: RX, letterSpacing: "0.06em", paddingLeft: "0.06em" }}>마음약국 처방전</div>
-            <div style={{ borderTop: "1px solid rgba(62,99,166,0.38)", width: "100%", marginTop: pc ? 16 : 12 }} />
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
+            <div style={{ borderTop: `1px solid ${LINE}`, width: "100%", marginTop: pc ? 16 : 12 }} />
           </div>
 
           {/* 개인 처방 정보 — 발급 화면과 동일한 테두리 표 */}
-          <div data-protect style={{ width: "100%", border: "1px solid rgba(62,99,166,0.38)", borderRadius: 2, overflow: "hidden" }}>
+          <div data-protect style={{ width: "100%" }}>
             {[["처방일", rxDate, "증상", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "처방 단어", rx.word]].map((row, ri) => (
-              <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "108px 1fr 108px 1fr" : "66px 1fr 70px 1fr", borderTop: ri ? "1px solid rgba(62,99,166,0.38)" : "none" }}>
-                <div style={{ padding: pc ? "14px 16px" : "10px 10px", background: "rgba(62,99,166,0.06)", borderRight: "1px solid rgba(62,99,166,0.38)" }}><TLabel>{row[0]}</TLabel></div>
-                <div style={{ padding: pc ? "14px 16px" : "10px 10px", borderRight: "1px solid rgba(62,99,166,0.38)", display: "flex", alignItems: "center" }}><TVal>{row[1]}</TVal></div>
-                <div style={{ padding: pc ? "14px 16px" : "10px 10px", background: "rgba(62,99,166,0.06)", borderRight: "1px solid rgba(62,99,166,0.38)" }}><TLabel>{row[2]}</TLabel></div>
-                <div style={{ padding: pc ? "14px 16px" : "10px 10px", display: "flex", alignItems: "center" }}><TVal accent={ri === 1}>{row[3]}</TVal></div>
+              <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${LINE}` : "none" }}>
+                <TLabel>{row[0]}</TLabel><TVal>{row[1]}</TVal>
+                <TLabel>{row[2]}</TLabel><TVal accent={ri === 1}>{row[3]}</TVal>
               </div>
             ))}
           </div>
 
           {/* 처방 말씀 — 발급 화면과 동일 */}
-          <div data-protect style={{ width: "100%", marginTop: pc ? 26 : 20 }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15 : 13.5, color: RX, marginBottom: pc ? 6 : 4 }}>처방 말씀</div>
-            <div style={{ position: "relative", padding: `${pc ? 12 : 10}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
-              <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 34 : 26, color: "rgba(62,99,166,0.38)", lineHeight: 1 }}>“</span>
+          <div data-protect style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
+            <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
+              <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>“</span>
               <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
-              <span style={{ position: "absolute", right: 0, bottom: pc ? 2 : 0, fontFamily: "var(--font-verse)", fontSize: pc ? 34 : 26, color: "rgba(62,99,166,0.38)", lineHeight: 1 }}>”</span>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 12.5, color: RX, letterSpacing: "0.02em", marginTop: pc ? 12 : 9 }}>{rx.reference}</div>
+              <span style={{ position: "absolute", right: 0, bottom: pc ? 2 : 0, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>”</span>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: pc ? 14 : 10 }}>{rx.reference}</div>
             </div>
           </div>
 
@@ -393,25 +391,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
             <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 12.5, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, flex: 1 }}>{oneLine}</p>
           </div></div>
 
-          {/* 로고 */}
-          <div data-protect style={{ width: "100%", borderTop: `1px solid ${LINE}`, paddingTop: pc ? 16 : 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <img src="assets-web/logo-mark.webp" alt="" style={{ width: pc ? 26 : 22, height: "auto" }} />
-            <span style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 20 : 17, color: INK }}>마음약국</span>
-          </div>
-
-          {/* 이미지로 저장 / 소중한 사람에게 공유 — 각각 별도 액션 */}
-          {!finalizing && (
-          <div data-export-ignore="true" style={{ display: "flex", flexDirection: pc ? "row" : "column-reverse", gap: pc ? 14 : 11, justifyContent: "center", marginTop: pc ? 20 : 16, width: "100%", maxWidth: 460 }}>
-            <button onClick={() => openConfirm("save")} style={{ flex: pc ? 4 : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 20px", borderRadius: "var(--radius-lg)", border: "1px solid rgba(142,134,222,0.4)", cursor: "pointer", background: "rgba(255,255,255,0.7)", color: "var(--rx-blue-500)", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 15 }}>
-              <Icon name="download" size={17} color="var(--rx-blue-500)" /> 이미지로 저장하기
-            </button>
-            <button onClick={() => openConfirm("share")} style={{ flex: pc ? 6 : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 20px", borderRadius: "var(--radius-lg)", border: "none", cursor: "pointer", background: PURPLE, color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 15, boxShadow: "0 8px 20px rgba(107,95,207,0.28)" }}>
-              <Icon name="share-2" size={17} color="#fff" /> 소중한 사람에게 공유하기
-            </button>
-          </div>
-          )}
-          <p data-export-ignore="true" style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", textAlign: "center", margin: `${pc ? 16 : 12}px 0 0` }}>
-            💡 마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
+          {/* 저장/공유 버튼은 카드 밖 (board 아래)로 이동 */}
+          <p data-export-ignore="true" style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${pc ? 16 : 12}px 0 0` }}>
+            마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
           </p>
         </div>
       </div>
@@ -490,7 +472,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   );
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", background: "linear-gradient(180deg,#F1ECE3 0%,#EDE8DF 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "26px 32px 96px" : "20px 16px 96px", overflowX: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", boxSizing: "border-box" }}>
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", zIndex: 0, pointerEvents: "none" }} />
+      <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100vh", overflowY: "auto", overflowX: "hidden", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "26px 32px 40px" : "20px 16px 32px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: sheetW, maxWidth: "100%", marginBottom: 16 }}>
         <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
           <Icon name="chevron-left" size={22} color="var(--text-muted)" />
@@ -502,6 +486,17 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       <div style={{ display: "flex", flexDirection: pc ? "row" : "column", alignItems: pc ? "flex-start" : "center", justifyContent: "center", gap: pc ? 22 : 16, maxWidth: "100%" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "100%" }}>
           {board}
+          {!finalizing && flow === "idle" && !confirmType && (
+            <div style={{ display: "flex", flexDirection: pc ? "row" : "column-reverse", gap: pc ? 14 : 11, justifyContent: "center", marginTop: pc ? 22 : 18, width: sheetW, maxWidth: "100%", boxSizing: "border-box" }}>
+              <button onClick={() => openConfirm("save")} style={{ flex: pc ? 4 : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, padding: "0 20px", borderRadius: 14, border: "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: "#F7EBDD", boxShadow: "0 5px 14px rgba(97,68,42,0.09)", color: "#6A533F", fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 600, fontSize: 16 }}>
+                <Icon name="download" size={18} color="#6A533F" /> 이미지로 저장하기
+              </button>
+              <button onClick={() => openConfirm("share")} style={{ flex: pc ? 6 : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, padding: "0 20px", borderRadius: 14, border: "1px solid rgba(126,116,190,0.55)", cursor: "pointer", background: "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)", boxShadow: "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)", color: "#fff", fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 600, fontSize: 16, animation: "rxGlow 2.6s ease-in-out infinite" }}>
+                <style>{`@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`}</style>
+                <Icon name="share-2" size={18} color="#fff" /> 소중한 사람에게 공유하기
+              </button>
+            </div>
+          )}
           {finalizing && confirmType && flow === "idle" && (
             <div data-export-ignore="true" style={{ width: sheetW, maxWidth: "100%", marginTop: pc ? 32 : 24, textAlign: "center" }}>
               <style>{"@keyframes exRevealUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}"}</style>
@@ -535,7 +530,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       )}
       {pickerModal}
       {flow !== "idle" && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, background: "linear-gradient(180deg,#F5F0E8 0%,#F1ECE3 100%)" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
           <style>{"@keyframes revealUp{to{opacity:1;transform:translateY(0)}}"}</style>
           <div style={{ maxWidth: 470, width: "100%", opacity: flow === "fadeout" ? 0 : 1, transition: "opacity 500ms ease" }}>
             <img src={flowType === "save" ? "assets-web/icon-save.webp" : "assets-web/icon-share.webp"} alt="" style={{ width: pc ? 104 : 88, height: pc ? 104 : 88, objectFit: "contain", display: "block", margin: "0 auto 16px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }} />
@@ -553,6 +548,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
