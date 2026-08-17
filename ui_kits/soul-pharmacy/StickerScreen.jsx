@@ -396,6 +396,61 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
             마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
           </p>
         </div>
+
+        {/* 스티커 레이어 — exportRef(캡처 대상) 내부에 렌더링해야 저장 이미지에 포함됨 */}
+        {stickers.map((s) => {
+          const isActive = activeId === s.id;
+          const px = (pc ? 40 : 34) * s.scale;
+          const boxPad = 8;
+          const box = px + boxPad * 2;
+          return (
+            <div
+              key={s.id}
+              data-sticker
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute", left: s.x + "%", top: s.y + "%", width: box, height: box, marginLeft: -box / 2, marginTop: -box / 2,
+                transform: `rotate(${s.rotate}deg)`, transformOrigin: "center center",
+                touchAction: "none", zIndex: activeId === s.id ? 20 : 5,
+              }}
+            >
+              <span
+                onPointerDown={(e) => startMove(e, s)}
+                style={{
+                  position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "grab", userSelect: "none",
+                  border: invalidId === s.id ? "2px solid var(--coral-600)" : isActive ? "2px dashed var(--rx-blue-500)" : "none",
+                  borderRadius: 12, boxSizing: "border-box",
+                }}
+              >
+                {s.src
+                  ? <img src={s.src} alt="" draggable={false} onDragStart={(e) => e.preventDefault()} style={{ width: px, height: px, objectFit: "contain", pointerEvents: "none", userSelect: "none" }} />
+                  : <span style={{ fontSize: px, lineHeight: 1 }}>{s.emoji}</span>}
+              </span>
+              {isActive && (
+                <React.Fragment>
+                  <span
+                    data-export-ignore="true"
+                    onClick={(e) => { e.stopPropagation(); removeSticker(s.id); }}
+                    style={{ position: "absolute", top: 0, left: 0, transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--coral-600)", color: "#fff", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 3 }}
+                  >×</span>
+                  <span
+                    data-export-ignore="true"
+                    onPointerDown={(e) => startResizeRotate(e, s, "rotate")}
+                    style={{ position: "absolute", top: 0, left: "50%", transform: `translate(-50%, -140%) rotate(${-s.rotate}deg)`, width: 26, height: 26, borderRadius: "50%", background: "var(--rx-blue-500)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
+                  >
+                    <Icon name="rotate-cw" size={13} color="#fff" />
+                  </span>
+                  <span
+                    data-export-ignore="true"
+                    onPointerDown={(e) => startResizeRotate(e, s, "resize")}
+                    style={{ position: "absolute", top: "100%", left: "100%", transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", cursor: "nwse-resize", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
+                  />
+                </React.Fragment>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {showTip && (
@@ -403,57 +458,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
           드래그해서 이동 · 손잡이로 크기와 각도 조절
         </div>
       )}
-
-      {stickers.map((s) => {
-        const isActive = activeId === s.id;
-        const px = (pc ? 40 : 34) * s.scale;
-        const boxPad = 8;
-        const box = px + boxPad * 2;
-        return (
-          <div
-            key={s.id}
-            data-sticker
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "absolute", left: s.x + "%", top: s.y + "%", width: box, height: box, marginLeft: -box / 2, marginTop: -box / 2,
-              transform: `rotate(${s.rotate}deg)`, transformOrigin: "center center",
-              touchAction: "none", zIndex: activeId === s.id ? 20 : 5,
-            }}
-          >
-            <span
-              onPointerDown={(e) => startMove(e, s)}
-              style={{
-                position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "grab", userSelect: "none",
-                border: invalidId === s.id ? "2px solid var(--coral-600)" : isActive ? "2px dashed var(--rx-blue-500)" : "none",
-                borderRadius: 12, boxSizing: "border-box",
-              }}
-            >
-              {s.src
-                ? <img src={s.src} alt="" draggable={false} onDragStart={(e) => e.preventDefault()} style={{ width: px, height: px, objectFit: "contain", pointerEvents: "none", userSelect: "none" }} />
-                : <span style={{ fontSize: px, lineHeight: 1 }}>{s.emoji}</span>}
-            </span>
-            {isActive && (
-              <React.Fragment>
-                <span
-                  onClick={(e) => { e.stopPropagation(); removeSticker(s.id); }}
-                  style={{ position: "absolute", top: 0, left: 0, transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--coral-600)", color: "#fff", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 3 }}
-                >×</span>
-                <span
-                  onPointerDown={(e) => startResizeRotate(e, s, "rotate")}
-                  style={{ position: "absolute", top: 0, left: "50%", transform: `translate(-50%, -140%) rotate(${-s.rotate}deg)`, width: 26, height: 26, borderRadius: "50%", background: "var(--rx-blue-500)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
-                >
-                  <Icon name="rotate-cw" size={13} color="#fff" />
-                </span>
-                <span
-                  onPointerDown={(e) => startResizeRotate(e, s, "resize")}
-                  style={{ position: "absolute", top: "100%", left: "100%", transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", cursor: "nwse-resize", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
-                />
-              </React.Fragment>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 
