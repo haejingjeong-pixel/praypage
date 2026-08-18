@@ -61,6 +61,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const EXTRA_STEP = 150, EXTRA_MAX = 5;
   const boardRef = React.useRef(null);
   const exportRef = React.useRef(null); // 캡처 대상: 처방전 카드 한 장만
+  const verseRef = React.useRef(null);  // 성구 본문 텍스트(<p>) — 스티커 배치 금지 영역 측정 기준
   const dragRef = React.useRef(null);
 
   const [pc, setPc] = React.useState(false);
@@ -227,6 +228,34 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     });
     return () => cancelAnimationFrame(raf);
   }, [extraH]);
+
+  // 성구 본문 영역(rx.verse)이 바뀌거나 레이아웃 폭(pc)이 바뀌면 성구 텍스트 박스도 달라진다.
+  // 이미 놓여있던 스티커 중 새 성구 박스와 겹치는 것만, 겹치지 않는 나머지는 그대로 둔 채
+  // 위/아래 중 더 가까운 바깥쪽으로 최소 이동시킨다 (전체 재배치 금지).
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (!boardRef.current || !verseRef.current) return;
+      const board = boardRef.current.getBoundingClientRect();
+      const vr = verseRef.current.getBoundingClientRect();
+      const zone = { l: vr.left - board.left - 16, r: vr.right - board.left + 16, t: vr.top - board.top - 13, b: vr.bottom - board.top + 13 };
+      setStickers((list) => {
+        let changed = false;
+        const next = list.map((s) => {
+          const half = (((pc ? 40 : 34) * s.scale) + 16) / 2;
+          const cx = (s.x / 100) * board.width, cy = s.y;
+          const overlap = cx - half < zone.r && cx + half > zone.l && cy - half < zone.b && cy + half > zone.t;
+          if (!overlap) return s;
+          changed = true;
+          const distTop = Math.abs(cy - zone.t), distBottom = Math.abs(cy - zone.b);
+          let ny = distTop <= distBottom ? zone.t - half : zone.b + half;
+          ny = Math.max(half, Math.min(board.height - half, ny));
+          return { ...s, y: ny };
+        });
+        return changed ? next : list;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [rx.verse, pc]);
 
   const startMove = (e, s) => {
     e.stopPropagation();
@@ -403,15 +432,15 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box" }}>
         <div style={{ position: "absolute", inset: 10, border: "1px solid rgba(120,104,78,0.14)", borderRadius: 4, pointerEvents: "none" }} />
         <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${pc ? 52 : 24}px ${pc ? 30 : 22}px`, minHeight: pc ? 560 : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          {/* 마스트헤드 — 발급 화면과 동일 */}
-          <div data-protect style={{ width: "100%", textAlign: "center", marginBottom: pc ? 14 : 11 }}>
+          {/* 마스트헤드 — 발급 화면과 동일. 성구 본문 텍스트만 스티커 금지, 이 영역은 부착 가능 */}
+          <div style={{ width: "100%", textAlign: "center", marginBottom: pc ? 14 : 11 }}>
             <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>오늘의 말씀 처방전</div>
             <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
             <div style={{ borderTop: `1px solid ${LINE}`, width: "100%", marginTop: pc ? 16 : 12 }} />
           </div>
 
-          {/* 개인 처방 정보 — 발급 화면과 동일한 테두리 표 */}
-          <div data-protect style={{ width: "100%" }}>
+          {/* 개인 처방 정보 — 발급 화면과 동일한 테두리 표. 스티커 부착 가능 */}
+          <div style={{ width: "100%" }}>
             {[["처방일", rxDate, "증상", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "처방 단어", rx.word]].map((row, ri) => (
               <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${LINE}` : "none" }}>
                 <TLabel>{row[0]}</TLabel><TVal>{row[1]}</TVal>
@@ -420,13 +449,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
             ))}
           </div>
 
-          {/* 처방 말씀 — 발급 화면과 동일 */}
-          <div data-protect style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
+          {/* 처방 말씀 — 발급 화면과 동일. 성구 본문 텍스트(<p>)만 스티커 배치 금지 영역 —
+              제목·인용부호·출처는 자유 영역, 금지 범위는 startMove()가 data-protect 요소를
+              드래그 시작 시점에 getBoundingClientRect()로 매번 다시 측정해 동적으로 계산 */}
+          <div style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
             <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
-              <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>“</span>
-              <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
-              <span style={{ position: "absolute", right: 0, bottom: pc ? 2 : 0, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>”</span>
+              <p ref={verseRef} data-protect style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
               <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: pc ? 14 : 10 }}>{rx.reference}</div>
             </div>
           </div>
@@ -441,9 +470,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
             )}
           </div>
 
-          {/* 복용 안내 */}
+          {/* 복용 안내 — 스티커 부착 가능 */}
           <div style={{ width: "100%", borderTop: `1px solid ${LINE}` }} />
-          <div data-protect style={{ width: "100%", marginTop: pc ? 14 : 11 }}><SecTitle>복용 안내</SecTitle>
+          <div style={{ width: "100%", marginTop: pc ? 14 : 11 }}><SecTitle>복용 안내</SecTitle>
           <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: `${pc ? 11 : 9}px 2px ${pc ? 16 : 12}px`, textAlign: "left" }}>
             <Icon name="clipboard-list" size={pc ? 19 : 17} color={INK} stroke={1.6} />
             <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 12.5, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, flex: 1 }}>{oneLine}</p>
