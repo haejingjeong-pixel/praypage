@@ -71,10 +71,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   // 현재 감정 카테고리를 기본 노출 (없으면 일반)
   const _defaultCat = (STICKER_FILES && STICKER_FILES[mood]) ? mood : "normal";
   const [pickerCat, setPickerCat] = React.useState(_defaultCat);
-  // "기본 스티커"(normal) 내부 페이지 — 다이컷 세트 여러 묶음 + 형광펜류(pen)를 점(●○○)으로 넘겨봄
-  const [normalPage, setNormalPage] = React.useState(0);
-  const [normalSlideDir, setNormalSlideDir] = React.useState(1);
-  const normalSwipeX = React.useRef(null);
   const [hintSeen, setHintSeen] = React.useState(false);
   const [invalidId, setInvalidId] = React.useState(null);
   const [extraH, setExtraH] = React.useState(0); // 사용자가 늘린 하단 꾸미기 공간 (단계)
@@ -450,19 +446,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   };
 
   // ── 처방전 옆 세로 툴바 + 선택 모달 ──
-  // "기본 스티커"(normal)만 { sets:[세트1,세트2,세트3], pen:[...] } 구조 — 세트들과 pen을
-  // 이어 붙여 하나의 페이지 목록으로 만들고 점(●○○)으로 넘겨본다. 그 외 카테고리는 기존처럼
-  // 평평한 배열 그대로 한 그리드에 표시.
-  const normalData = STICKER_FILES && STICKER_FILES.normal;
-  const normalPages = normalData ? [...normalData.sets, ...(normalData.pen && normalData.pen.length ? [normalData.pen] : [])] : [];
-  const isNormalCat = pickerCat === "normal";
-  const catItems = isNormalCat ? (normalPages[normalPage] || []) : ((STICKER_FILES && STICKER_FILES[pickerCat]) || []);
-  const goNormalPage = (next) => {
-    const clamped = Math.max(0, Math.min(normalPages.length - 1, next));
-    if (clamped === normalPage) return;
-    setNormalSlideDir(clamped > normalPage ? 1 : -1);
-    setNormalPage(clamped);
-  };
+  // 상단 1차 분류는 고정 3탭(공통응원/테이프/기본꾸밈) + 감정별 탭. 전부 평평한 배열.
+  const catItems = (STICKER_FILES && STICKER_FILES[pickerCat]) || [];
+  const isBasicCat = pickerCat === "basic"; // 기본꾸밈 — 다른 탭보다 촘촘한 그리드 + 작은 배치 크기
   const openPicker = (e) => { e.stopPropagation(); setShowPicker(true); setHintSeen(true); };
   const ToolBtn = ({ icon, label, onClick, main, size = 38, disabled }) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, opacity: disabled ? 0.4 : 1, transition: "opacity 160ms ease" }}>
@@ -492,42 +478,18 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
           {STICKER_CATEGORIES.map((c) => (
-            <button key={c.key} onClick={() => { setPickerCat(c.key); setNormalPage(0); setNormalSlideDir(1); }}
+            <button key={c.key} onClick={() => setPickerCat(c.key)}
               style={{ padding: "7px 14px", borderRadius: 999, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, border: "none", background: pickerCat === c.key ? "var(--accent)" : "rgba(120,92,64,0.08)", color: pickerCat === c.key ? "var(--on-accent)" : "var(--text-body)" }}>{c.label}</button>
           ))}
         </div>
-        {isNormalCat && normalPages.length > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 12 }}>
-            {normalPages.map((_, i) => (
-              <button key={i} onClick={() => goNormalPage(i)} aria-label={`스티커 묶음 ${i + 1}`}
-                style={{ width: i === normalPage ? 18 : 7, height: 7, borderRadius: 999, border: "none", padding: 0, cursor: "pointer", background: i === normalPage ? "var(--accent)" : "rgba(120,92,64,0.22)", transition: "width 200ms ease, background 200ms ease" }} />
-            ))}
-          </div>
-        )}
-        <style>{"@keyframes stickerSlideL{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}@keyframes stickerSlideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}"}</style>
-        <div style={{ overflow: "hidden" }}
-          onTouchStart={isNormalCat ? (e) => { normalSwipeX.current = e.touches[0].clientX; } : undefined}
-          onTouchEnd={isNormalCat ? (e) => {
-            if (normalSwipeX.current == null) return;
-            const dx = e.changedTouches[0].clientX - normalSwipeX.current;
-            normalSwipeX.current = null;
-            if (dx < -40) goNormalPage(normalPage + 1);
-            else if (dx > 40) goNormalPage(normalPage - 1);
-          } : undefined}
-        >
-          <div key={isNormalCat ? "normal-" + normalPage : pickerCat} style={{ display: "grid", gridTemplateColumns: pc ? "repeat(4, minmax(120px, 1fr))" : "repeat(4, 1fr)", gap: pc ? 14 : 8, maxHeight: pc ? "56vh" : "46vh", overflowY: "auto", animation: isNormalCat ? `stickerSlide${normalSlideDir > 0 ? "L" : "R"} 220ms ease-out` : "none" }}>
-            {catItems.map((src, i) => {
-              // 기본 스티커 1페이지(세트1)는 기존 크기 그대로, 2페이지부터(세트2/3·형광펜)만
-              // 썸네일과 처방전에 처음 붙는 기본 크기를 함께 줄인다.
-              const small = isNormalCat && normalPage > 0;
-              return (
-                <button key={src} onClick={() => addSticker(src, { small })}
-                  style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: 14, cursor: "pointer", padding: 6 }}>
-                  <img src={src} alt="" loading="lazy" draggable={false} style={{ width: small ? "70%" : "100%", height: small ? "70%" : "100%", objectFit: "contain" }} />
-                </button>
-              );
-            })}
-          </div>
+        {/* 기본꾸밈만 다른 탭보다 훨씬 촘촘한 그리드(열 2배) — 장식용 소도구를 빠르게 둘러보는 느낌 */}
+        <div style={{ display: "grid", gridTemplateColumns: pc ? `repeat(${isBasicCat ? 8 : 4}, minmax(${isBasicCat ? 56 : 120}px, 1fr))` : `repeat(${isBasicCat ? 8 : 4}, 1fr)`, gap: isBasicCat ? 6 : (pc ? 14 : 8), maxHeight: pc ? "56vh" : "46vh", overflowY: "auto" }}>
+          {catItems.map((src, i) => (
+            <button key={src} onClick={() => addSticker(src, { small: isBasicCat })}
+              style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: isBasicCat ? 8 : 14, cursor: "pointer", padding: isBasicCat ? 3 : 6 }}>
+              <img src={src} alt="" loading="lazy" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </button>
+          ))}
         </div>
         <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", textAlign: "center", margin: "14px 0 0" }}>고른 스티커는 처방전에 붙고, 드래그·회전·크기 조절할 수 있어요.</p>
       </div>
