@@ -140,16 +140,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     }
     const url = window.location.origin + window.location.pathname + "?id=" + id;
     setShareUrl(url);
-    // 모바일 등 OS 공유 시트를 지원하는 환경에서는 PNG가 아니라 이 링크(url) 자체를 넘긴다.
-    try {
-      if (navigator.share && (!navigator.canShare || navigator.canShare({ url }))) {
-        await navigator.share({ title: "마음약국 처방전", text: "오늘의 말씀 처방전을 보내요.", url });
-        setShareCopyFailed(false);
-        return true;
-      }
-    } catch (e) {
-      /* 사용자가 공유 시트를 취소한 경우 등 — 링크는 이미 만들어졌으므로 완료 화면으로 진행 */
-    }
+    // "소중한 사람에게 공유하기"는 OS 공유 시트(navigator.share)를 열지 않고 항상 클립보드
+    // 복사로 끝난다 — 카카오톡/AirDrop 등으로 직접 보내고 싶다면 별도의 "공유 앱으로 보내기"
+    // 버튼에서 navigator.share를 쓸 것(이 버튼과는 분리).
     try {
       if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("no-clipboard");
       await navigator.clipboard.writeText(url);
