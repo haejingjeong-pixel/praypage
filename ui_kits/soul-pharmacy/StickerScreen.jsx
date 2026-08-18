@@ -50,6 +50,16 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const [confirmType, setConfirmType] = React.useState(null); // null | save | share
   const [flowType, setFlowType] = React.useState("share"); // save | share
   const [askShare, setAskShare] = React.useState(false); // 저장 완료 직후 공유 여부를 묻는 중인지
+  const [shareUrl, setShareUrl] = React.useState(null); // 마지막으로 생성된 공유 링크
+  const [shareCopyFailed, setShareCopyFailed] = React.useState(false); // 자동 복사 실패 → 수동 복사 UI 노출
+  const [toast, setToast] = React.useState(null);
+  const toastTimer = React.useRef(null);
+  const showToast = (msg) => {
+    setToast(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2600);
+  };
+  React.useEffect(() => () => clearTimeout(toastTimer.current), []);
   const [showTip, setShowTip] = React.useState(false);
   const [hoverEmoji, setHoverEmoji] = React.useState(null);
   const [showPicker, setShowPicker] = React.useState(false);
@@ -86,41 +96,63 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     });
   };
 
-  // "소중한 사람에게 공유하기" = 마음약국 내부 공유(링크) 기능. PNG 캡처/파일 공유는
-  // saveImage()의 몫이고, 여기서는 절대 파일을 만들지 않는다 — 상대가 링크를 열면 이
-  // 처방전(mood/stickers/rx)을 그대로 복원해서 볼 수 있고 스티커를 이어 붙일 수 있다.
+  // "소중한 사람에게 공유하기" = 마음약국 내부 공유(짧은 ID 링크) 기능. PNG 캡처/파일 공유는
+  // saveImage()의 몫이고, 여기서는 절대 파일을 만들지 않는다. 처방전 본문(성구·복용법 등)은
+  // 이미 프론트에 있는 80종 데이터이므로 Supabase에는 mood/rx_type/rx_num(식별자)과
+  // 스티커 배치 정보만 저장 — 상대가 링크를 열면 이 값들로 같은 처방전을 복원해서 보고
+  // 자기 스티커를 이어 붙일 수 있다. 반환값은 done 완료 화면으로 넘어가도 되는지(성공 여부).
+  const SHARE_ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const generateShareId = () => {
+    let id = "";
+    for (let i = 0; i < 7; i++) id += SHARE_ID_CHARS[Math.floor(Math.random() * SHARE_ID_CHARS.length)];
+    return id;
+  };
   const share = async () => {
+    if (!window.supabaseClient) { showToast("공유 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요."); return false; }
+    const id = generateShareId();
     try {
-      const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ mood, stickers, rx }))));
-      const url = window.location.origin + window.location.pathname + window.location.search + "#" + payload;
-      window.location.hash = payload;
-      // 모바일 등 OS 공유 시트를 지원하는 환경에서도 PNG 파일이 아니라 이 링크(url) 자체를 넘긴다.
+      const { error } = await window.supabaseClient.from("rx_shares").insert({
+        id, mood, rx_type: rx.rxType, rx_num: rx.rxNum, stickers,
+      });
+      if (error) throw error;
+    } catch (e) {
+      showToast("공유 링크를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
+      return false;
+    }
+    const url = window.location.origin + window.location.pathname + "?id=" + id;
+    setShareUrl(url);
+    // 모바일 등 OS 공유 시트를 지원하는 환경에서는 PNG가 아니라 이 링크(url) 자체를 넘긴다.
+    try {
       if (navigator.share && (!navigator.canShare || navigator.canShare({ url }))) {
         await navigator.share({ title: "마음약국 처방전", text: "오늘의 말씀 처방전을 보내요.", url });
-        return;
+        setShareCopyFailed(false);
+        return true;
       }
-      // PC 등 공유 시트가 없는 환경: 링크 복사로 대체
-      if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url);
+    } catch (e) {
+      /* 사용자가 공유 시트를 취소한 경우 등 — 링크는 이미 만들어졌으므로 완료 화면으로 진행 */
+    }
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("no-clipboard");
+      await navigator.clipboard.writeText(url);
       setCopied(true);
+      setShareCopyFailed(false);
+      showToast("링크가 복사되었습니다.");
       setTimeout(() => setCopied(false), 2200);
     } catch (e) {
-      /* 취소/실패해도 완료 연출은 finishCompletion이 담당 */
+      setShareCopyFailed(true);
     }
+    return true;
   };
 
   const saveImage = async () => {
     try {
       const blob = await captureCard();
-      if (blob) {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "마음약국-처방전.png";
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-        return;
-      }
-      const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ mood, stickers, rx }))));
-      window.location.hash = payload;
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "마음약국-처방전.png";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) { /* noop */ }
   };
 
@@ -142,9 +174,16 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     setConfirmType(null);
     flowTimers.current.forEach(clearTimeout);
     flowTimers.current = [
-      setTimeout(() => {
-        if (type === "save") { saveImage(); setAskShare(true); } else { share(); }
-        setFlow("done");
+      setTimeout(async () => {
+        if (type === "save") {
+          saveImage();
+          setAskShare(true);
+          setFlow("done");
+        } else {
+          const ok = await share();
+          if (ok) setFlow("done");
+          else setFinalizing(false); // 공유 링크 생성 실패 — 편집 화면으로 복귀해 재시도 가능하게
+        }
       }, 550),
     ];
   };
@@ -157,8 +196,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   // 새로 만들지 않고, 이미 저장된 결과에 이어서 공유 여부만 한 번 더 물어보는 단계.
   const acceptSharePrompt = () => {
     setAskShare(false);
-    setFlowType("share");
-    share();
+    // 실패하면 flowType은 "save"로 남아 기존 저장 완료 화면으로 자연스럽게 돌아간다
+    // (share() 내부에서 이미 실패 토스트를 띄움).
+    share().then((ok) => { if (ok) setFlowType("share"); });
   };
   const declineSharePrompt = () => setAskShare(false);
   React.useEffect(() => {
@@ -653,13 +693,29 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
                 <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 16 : 14.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 30px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 500ms forwards" }}>
                   {flowType === "save"
                     ? <React.Fragment>꾸며진 처방전이 내 기기에<br />안전하게 저장되었어요.<br />마음이 필요한 날 다시 만나보세요.</React.Fragment>
-                    : <React.Fragment>당신이 꾸민 처방전이<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
+                    : shareCopyFailed
+                      ? <React.Fragment>링크를 복사하지 못했습니다.<br />아래 링크를 직접 복사해주세요.</React.Fragment>
+                      : <React.Fragment>당신이 꾸민 처방전이<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
                 </p>
+                {flowType === "share" && shareCopyFailed && shareUrl && (
+                  <input
+                    readOnly
+                    value={shareUrl}
+                    onFocus={(e) => e.target.select()}
+                    style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto 22px", padding: "13px 14px", borderRadius: 12, border: "1px solid var(--line-soft)", background: "#fff", color: "var(--ink-900)", fontFamily: "var(--font-body)", fontSize: 14, textAlign: "center", boxSizing: "border-box", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 620ms forwards" }}
+                  />
+                )}
                 <button onClick={finishCompletion} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 750ms forwards" }}>메인으로 돌아가기</button>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-faint)", margin: "18px 0 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 900ms forwards" }}>잠시 후 메인으로 돌아갑니다</p>
               </React.Fragment>
             )}
           </div>
+        </div>
+      )}
+      {toast && (
+        <div style={{ position: "fixed", left: "50%", bottom: pc ? 40 : 28, transform: "translateX(-50%)", zIndex: 100000, maxWidth: "calc(100% - 32px)", padding: "13px 22px", borderRadius: 999, background: "rgba(48,42,36,0.92)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, textAlign: "center", boxShadow: "0 10px 26px rgba(0,0,0,0.24)", pointerEvents: "none", animation: "toastInOut 2.6s ease-in-out forwards" }}>
+          <style>{"@keyframes toastInOut{0%{opacity:0;transform:translate(-50%,10px)}10%{opacity:1;transform:translate(-50%,0)}88%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}"}</style>
+          {toast}
         </div>
       )}
       </div>

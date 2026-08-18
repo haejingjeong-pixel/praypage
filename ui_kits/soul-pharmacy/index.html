@@ -9,6 +9,7 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="../../_ds_bundle.js"></script>
 <template id="__bundler_thumbnail" data-bg-color="#F3EEE9">
   <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
@@ -39,6 +40,13 @@
 <script src="stickers-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="rx-prescriptions.js"></script>
+<script>
+  // 공유 기능용 Supabase 클라이언트 — anon(공개) 키, RLS로 insert/select만 허용됨.
+  window.supabaseClient = window.supabase.createClient(
+    "https://lfazwohmzcbizympcghw.supabase.co",
+    "sb_publishable_LaF9N4HQLzwqiWT3sqsaYg_WhYU8daj"
+  );
+</script>
 <script type="text/babel" src="LogoMark.jsx"></script>
 <script type="text/babel" src="IntroSequence.jsx"></script>
 <script type="text/babel" src="MainScreen.jsx"></script>
@@ -46,14 +54,23 @@
 <script type="text/babel" src="ResultScreen.jsx"></script>
 <script type="text/babel" src="StickerScreen.jsx"></script>
 <script type="text/babel">
-  // 링크 공유 상태 (서버리스): 스티커 + 감정을 URL #해시에 담아 전달한다.
-  // 링크를 받은 사람은 같은 스티커가 얹힌 카드에서 이어서 스티커를 붙일 수 있다.
-  function readShared() {
+  // 링크 공유 상태: URL에는 Supabase의 짧은 공유 ID(?id=)만 있고, 실제 처방전/스티커
+  // 상태는 Supabase에서 조회해 복원한다. 처방전 본문(성구·복용법 등)은 저장하지 않고
+  // mood/rx_type/rx_num 세 값으로 프론트에 이미 있는 데이터에서 다시 찾는다.
+  function getSharedId() {
     try {
-      const h = window.location.hash.replace(/^#/, "");
-      if (!h) return null;
-      return JSON.parse(decodeURIComponent(escape(atob(h))));
+      return new URLSearchParams(window.location.search).get("id");
     } catch (e) { return null; }
+  }
+
+  // 공유 링크 로딩 중 잠깐 보여주는 최소 화면 — 다른 화면과 같은 브랜드 배경만 유지.
+  function ShareLoading() {
+    return (
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
+        <style>{"@keyframes shareSpin{to{transform:rotate(360deg)}}"}</style>
+        <div style={{ width: 34, height: 34, borderRadius: "50%", border: "3px solid rgba(107,95,207,0.22)", borderTopColor: "#6B5FCF", animation: "shareSpin 800ms linear infinite" }} />
+      </div>
+    );
   }
 
   // 화면 전환 크로스페이드: step이 바뀌면 이전 화면이 부드럽게 사라지고 새 화면이 페이드 인.
@@ -106,11 +123,36 @@
   }
 
   function App() {
-    const shared = readShared();
-    const [step, setStep] = React.useState(shared ? "sticker" : "intro"); // intro | main | assessment | result | sticker
-    const [mood, setMood] = React.useState(shared ? shared.mood : null);
-    const [sharedStickers] = React.useState(shared ? shared.stickers || [] : []);
-    const [rx, setRx] = React.useState(shared && shared.rx ? shared.rx : null);
+    const sharedId = getSharedId();
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | intro | main | assessment | result | sticker
+    const [mood, setMood] = React.useState(null);
+    const [sharedStickers, setSharedStickers] = React.useState([]);
+    const [rx, setRx] = React.useState(null);
+
+    // ?id= 공유 링크로 들어온 경우: Supabase에서 mood/rx_type/rx_num/stickers를 조회해
+    // 같은 처방전을 다시 찾아 복원한다 (본문은 저장돼있지 않고 프론트 데이터에서 재구성).
+    React.useEffect(() => {
+      if (!sharedId) return;
+      let cancelled = false;
+      (async () => {
+        try {
+          if (!window.supabaseClient) throw new Error("no-client");
+          const { data, error } = await window.supabaseClient
+            .from("rx_shares").select("*").eq("id", sharedId).single();
+          if (error || !data) throw error || new Error("not-found");
+          const resolved = window.resolvePrescriptionByNum(data.mood, data.rx_type, data.rx_num);
+          if (!resolved) throw new Error("unresolvable");
+          if (cancelled) return;
+          setMood(data.mood);
+          setRx(resolved);
+          setSharedStickers(data.stickers || []);
+          setStep("sticker");
+        } catch (e) {
+          if (!cancelled) setStep("intro"); // 링크가 만료/삭제/오류인 경우 처음부터 시작
+        }
+      })();
+      return () => { cancelled = true; };
+    }, [sharedId]);
 
     // 화면별 배경음악: 1=인트로 안내, 2=감정선택·문진·처방전, 3=저장/공유(스티커 화면에서 세부 제어)
     React.useEffect(() => {
@@ -121,7 +163,9 @@
     }, [step]);
 
     let screen = null;
-    if (step === "intro") {
+    if (step === "shareLoading") {
+      screen = <ShareLoading />;
+    } else if (step === "intro") {
       screen = <window.IntroSequence onDone={() => setStep("loading")} />;
     } else if (step === "loading") {
       screen = <window.IntroLoading onDone={() => setStep("main")} />;

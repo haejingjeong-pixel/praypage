@@ -988,4 +988,31 @@ window.resolvePrescription = function (mood, selections, cached) {
   return window.pickPrescription(mood, type);
 };
 
+// mood+rxType+rxNum만으로 정확히 같은 처방전을 다시 찾는다(무작위 뽑기 없음).
+// 공유 링크 복원용 — 본문 전체를 저장/전송하지 않고 이 세 값만으로 재구성한다.
+window.resolvePrescriptionByNum = function (mood, rxType, rxNum) {
+  var set = window.RX_PRESCRIPTIONS[mood];
+  if (!set || !set[rxType]) return null;
+  var chosen = null;
+  for (var i = 0; i < set[rxType].length; i++) {
+    if (set[rxType][i].num === rxNum) { chosen = set[rxType][i]; break; }
+  }
+  if (!chosen) return null;
+  var base = (window.RX_DATA && window.RX_DATA[mood]) || {};
+  var merged = {};
+  for (var k in base) merged[k] = base[k];
+  merged.opinion = chosen.opinion;
+  merged.verse = chosen.verse || "";
+  merged.reference = chosen.reference;
+  merged.dose = chosen.dose;
+  merged.cognitive = chosen.cognitive;
+  merged.state = chosen.state;
+  merged.caution = chosen.caution;
+  merged.practice = chosen.practice;
+  merged.rxType = rxType;
+  merged.rxNum = chosen.num;
+  merged._provisionalFields = ["symptom", "intensity", "word"];
+  return merged;
+};
+
 
