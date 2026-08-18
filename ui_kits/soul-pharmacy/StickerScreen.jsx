@@ -234,7 +234,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     setPast((p) => [...p, snapshot]);
     setFuture([]);
   };
-  const addSticker = (src) => {
+  const addSticker = (src, opts) => {
+    const small = !!(opts && opts.small); // 기본 스티커 2페이지 이후(작은 꾸밈요소) — 배치 기본 크기를 줄임
     const id = Date.now() + Math.random();
     recordHistory(stickers);
     // y는 카드 상단 기준 고정 px로 저장 — 배치 시점의 실제 카드 높이를 기준으로 % 위치를 px로 환산
@@ -244,7 +245,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     const yPct = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
     const y = (yPct / 100) * boardH;
     const rotate = Math.round((Math.random() - 0.5) * 24);
-    const scale = Math.max(0.55, 1 - grown * 0.03);
+    const scale = Math.max(0.55, 1 - grown * 0.03) * (small ? 0.58 : 1);
     if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
     setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
     setActiveId(id);
@@ -515,12 +516,17 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
           } : undefined}
         >
           <div key={isNormalCat ? "normal-" + normalPage : pickerCat} style={{ display: "grid", gridTemplateColumns: pc ? "repeat(4, minmax(120px, 1fr))" : "repeat(4, 1fr)", gap: pc ? 14 : 8, maxHeight: pc ? "56vh" : "46vh", overflowY: "auto", animation: isNormalCat ? `stickerSlide${normalSlideDir > 0 ? "L" : "R"} 220ms ease-out` : "none" }}>
-            {catItems.map((src, i) => (
-              <button key={src} onClick={() => addSticker(src)}
-                style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: 14, cursor: "pointer", padding: 6 }}>
-                <img src={src} alt="" loading="lazy" draggable={false} style={{ width: isNormalCat ? "70%" : "100%", height: isNormalCat ? "70%" : "100%", objectFit: "contain" }} />
-              </button>
-            ))}
+            {catItems.map((src, i) => {
+              // 기본 스티커 1페이지(세트1)는 기존 크기 그대로, 2페이지부터(세트2/3·형광펜)만
+              // 썸네일과 처방전에 처음 붙는 기본 크기를 함께 줄인다.
+              const small = isNormalCat && normalPage > 0;
+              return (
+                <button key={src} onClick={() => addSticker(src, { small })}
+                  style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: 14, cursor: "pointer", padding: 6 }}>
+                  <img src={src} alt="" loading="lazy" draggable={false} style={{ width: small ? "70%" : "100%", height: small ? "70%" : "100%", objectFit: "contain" }} />
+                </button>
+              );
+            })}
           </div>
         </div>
         <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", textAlign: "center", margin: "14px 0 0" }}>고른 스티커는 처방전에 붙고, 드래그·회전·크기 조절할 수 있어요.</p>
