@@ -27,7 +27,7 @@ const DEFAULT_NOTES = [
   { t: "너는 소중해! ☺", s: "heart", c: "blue", x: 82, y: 88, r: 7 },
 ];
 
-function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
+function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBack, onNext }) {
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
   const rx = rxProp || window.RX_DATA[mood] || window.RX_DATA.anxious;
   const moodLabel = ((MOODS && MOODS[mood] && MOODS[mood].label) || rx.symptom || "").replace(/\n/g, " ");
@@ -50,6 +50,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const [confirmType, setConfirmType] = React.useState(null); // null | save | share
   const [flowType, setFlowType] = React.useState("share"); // save | share
   const [askShare, setAskShare] = React.useState(false); // 저장 완료 직후 공유 여부를 묻는 중인지
+  // 이 세션이 묶여 있는 공유 링크의 id — 직접 공유해서 막 생성했거나, 공유 링크로 들어온 경우.
+  // 설정되어 있으면 새로 추가하는 스티커마다 rx_share_stickers에 개별 저장되어 누적된다.
+  const [shareId, setShareId] = React.useState(initialShareId || null);
   const [shareUrl, setShareUrl] = React.useState(null); // 마지막으로 생성된 공유 링크
   const [shareCopyFailed, setShareCopyFailed] = React.useState(false); // 자동 복사 실패 → 수동 복사 UI 노출
   const [toast, setToast] = React.useState(null);
@@ -109,15 +112,29 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   };
   const share = async () => {
     if (!window.supabaseClient) { showToast("공유 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요."); return false; }
-    const id = generateShareId();
-    try {
-      const { error } = await window.supabaseClient.from("rx_shares").insert({
-        id, mood, rx_type: rx.rxType, rx_num: rx.rxNum, stickers,
-      });
-      if (error) throw error;
-    } catch (e) {
-      showToast("공유 링크를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
-      return false;
+    // 이미 이 세션이 공유 링크(shareId)에 묶여 있으면(직접 만들었거나 공유 링크로 들어온 경우)
+    // 새 행을 또 만들지 않고 같은 링크를 재사용한다 — 스티커는 addSticker()에서 이미
+    // rx_share_stickers에 개별 삽입되어 누적돼 있으므로 여기서 다시 저장할 게 없다.
+    let id = shareId;
+    if (!id) {
+      id = generateShareId();
+      try {
+        const { error } = await window.supabaseClient.from("rx_shares").insert({
+          id, mood, rx_type: rx.rxType, rx_num: rx.rxNum,
+        });
+        if (error) throw error;
+        if (stickers.length) {
+          const rows = stickers.map((s) => ({
+            share_id: id, sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y, scale: s.scale, rotate: s.rotate,
+          }));
+          const { error: stickerErr } = await window.supabaseClient.from("rx_share_stickers").insert(rows);
+          if (stickerErr) throw stickerErr;
+        }
+        setShareId(id);
+      } catch (e) {
+        showToast("공유 링크를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
+        return false;
+      }
     }
     const url = window.location.origin + window.location.pathname + "?id=" + id;
     setShareUrl(url);
@@ -223,18 +240,24 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     recordHistory(stickers);
     // y는 카드 상단 기준 고정 px로 저장 — 배치 시점의 실제 카드 높이를 기준으로 % 위치를 px로 환산
     const boardH = (boardRef.current && boardRef.current.getBoundingClientRect().height) || 560;
-    setStickers((list) => {
-      if (!list.length) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
-      const x = 30 + Math.random() * 40;   // 기본 위치: 중앙 안전 영역
-      const grown = list.length;
-      const yPct = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
-      const y = (yPct / 100) * boardH;
-      const rotate = Math.round((Math.random() - 0.5) * 24);
-      const scale = Math.max(0.55, 1 - list.length * 0.03);
-      return [...list, { id, src, x, y, scale, rotate }];
-    });
+    const grown = stickers.length;
+    const x = 30 + Math.random() * 40;   // 기본 위치: 중앙 안전 영역
+    const yPct = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
+    const y = (yPct / 100) * boardH;
+    const rotate = Math.round((Math.random() - 0.5) * 24);
+    const scale = Math.max(0.55, 1 - grown * 0.03);
+    if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
+    setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
     setActiveId(id);
     setShowPicker(false);
+    // 이미 공유 링크에 묶인 세션이면(직접 공유했거나 공유 링크로 들어온 경우) 이 스티커를
+    // rx_share_stickers에 즉시 개별 저장 — 위치는 배치 시점 값 그대로 스냅샷된다(이후 드래그로
+    // 미세조정해도 anon에게 UPDATE 권한을 주지 않으므로 DB에는 반영되지 않음, 화면에만 반영).
+    if (shareId && window.supabaseClient) {
+      window.supabaseClient.from("rx_share_stickers").insert({
+        share_id: shareId, sticker_asset_id: src, x, y, scale, rotate,
+      }).then(({ error }) => { if (error) console.error("sticker sync failed:", error); });
+    }
   };
   const updateSticker = (id, patch) => {
     setStickers((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));

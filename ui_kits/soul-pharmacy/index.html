@@ -73,6 +73,25 @@
     );
   }
 
+  // 공유 기간(7일)이 지났거나 존재하지 않는 링크로 들어온 경우.
+  function ShareExpired({ onGoMain }) {
+    return (
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
+        <div style={{ maxWidth: 420, width: "100%", textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: 22, lineHeight: 1.5, color: "var(--ink-900)", margin: "0 0 14px" }}>
+            이 처방전의 공유 기간이 끝났어요.
+          </p>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 14.5, lineHeight: 1.7, color: "var(--text-muted)", margin: "0 0 30px" }}>
+            공유 링크는 7일 동안만 열어볼 수 있어요.
+          </p>
+          <button onClick={onGoMain} style={{ display: "block", width: "100%", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)" }}>
+            새로운 마음 처방전을 받아보세요
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // 화면 전환 크로스페이드: step이 바뀌면 이전 화면이 부드럽게 사라지고 새 화면이 페이드 인.
   function Fade({ step, children }) {
     const [shown, setShown] = React.useState({ step, children });
@@ -124,13 +143,20 @@
 
   function App() {
     const sharedId = getSharedId();
-    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | intro | main | assessment | result | sticker
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareExpired | intro | main | assessment | result | sticker
     const [mood, setMood] = React.useState(null);
     const [sharedStickers, setSharedStickers] = React.useState([]);
+    const [shareId, setShareId] = React.useState(null); // 로드에 성공한 공유의 id — StickerScreen에 넘겨 이후 추가 스티커도 같은 공유에 누적
     const [rx, setRx] = React.useState(null);
 
-    // ?id= 공유 링크로 들어온 경우: Supabase에서 mood/rx_type/rx_num/stickers를 조회해
-    // 같은 처방전을 다시 찾아 복원한다 (본문은 저장돼있지 않고 프론트 데이터에서 재구성).
+    const goMainFresh = () => {
+      window.history.replaceState(null, "", window.location.pathname);
+      setStep("main");
+    };
+
+    // ?id= 공유 링크로 들어온 경우: Supabase에서 처방전(mood/rx_type/rx_num)과 그동안 쌓인
+    // 응원 스티커(rx_share_stickers)를 조회해 복원한다. 본문은 저장돼있지 않고 프론트 데이터에서
+    // 재구성하며, expires_at이 지난 공유는 RLS가 애초에 select 결과에서 제외한다.
     React.useEffect(() => {
       if (!sharedId) return;
       let cancelled = false;
@@ -139,16 +165,21 @@
           if (!window.supabaseClient) throw new Error("no-client");
           const { data, error } = await window.supabaseClient
             .from("rx_shares").select("*").eq("id", sharedId).single();
-          if (error || !data) throw error || new Error("not-found");
+          if (error || !data) throw error || new Error("not-found-or-expired");
           const resolved = window.resolvePrescriptionByNum(data.mood, data.rx_type, data.rx_num);
           if (!resolved) throw new Error("unresolvable");
+          const { data: stickerRows } = await window.supabaseClient
+            .from("rx_share_stickers").select("*").eq("share_id", sharedId).order("created_at", { ascending: true });
           if (cancelled) return;
           setMood(data.mood);
           setRx(resolved);
-          setSharedStickers(data.stickers || []);
+          setShareId(sharedId);
+          setSharedStickers((stickerRows || []).map((row) => ({
+            id: "db-" + row.id, src: row.sticker_asset_id, x: row.x, y: row.y, scale: row.scale, rotate: row.rotate,
+          })));
           setStep("sticker");
         } catch (e) {
-          if (!cancelled) setStep("intro"); // 링크가 만료/삭제/오류인 경우 처음부터 시작
+          if (!cancelled) setStep("shareExpired"); // 만료/삭제/존재하지 않는 링크
         }
       })();
       return () => { cancelled = true; };
@@ -165,6 +196,8 @@
     let screen = null;
     if (step === "shareLoading") {
       screen = <ShareLoading />;
+    } else if (step === "shareExpired") {
+      screen = <ShareExpired onGoMain={goMainFresh} />;
     } else if (step === "intro") {
       screen = <window.IntroSequence onDone={() => setStep("loading")} />;
     } else if (step === "loading") {
@@ -182,7 +215,7 @@
     } else if (step === "decorateIntro") {
       screen = <DecorateIntro mood={mood} onDone={() => setStep("sticker")} />;
     } else if (step === "sticker") {
-      screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
+      screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} initialShareId={shareId} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
     }
     return <Fade step={step}>{screen}</Fade>;
   }
