@@ -643,7 +643,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
           </div></div>
 
           {/* 저장/공유 버튼은 카드 밖 (board 아래)로 이동 */}
-          <p data-export-ignore="true" style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${pc ? 16 : 12}px 0 0` }}>
+          {/* 카드 자체의 정식 콘텐츠라 export에서 제외하면 안 됨 — data-export-ignore를 붙였더니
+              html-to-image가 이 노드를 통째로 잘라내면서(일반 문서 흐름) 저장된 카드 높이가
+              편집 화면보다 짧아지는 버그가 있었다. */}
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${pc ? 16 : 12}px 0 0` }}>
             마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
           </p>
         </div>
