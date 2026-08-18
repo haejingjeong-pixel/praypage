@@ -164,11 +164,14 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const addSticker = (src) => {
     const id = Date.now() + Math.random();
     recordHistory(stickers);
+    // y는 카드 상단 기준 고정 px로 저장 — 배치 시점의 실제 카드 높이를 기준으로 % 위치를 px로 환산
+    const boardH = (boardRef.current && boardRef.current.getBoundingClientRect().height) || 560;
     setStickers((list) => {
       if (!list.length) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
       const x = 30 + Math.random() * 40;   // 기본 위치: 중앙 안전 영역
       const grown = list.length;
-      const y = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
+      const yPct = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
+      const y = (yPct / 100) * boardH;
       const rotate = Math.round((Math.random() - 0.5) * 24);
       const scale = Math.max(0.55, 1 - list.length * 0.03);
       return [...list, { id, src, x, y, scale, rotate }];
@@ -203,6 +206,28 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     setActiveId(null);
   };
 
+  // 공간 늘리기/줄이기(extraH)는 스티커의 고정 px 좌표에 영향을 주지 않음 — 카드 자체가
+  // 커지거나 작아질 뿐, 스티커는 같은 자리에 그대로 남는다. 다만 공간을 줄여서 카드가
+  // 작아졌을 때 이미 새 하단 경계 밖으로 벗어난 스티커만 최소한으로 안쪽에 붙여준다
+  // (스티커 군집 전체를 재배치하지 않음).
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (!boardRef.current) return;
+      const newH = boardRef.current.getBoundingClientRect().height;
+      setStickers((list) => {
+        let changed = false;
+        const next = list.map((s) => {
+          const half = (((pc ? 40 : 34) * s.scale) + 16) / 2;
+          const maxY = Math.max(half, newH - half);
+          if (s.y > maxY) { changed = true; return { ...s, y: maxY }; }
+          return s;
+        });
+        return changed ? next : list;
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [extraH]);
+
   const startMove = (e, s) => {
     e.stopPropagation();
     setActiveId(s.id);
@@ -214,7 +239,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     dragRef.current = { mode: "move", id: s.id, boardRect: board, prot, lastValid: { x: s.x, y: s.y }, invalid: false,
       before: stickers, moved: false,
       mx: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.width) * 100,
-      my: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.height) * 100 };
+      myPx: (((pc ? 40 : 34) * s.scale) + 16) / 2 };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", endPointer);
   };
@@ -224,7 +249,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     e.preventDefault();
     const board = boardRef.current.getBoundingClientRect();
     const cx = board.left + (s.x / 100) * board.width;
-    const cy = board.top + (s.y / 100) * board.height;
+    const cy = board.top + s.y;
     dragRef.current = {
       mode, id: s.id, cx, cy,
       startScale: s.scale, startRotate: s.rotate,
@@ -241,9 +266,11 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     if (!d) return;
     d.moved = true;
     if (d.mode === "move") {
+      // x는 카드 너비 대비 %(너비는 공간 늘리기/줄이기에 영향받지 않음), y는 카드 상단 기준 고정 px —
+      // 처방전 높이가 바뀌어도(공간 늘리기/줄이기) 이미 놓인 스티커의 화면 위치가 밀리지 않도록 함
       const x = ((e.clientX - d.boardRect.left) / d.boardRect.width) * 100;
-      const y = ((e.clientY - d.boardRect.top) / d.boardRect.height) * 100;
-      const nx = Math.max(d.mx, Math.min(100 - d.mx, x)), ny = Math.max(d.my, Math.min(100 - d.my, y));
+      const yPx = e.clientY - d.boardRect.top;
+      const nx = Math.max(d.mx, Math.min(100 - d.mx, x)), ny = Math.max(d.myPx, Math.min(d.boardRect.height - d.myPx, yPx));
       const over = d.prot.some((p) => e.clientX > p.l && e.clientX < p.rt && e.clientY > p.t && e.clientY < p.b);
       d.invalid = over;
       if (!over) d.lastValid = { x: nx, y: ny };
@@ -440,7 +467,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
               data-sticker
               onClick={(e) => e.stopPropagation()}
               style={{
-                position: "absolute", left: s.x + "%", top: s.y + "%", width: box, height: box, marginLeft: -box / 2, marginTop: -box / 2,
+                position: "absolute", left: s.x + "%", top: s.y + "px", width: box, height: box, marginLeft: -box / 2, marginTop: -box / 2,
                 transform: `rotate(${s.rotate}deg)`, transformOrigin: "center center",
                 touchAction: "none", zIndex: activeId === s.id ? 20 : 5,
               }}
