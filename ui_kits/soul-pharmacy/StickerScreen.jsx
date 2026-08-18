@@ -5,6 +5,8 @@
 const STICKER_SET = (typeof window !== "undefined" && window.STICKER_SET) || { categories: [], files: {} };
 const STICKER_CATEGORIES = STICKER_SET.categories;
 const STICKER_FILES = STICKER_SET.files;
+// 공통 꾸미기 도구 탭(감정별 스티커와 성격이 달라 색상 그룹을 분리) — 순서는 stickers-data.js와 일치
+const TOOL_STICKER_CATS = new Set(["normal", "tape", "basic"]);
 
 // 롤링페이퍼 기본 응원 메모 — 여러 사람이 남긴 흔적처럼 모양·색·각도가 제각각.
 // 상단 정보표(y 20~34%)·처방 말씀(y 40~58%)을 가리지 않도록 여백/하단 위주 배치.
@@ -477,10 +479,21 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
           <button onClick={() => setShowPicker(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}><Icon name="x" size={20} color="var(--text-muted)" /></button>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
-          {STICKER_CATEGORIES.map((c) => (
-            <button key={c.key} onClick={() => setPickerCat(c.key)}
-              style={{ padding: "7px 14px", borderRadius: 999, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, border: "none", background: pickerCat === c.key ? "var(--accent)" : "rgba(120,92,64,0.08)", color: pickerCat === c.key ? "var(--on-accent)" : "var(--text-body)" }}>{c.label}</button>
-          ))}
+          {STICKER_CATEGORIES.map((c, i) => {
+            // 공통 꾸미기 도구(공통응원/테이프/기본꾸밈)는 세이지 그린으로 묶어서 감정 스티커
+            // 그룹(베이지/뉴트럴)과 시각적으로 구분되는 한 덩어리로 보이게 한다.
+            const isTool = TOOL_STICKER_CATS.has(c.key);
+            const active = pickerCat === c.key;
+            return (
+              <button key={c.key} onClick={() => setPickerCat(c.key)}
+                style={{
+                  padding: "7px 14px", borderRadius: 999, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, border: "none",
+                  marginRight: (isTool && i === TOOL_STICKER_CATS.size - 1) ? 10 : 0,
+                  background: isTool ? (active ? "#8FAE7A" : "#E8F0E3") : (active ? "var(--accent)" : "rgba(120,92,64,0.08)"),
+                  color: isTool ? (active ? "#FFFFFF" : "#5F7255") : (active ? "var(--on-accent)" : "var(--text-body)"),
+                }}>{c.label}</button>
+            );
+          })}
         </div>
         {/* 기본꾸밈만 다른 탭보다 훨씬 촘촘한 그리드(열 2배) — 장식용 소도구를 빠르게 둘러보는 느낌 */}
         <div style={{ display: "grid", gridTemplateColumns: pc ? `repeat(${isBasicCat ? 8 : 4}, minmax(${isBasicCat ? 56 : 120}px, 1fr))` : `repeat(${isBasicCat ? 8 : 4}, 1fr)`, gap: isBasicCat ? 6 : (pc ? 14 : 8), maxHeight: pc ? "56vh" : "46vh", overflowY: "auto" }}>
