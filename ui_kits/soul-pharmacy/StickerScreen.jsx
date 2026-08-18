@@ -651,16 +651,23 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         {/* 스티커 레이어 — exportRef(캡처 대상) 내부에 렌더링해야 저장 이미지에 포함됨 */}
         {stickers.map((s) => {
           const isActive = activeId === s.id;
-          const px = (pc ? 40 : 34) * s.scale;
+          const px = (pc ? 40 : 34) * s.scale; // 긴 변 기준 참조 크기 — 드래그 여백 계산 등에서도 계속 씀
           const boxPad = 8;
-          const box = px + boxPad * 2;
+          // 조작 박스를 정사각형으로 강제하지 않고 이미지 실제 가로/세로 비율(STICKER_ASPECT)에 맞춘다.
+          // 대부분의 스티커 파일은 이미 알파 채널 기준으로 캔버스를 꽉 채우고 있어(투명 여백 거의 없음)
+          // 캔버스 비율 = 실제 콘텐츠 비율로 취급해도 된다 — 없는 항목/이모지는 1(정사각형)로 대체.
+          const aspect = (s.src && window.STICKER_ASPECT && window.STICKER_ASPECT[s.src]) || 1;
+          const imgW = aspect >= 1 ? px : px * aspect;
+          const imgH = aspect >= 1 ? px / aspect : px;
+          const boxW = imgW + boxPad * 2;
+          const boxH = imgH + boxPad * 2;
           return (
             <div
               key={s.id}
               data-sticker
               onClick={(e) => e.stopPropagation()}
               style={{
-                position: "absolute", left: s.x + "%", top: s.y + "px", width: box, height: box, marginLeft: -box / 2, marginTop: -box / 2,
+                position: "absolute", left: s.x + "%", top: s.y + "px", width: boxW, height: boxH, marginLeft: -boxW / 2, marginTop: -boxH / 2,
                 transform: `rotate(${s.rotate}deg)`, transformOrigin: "center center",
                 touchAction: "none", zIndex: activeId === s.id ? 20 : 5,
               }}
@@ -675,7 +682,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
                 }}
               >
                 {s.src
-                  ? <img src={s.src} alt="" draggable={false} onDragStart={(e) => e.preventDefault()} style={{ width: px, height: px, objectFit: "contain", pointerEvents: "none", userSelect: "none" }} />
+                  ? <img src={s.src} alt="" draggable={false} onDragStart={(e) => e.preventDefault()} style={{ width: imgW, height: imgH, objectFit: "contain", pointerEvents: "none", userSelect: "none" }} />
                   : <span style={{ fontSize: px, lineHeight: 1 }}>{s.emoji}</span>}
               </span>
               {isActive && (
