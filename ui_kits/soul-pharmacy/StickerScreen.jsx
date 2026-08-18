@@ -80,6 +80,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   const boardRef = React.useRef(null);
   const exportRef = React.useRef(null); // 캡처 대상: 처방전 카드 한 장만
   const verseRef = React.useRef(null);  // 성구 본문 텍스트(<p>) — 스티커 배치 금지 영역 측정 기준
+  const stickerZoneRef = React.useRef(null); // 스티커 자유 배치 영역 — 새 스티커의 "정중앙" 기준
   const dragRef = React.useRef(null);
 
   const [pc, setPc] = React.useState(false);
@@ -233,17 +234,28 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     setFuture([]);
   };
   const addSticker = (src, opts) => {
-    const small = !!(opts && opts.small); // 기본 스티커 2페이지 이후(작은 꾸밈요소) — 배치 기본 크기를 줄임
+    const small = !!(opts && opts.small); // 테이프/기본꾸밈 — 감정·공통응원 스티커보다 기본 크기를 작게
     const id = Date.now() + Math.random();
     recordHistory(stickers);
-    // y는 카드 상단 기준 고정 px로 저장 — 배치 시점의 실제 카드 높이를 기준으로 % 위치를 px로 환산
-    const boardH = (boardRef.current && boardRef.current.getBoundingClientRect().height) || 560;
     const grown = stickers.length;
-    const x = 30 + Math.random() * 40;   // 기본 위치: 중앙 안전 영역
-    const yPct = grown > 6 ? (55 + Math.random() * 30) : (30 + Math.random() * 45);
-    const y = (yPct / 100) * boardH;
+    // 위치 기준: 스티커 자유 배치 영역(성구·정보표를 피해 이미 레이아웃된 구간)의 정중앙.
+    // 여러 개를 연달아 추가해도 완전히 겹치지만 않도록 아주 미세한 랜덤 오프셋만 더한다.
+    const boardRect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
+    const zoneRect = stickerZoneRef.current ? stickerZoneRef.current.getBoundingClientRect() : null;
+    let x = 50, y = 280; // boardRect/zoneRect를 못 구했을 때의 안전한 기본값
+    if (boardRect && zoneRect && boardRect.width && boardRect.height) {
+      x = ((zoneRect.left + zoneRect.width / 2 - boardRect.left) / boardRect.width) * 100;
+      y = zoneRect.top + zoneRect.height / 2 - boardRect.top;
+    }
+    x += (Math.random() - 0.5) * 6;   // ±3%p 정도의 미세한 흔들림
+    y += (Math.random() - 0.5) * 30;  // ±15px 정도의 미세한 흔들림
     const rotate = Math.round((Math.random() - 0.5) * 24);
-    const scale = Math.max(0.55, 1 - grown * 0.03) * (small ? 0.58 : 1);
+    // 기본 배치 크기: 감정/공통응원 스티커는 바로 눈에 띄게, 테이프/기본꾸밈은 그보다 한 단계 작게.
+    // 여러 개를 추가할수록 아주 조금씩만 줄어들되(캔버스가 꽉 차 보이지 않게), 바닥 크기는 여전히
+    // 알아보기 충분한 수준으로 유지한다.
+    const base = small ? 0.85 : 1.15;
+    const floor = small ? 0.6 : 0.85;
+    const scale = Math.max(floor, base - grown * 0.02);
     if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
     setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
     setActiveId(id);
@@ -552,7 +564,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
           </div>
 
           {/* 스티커 캔버스 — 처방전 전체에 자유롭게, 텍스트는 보호 */}
-          <div data-sticker-zone style={{ position: "relative", width: "100%", flex: "1 1 auto", minHeight: (pc ? 150 : 110) + extraH, display: "flex", alignItems: "center", justifyContent: "center", transition: "min-height 320ms ease-out" }}>
+          <div ref={stickerZoneRef} data-sticker-zone style={{ position: "relative", width: "100%", flex: "1 1 auto", minHeight: (pc ? 150 : 110) + extraH, display: "flex", alignItems: "center", justifyContent: "center", transition: "min-height 320ms ease-out" }}>
             {!finalizing && stickers.length === 0 && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.7, pointerEvents: "none" }}>
                 <Icon name="hand-heart" size={pc ? 30 : 26} color="var(--text-faint)" stroke={1.5} />
