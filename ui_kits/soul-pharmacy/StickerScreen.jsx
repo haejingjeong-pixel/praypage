@@ -49,6 +49,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const [finalizing, setFinalizing] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState(null); // null | save | share
   const [flowType, setFlowType] = React.useState("share"); // save | share
+  const [askShare, setAskShare] = React.useState(false); // 저장 완료 직후 공유 여부를 묻는 중인지
   const [showTip, setShowTip] = React.useState(false);
   const [hoverEmoji, setHoverEmoji] = React.useState(null);
   const [showPicker, setShowPicker] = React.useState(false);
@@ -137,7 +138,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     setConfirmType(null);
     flowTimers.current.forEach(clearTimeout);
     flowTimers.current = [
-      setTimeout(() => { if (type === "save") saveImage(); else share(); setFlow("done"); }, 550),
+      setTimeout(() => {
+        if (type === "save") { saveImage(); setAskShare(true); } else { share(); }
+        setFlow("done");
+      }, 550),
     ];
   };
   const finishCompletion = () => {
@@ -145,11 +149,19 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     setFlow("fadeout");
     setTimeout(() => onNext && onNext(), 700);
   };
+  // 저장 완료 직후 "소중한 사람에게도 공유할까요?" 질문 — 저장을 다시 하거나 처방전을
+  // 새로 만들지 않고, 이미 저장된 결과에 이어서 공유 여부만 한 번 더 물어보는 단계.
+  const acceptSharePrompt = () => {
+    setAskShare(false);
+    setFlowType("share");
+    share();
+  };
+  const declineSharePrompt = () => setAskShare(false);
   React.useEffect(() => {
-    if (flow !== "done") return;
+    if (flow !== "done" || askShare) return; // 질문에 답하기 전에는 자동으로 흐름이 끊기지 않도록 대기
     const t = setTimeout(() => { setFlow("fadeout"); setTimeout(() => onNext && onNext(), 700); }, 6500);
     return () => clearTimeout(t);
-  }, [flow]);
+  }, [flow, askShare]);
   React.useEffect(() => () => flowTimers.current.forEach(clearTimeout), []);
 
   React.useEffect(() => {
@@ -617,18 +629,32 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
         <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
           <style>{"@keyframes revealUp{to{opacity:1;transform:translateY(0)}}"}</style>
           <div style={{ maxWidth: 470, width: "100%", opacity: flow === "fadeout" ? 0 : 1, transition: "opacity 500ms ease" }}>
-            <img src={flowType === "save" ? "assets-web/icon-save.webp" : "assets-web/icon-share.webp"} alt="" style={{ width: pc ? 104 : 88, height: pc ? 104 : 88, objectFit: "contain", display: "block", margin: "0 auto 16px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }} />
-            <p style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em", color: "#8E86DE", margin: "0 0 14px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 150ms forwards" }}>{flowType === "save" ? "저장이 완료되었어요" : "공유가 완료되었어요"}</p>
-            <h2 style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 32 : 25, lineHeight: 1.35, color: "var(--ink-900)", margin: "0 0 18px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 300ms forwards" }}>
-              {flowType === "save" ? <React.Fragment>오늘의 마음을<br />조용히 담아두었어요</React.Fragment> : <React.Fragment>응원의 마음을<br />따뜻하게 전했어요</React.Fragment>}
-            </h2>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 16 : 14.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 30px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 500ms forwards" }}>
-              {flowType === "save"
-                ? <React.Fragment>꾸며진 처방전이 내 기기에<br />안전하게 저장되었어요.<br />마음이 필요한 날 다시 만나보세요.</React.Fragment>
-                : <React.Fragment>당신이 꾸민 처방전이<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
-            </p>
-            <button onClick={finishCompletion} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 750ms forwards" }}>메인으로 돌아가기</button>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-faint)", margin: "18px 0 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 900ms forwards" }}>잠시 후 메인으로 돌아갑니다</p>
+            {askShare ? (
+              <React.Fragment>
+                <img src="assets-web/icon-save.webp" alt="" style={{ width: pc ? 104 : 88, height: pc ? 104 : 88, objectFit: "contain", display: "block", margin: "0 auto 16px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }} />
+                <p style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em", color: "#8E86DE", margin: "0 0 14px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 150ms forwards" }}>저장이 완료되었어요</p>
+                <h2 style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 30 : 24, lineHeight: 1.4, color: "var(--ink-900)", margin: "0 0 32px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 300ms forwards" }}>
+                  이 마음을 소중한 사람에게도<br />건네볼까요?
+                </h2>
+                <button onClick={acceptSharePrompt} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto 12px", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 500ms forwards" }}>소중한 사람에게 공유하기</button>
+                <button onClick={declineSharePrompt} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "15px", borderRadius: 999, border: "1px solid var(--line-soft)", cursor: "pointer", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 15, opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 650ms forwards" }}>지금은 괜찮아요</button>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <img src={flowType === "save" ? "assets-web/icon-save.webp" : "assets-web/icon-share.webp"} alt="" style={{ width: pc ? 104 : 88, height: pc ? 104 : 88, objectFit: "contain", display: "block", margin: "0 auto 16px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }} />
+                <p style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em", color: "#8E86DE", margin: "0 0 14px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 150ms forwards" }}>{flowType === "save" ? "저장이 완료되었어요" : "공유가 완료되었어요"}</p>
+                <h2 style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 32 : 25, lineHeight: 1.35, color: "var(--ink-900)", margin: "0 0 18px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 300ms forwards" }}>
+                  {flowType === "save" ? <React.Fragment>오늘의 마음을<br />조용히 담아두었어요</React.Fragment> : <React.Fragment>응원의 마음을<br />따뜻하게 전했어요</React.Fragment>}
+                </h2>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 16 : 14.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 30px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 500ms forwards" }}>
+                  {flowType === "save"
+                    ? <React.Fragment>꾸며진 처방전이 내 기기에<br />안전하게 저장되었어요.<br />마음이 필요한 날 다시 만나보세요.</React.Fragment>
+                    : <React.Fragment>당신이 꾸민 처방전이<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
+                </p>
+                <button onClick={finishCompletion} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 750ms forwards" }}>메인으로 돌아가기</button>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-faint)", margin: "18px 0 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 900ms forwards" }}>잠시 후 메인으로 돌아갑니다</p>
+              </React.Fragment>
+            )}
           </div>
         </div>
       )}
