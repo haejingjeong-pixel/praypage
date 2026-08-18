@@ -29,7 +29,7 @@ const DEFAULT_NOTES = [
   { t: "너는 소중해! ☺", s: "heart", c: "blue", x: 82, y: 88, r: 7 },
 ];
 
-function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBack, onNext }) {
+function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, initialExtraH, onBack, onNext }) {
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
   const rx = rxProp || window.RX_DATA[mood] || window.RX_DATA.anxious;
   const moodLabel = ((MOODS && MOODS[mood] && MOODS[mood].label) || rx.symptom || "").replace(/\n/g, " ");
@@ -41,7 +41,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   const rxDate = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\.$/, "").replace(/\s/g, "");
   // 기본 응원 스티커 — 카드가 비어 보이지 않도록 서로 다른 위치·각도로 미리 배치 (편집 가능)
   const SEED_STICKERS = [];
-  const [stickers, setStickers] = React.useState(initialStickers && initialStickers.length ? initialStickers : SEED_STICKERS);
+  // 공유 링크로 들어온 스티커는 카드 기준 정규화 좌표(x:%, y:카드 높이 대비 비율, scale:카드 너비
+  // 대비 비율)로 저장되어 있다. 이 세션의 실제 카드 크기로 변환하기 전까지는 빈 채로 시작하고,
+  // mount 직후 boardRef를 측정할 수 있을 때 한 번만 변환한다(아래 useEffect).
+  const hasRawShared = !!(initialStickers && initialStickers.length);
+  const [stickers, setStickers] = React.useState(hasRawShared ? [] : SEED_STICKERS);
+  const rawSharedStickers = React.useRef(hasRawShared ? initialStickers : null);
   const [activeId, setActiveId] = React.useState(null);
   const [past, setPast] = React.useState([]);   // undo 스택 — 각 항목은 그 시점 직전의 stickers 스냅샷
   const [future, setFuture] = React.useState([]); // redo 스택
@@ -75,7 +80,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   const [pickerCat, setPickerCat] = React.useState(_defaultCat);
   const [hintSeen, setHintSeen] = React.useState(false);
   const [invalidId, setInvalidId] = React.useState(null);
-  const [extraH, setExtraH] = React.useState(0); // 사용자가 늘린 하단 꾸미기 공간 (단계)
+  const [extraH, setExtraH] = React.useState(initialExtraH || 0); // 사용자가 늘린 하단 꾸미기 공간 (단계)
   const EXTRA_STEP = 150, EXTRA_MAX = 5;
   const boardRef = React.useRef(null);
   const exportRef = React.useRef(null); // 캡처 대상: 처방전 카드 한 장만
@@ -83,7 +88,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   const stickerZoneRef = React.useRef(null); // 스티커 자유 배치 영역 — 새 스티커의 "정중앙" 기준
   const dragRef = React.useRef(null);
 
-  const [pc, setPc] = React.useState(false);
+  // 초기값부터 정확한 값으로 잡아야 함 — 공유 스티커 좌표 복원이 mount 직후 1회만 실행되므로,
+  // false로 시작했다가 나중에 보정되면(구 방식) 그 순간의 잘못된 카드 크기로 변환될 수 있다.
+  const [pc, setPc] = React.useState(() => typeof window !== "undefined" && window.innerWidth >= 860);
   const [wide, setWide] = React.useState(false);
   React.useEffect(() => {
     const pick = () => { setPc(window.innerWidth >= 860); setWide(window.innerWidth >= 1180); };
@@ -102,6 +109,18 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
       pixelRatio: 2.5, cacheBust: true, backgroundColor: "#FCFBF6",
       filter: (node) => !(node instanceof HTMLElement && node.dataset && node.dataset.exportIgnore === "true"),
     });
+  };
+
+  // 로컬 좌표(x:%, y:카드 상단 기준 px, scale:배율)를 "카드 자체 기준" 비율로 정규화해서
+  // DB에 쓴다 — x는 이미 %라 그대로, y는 카드 높이 대비 비율로, scale은 실제 렌더 px를
+  // 카드 너비 대비 비율로 바꿔서 저장한다. 이렇게 하면 다른 화면 크기로 열어도(그리고
+  // extraH가 함께 복원되면) 카드 안에서 상대 위치·상대 크기가 그대로 유지된다.
+  const normalizeStickerForShare = (s) => {
+    const rect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
+    const h = rect && rect.height ? rect.height : 1;
+    const w = rect && rect.width ? rect.width : 1;
+    const renderedPx = (pc ? 40 : 34) * s.scale;
+    return { sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y / h, scale: renderedPx / w, rotate: s.rotate };
   };
 
   // "소중한 사람에게 공유하기" = 마음약국 내부 공유(짧은 ID 링크) 기능. PNG 캡처/파일 공유는
@@ -125,14 +144,16 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
       id = generateShareId();
       try {
         const { error } = await window.supabaseClient.from("rx_shares").insert({
-          id, mood, rx_type: rx.rxType, rx_num: rx.rxNum,
+          id, mood, rx_type: rx.rxType, rx_num: rx.rxNum, extra_h: extraH,
         });
         if (error) throw error;
         if (stickers.length) {
-          const rows = stickers.map((s) => ({
-            share_id: id, sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y, scale: s.scale, rotate: s.rotate,
-          }));
-          const { error: stickerErr } = await window.supabaseClient.from("rx_share_stickers").insert(rows);
+          // 로컬 px/scale을 이 카드 기준 비율로 정규화해서 저장 — 다른 화면 크기로 열어도
+          // (그리고 extraH가 함께 복원되면) 카드 안에서의 상대 위치·상대 크기가 유지된다.
+          const rows = stickers.map((s) => normalizeStickerForShare(s));
+          const { error: stickerErr } = await window.supabaseClient.from("rx_share_stickers").insert(
+            rows.map((r) => ({ share_id: id, ...r }))
+          );
           if (stickerErr) throw stickerErr;
         }
         setShareId(id);
@@ -228,6 +249,25 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     return () => clearTimeout(t);
   }, []);
 
+  // 공유로 들어온 정규화 좌표를 이 세션의 실제 카드 크기 기준 로컬 px/scale로 변환 — 딱 한 번만.
+  // pc는 이미 첫 렌더부터 정확한 값으로 초기화되고 extraH도 initialExtraH로 이미 반영돼 있으므로,
+  // mount 직후 boardRef를 재는 시점에 카드는 이미 최종 크기다.
+  React.useEffect(() => {
+    if (!rawSharedStickers.current || !boardRef.current) return;
+    const rect = boardRef.current.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const converted = rawSharedStickers.current.map((s) => ({
+      id: "shared-" + Math.random(),
+      src: s.src,
+      x: s.x,                                                  // 카드 너비 대비 % — 그대로 사용
+      y: (s.y || 0) * rect.height,                              // 카드 높이 대비 비율 → 로컬 px
+      scale: ((s.scale || 0) * rect.width) / (pc ? 40 : 34),   // 카드 너비 대비 비율 → 로컬 scale
+      rotate: s.rotate || 0,
+    }));
+    rawSharedStickers.current = null;
+    setStickers(converted);
+  }, []);
+
   // Undo/Redo — 스티커 추가·삭제·이동·크기·회전은 전부 stickers 스냅샷 단위로 기록
   const recordHistory = (snapshot) => {
     setPast((p) => [...p, snapshot]);
@@ -265,7 +305,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
     // 미세조정해도 anon에게 UPDATE 권한을 주지 않으므로 DB에는 반영되지 않음, 화면에만 반영).
     if (shareId && window.supabaseClient) {
       window.supabaseClient.from("rx_share_stickers").insert({
-        share_id: shareId, sticker_asset_id: src, x, y, scale, rotate,
+        share_id: shareId, ...normalizeStickerForShare({ src, x, y, scale, rotate }),
       }).then(({ error }) => { if (error) console.error("sticker sync failed:", error); });
     }
   };
