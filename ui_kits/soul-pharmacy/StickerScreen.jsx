@@ -56,11 +56,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
   const [shareUrl, setShareUrl] = React.useState(null); // 마지막으로 생성된 공유 링크
   const [shareCopyFailed, setShareCopyFailed] = React.useState(false); // 자동 복사 실패 → 수동 복사 UI 노출
   const [toast, setToast] = React.useState(null);
+  const [toastDuration, setToastDuration] = React.useState(2600);
   const toastTimer = React.useRef(null);
-  const showToast = (msg) => {
+  const showToast = (msg, duration = 2600) => {
     setToast(msg);
+    setToastDuration(duration);
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2600);
+    toastTimer.current = setTimeout(() => setToast(null), duration);
   };
   React.useEffect(() => () => clearTimeout(toastTimer.current), []);
   const [showTip, setShowTip] = React.useState(false);
@@ -153,7 +155,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setShareCopyFailed(false);
-      showToast("링크가 복사되었습니다.");
+      showToast("링크가 복사되었습니다.\n소중한 사람에게 건네보세요.\n이 공유 처방전은 7일 동안 보관됩니다.", 4000);
       setTimeout(() => setCopied(false), 2200);
     } catch (e) {
       setShareCopyFailed(true);
@@ -652,6 +654,11 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
         <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 18 : 16, color: "var(--text-strong)" }}>처방전 꾸미기</span>
         <span style={{ width: 22 }} />
       </div>
+      {shareId && (
+        <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
+          이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
+        </p>
+      )}
 
       <div style={{ display: "flex", flexDirection: pc ? "row" : "column", alignItems: pc ? "flex-start" : "center", justifyContent: "center", gap: pc ? 22 : 16, maxWidth: "100%" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "100%" }}>
@@ -736,8 +743,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
         </div>
       )}
       {toast && (
-        <div style={{ position: "fixed", left: "50%", bottom: pc ? 40 : 28, transform: "translateX(-50%)", zIndex: 100000, maxWidth: "calc(100% - 32px)", padding: "13px 22px", borderRadius: 999, background: "rgba(48,42,36,0.92)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, textAlign: "center", boxShadow: "0 10px 26px rgba(0,0,0,0.24)", pointerEvents: "none", animation: "toastInOut 2.6s ease-in-out forwards" }}>
-          <style>{"@keyframes toastInOut{0%{opacity:0;transform:translate(-50%,10px)}10%{opacity:1;transform:translate(-50%,0)}88%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}"}</style>
+        <div style={{ position: "fixed", left: "50%", bottom: pc ? 40 : 28, transform: "translateX(-50%)", zIndex: 100000, maxWidth: "calc(100% - 32px)", padding: "14px 24px", borderRadius: 18, background: "rgba(48,42,36,0.92)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, lineHeight: 1.6, textAlign: "center", whiteSpace: "pre-line", boxShadow: "0 10px 26px rgba(0,0,0,0.24)", pointerEvents: "none", animation: `toastInOut ${toastDuration}ms ease-in-out forwards` }}>
+          <style>{"@keyframes toastInOut{0%{opacity:0;transform:translate(-50%,10px)}8%{opacity:1;transform:translate(-50%,0)}90%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}"}</style>
           {toast}
         </div>
       )}
