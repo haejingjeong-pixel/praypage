@@ -518,7 +518,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, onBa
             {catItems.map((src, i) => (
               <button key={src} onClick={() => addSticker(src)}
                 style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: 14, cursor: "pointer", padding: 6 }}>
-                <img src={src} alt="" loading="lazy" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                <img src={src} alt="" loading="lazy" draggable={false} style={{ width: isNormalCat ? "70%" : "100%", height: isNormalCat ? "70%" : "100%", objectFit: "contain" }} />
               </button>
             ))}
           </div>
