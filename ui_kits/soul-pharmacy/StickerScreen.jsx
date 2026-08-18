@@ -86,17 +86,21 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     });
   };
 
+  // "소중한 사람에게 공유하기" = 마음약국 내부 공유(링크) 기능. PNG 캡처/파일 공유는
+  // saveImage()의 몫이고, 여기서는 절대 파일을 만들지 않는다 — 상대가 링크를 열면 이
+  // 처방전(mood/stickers/rx)을 그대로 복원해서 볼 수 있고 스티커를 이어 붙일 수 있다.
   const share = async () => {
     try {
-      const blob = await captureCard();
-      if (blob && navigator.canShare) {
-        const file = new File([blob], "마음약국-처방전.png", { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "마음약국 처방전" }); return; }
-      }
       const payload = btoa(unescape(encodeURIComponent(JSON.stringify({ mood, stickers, rx }))));
       const url = window.location.origin + window.location.pathname + window.location.search + "#" + payload;
-      if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url);
       window.location.hash = payload;
+      // 모바일 등 OS 공유 시트를 지원하는 환경에서도 PNG 파일이 아니라 이 링크(url) 자체를 넘긴다.
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ url }))) {
+        await navigator.share({ title: "마음약국 처방전", text: "오늘의 말씀 처방전을 보내요.", url });
+        return;
+      }
+      // PC 등 공유 시트가 없는 환경: 링크 복사로 대체
+      if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     } catch (e) {
