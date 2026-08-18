@@ -41,6 +41,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const SEED_STICKERS = [];
   const [stickers, setStickers] = React.useState(initialStickers && initialStickers.length ? initialStickers : SEED_STICKERS);
   const [activeId, setActiveId] = React.useState(null);
+  const [past, setPast] = React.useState([]);   // undo 스택 — 각 항목은 그 시점 직전의 stickers 스냅샷
+  const [future, setFuture] = React.useState([]); // redo 스택
   const [mounted, setMounted] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [flow, setFlow] = React.useState("idle"); // idle | step1 | step2 | step3 | fadeout
@@ -154,8 +156,14 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     return () => clearTimeout(t);
   }, []);
 
+  // Undo/Redo — 스티커 추가·삭제·이동·크기·회전은 전부 stickers 스냅샷 단위로 기록
+  const recordHistory = (snapshot) => {
+    setPast((p) => [...p, snapshot]);
+    setFuture([]);
+  };
   const addSticker = (src) => {
     const id = Date.now() + Math.random();
+    recordHistory(stickers);
     setStickers((list) => {
       if (!list.length) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
       const x = 30 + Math.random() * 40;   // 기본 위치: 중앙 안전 영역
@@ -172,8 +180,27 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
     setStickers((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   };
   const removeSticker = (id) => {
+    recordHistory(stickers);
     setStickers((list) => list.filter((s) => s.id !== id));
     if (activeId === id) setActiveId(null);
+  };
+  const canUndo = past.length > 0;
+  const canRedo = future.length > 0;
+  const undo = () => {
+    if (!past.length) return;
+    const prev = past[past.length - 1];
+    setFuture((f) => [stickers, ...f]);
+    setPast((p) => p.slice(0, -1));
+    setStickers(prev);
+    setActiveId(null);
+  };
+  const redo = () => {
+    if (!future.length) return;
+    const next = future[0];
+    setPast((p) => [...p, stickers]);
+    setFuture((f) => f.slice(1));
+    setStickers(next);
+    setActiveId(null);
   };
 
   const startMove = (e, s) => {
@@ -185,6 +212,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       return { l: r.left - 16, t: r.top - 13, rt: r.right + 16, b: r.bottom + 13 };
     });
     dragRef.current = { mode: "move", id: s.id, boardRect: board, prot, lastValid: { x: s.x, y: s.y }, invalid: false,
+      before: stickers, moved: false,
       mx: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.width) * 100,
       my: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.height) * 100 };
     window.addEventListener("pointermove", onPointerMove);
@@ -202,6 +230,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       startScale: s.scale, startRotate: s.rotate,
       startDist: Math.hypot(e.clientX - cx, e.clientY - cy),
       startAngle: (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI,
+      before: stickers, moved: false,
     };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", endPointer);
@@ -210,6 +239,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const onPointerMove = (e) => {
     const d = dragRef.current;
     if (!d) return;
+    d.moved = true;
     if (d.mode === "move") {
       const x = ((e.clientX - d.boardRect.left) / d.boardRect.width) * 100;
       const y = ((e.clientY - d.boardRect.top) / d.boardRect.height) * 100;
@@ -231,6 +261,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   const endPointer = () => {
     const d = dragRef.current;
     if (d && d.mode === "move" && d.invalid && d.lastValid) updateSticker(d.id, d.lastValid);
+    if (d && d.moved && d.before) recordHistory(d.before);
     setInvalidId(null);
     dragRef.current = null;
     window.removeEventListener("pointermove", onPointerMove);
@@ -286,13 +317,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
   // ── 처방전 옆 세로 툴바 + 선택 모달 ──
   const catItems = (STICKER_FILES && STICKER_FILES[pickerCat]) || [];
   const openPicker = (e) => { e.stopPropagation(); setShowPicker(true); setHintSeen(true); };
-  const ToolBtn = ({ icon, label, onClick, main }) => (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-      <button onClick={onClick}
-        style={{ width: 38, height: 38, borderRadius: "50%", border: main ? "none" : "1px solid rgba(120,104,78,0.16)", cursor: "pointer", background: main ? "#8f86c9" : "rgba(253,251,246,0.85)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: main ? "0 4px 12px rgba(120,104,78,0.18)" : "0 2px 7px rgba(90,74,52,0.08)" }}>
-        <Icon name={icon} size={17} color={main ? "#fff" : "var(--text-body)"} stroke={1.7} />
+  const ToolBtn = ({ icon, label, onClick, main, size = 38, disabled }) => (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, opacity: disabled ? 0.4 : 1, transition: "opacity 160ms ease" }}>
+      <button onClick={onClick} disabled={disabled}
+        style={{ width: size, height: size, borderRadius: "50%", border: main ? "none" : "1px solid rgba(120,104,78,0.16)", cursor: disabled ? "default" : "pointer", background: main ? "#8f86c9" : "rgba(253,251,246,0.85)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: main ? "0 4px 12px rgba(120,104,78,0.18)" : "0 2px 7px rgba(90,74,52,0.08)" }}>
+        <Icon name={icon} size={size >= 44 ? 20 : 17} color={main ? "#fff" : "var(--text-body)"} stroke={1.7} />
       </button>
-      <span style={{ fontFamily: "var(--font-body)", fontSize: 10, lineHeight: 1.2, color: "var(--text-muted)", textAlign: "center", maxWidth: 52 }}>{label}</span>
+      <span style={{ fontFamily: "var(--font-body)", fontSize: 10, lineHeight: 1.22, color: "var(--text-muted)", textAlign: "center", maxWidth: size >= 44 ? 58 : 52, wordBreak: "keep-all" }}>{label}</span>
     </div>
   );
   const toolbar = (
@@ -300,8 +331,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
       <ToolBtn icon="plus" label="응원 스티커 붙이기" onClick={openPicker} main />
       <ToolBtn icon="chevrons-down" label="공간 늘리기" onClick={() => setExtraH((h) => Math.min(EXTRA_MAX * EXTRA_STEP, h + EXTRA_STEP))} />
       <ToolBtn icon="chevrons-up" label="공간 줄이기" onClick={() => setExtraH((h) => Math.max(0, h - EXTRA_STEP))} />
-      <ToolBtn icon="rotate-ccw" label="되돌리기" onClick={() => setStickers((l) => l.slice(0, -1))} />
-      <ToolBtn icon="scan" label="정렬하기" onClick={() => setActiveId(null)} />
+      <ToolBtn icon="rotate-ccw" label="되돌리기" onClick={undo} disabled={!canUndo} />
+      <ToolBtn icon="rotate-cw" label="되돌리기 취소" onClick={redo} disabled={!canRedo} />
       <ToolBtn icon="help-circle" label="사용 안내" onClick={() => { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }} />
     </div>
   );
@@ -516,20 +547,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, onBack, onNext }) {
         {pc && !finalizing && <div style={{ position: "sticky", top: 24, alignSelf: "flex-start" }}>{toolbar}</div>}
       </div>
       {!pc && !finalizing && (
-        <div style={{ position: "fixed", right: 10, top: "50%", transform: "translateY(-50%)", zIndex: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "12px 8px", background: "rgba(255,255,255,0.82)", borderRadius: 22, boxShadow: "0 8px 24px rgba(70,58,45,0.16)", backdropFilter: "blur(6px)" }}>
-          {[
-            { icon: "plus", onClick: openPicker, main: true },
-            { icon: "chevrons-down", onClick: () => setExtraH((h) => Math.min(EXTRA_MAX * EXTRA_STEP, h + EXTRA_STEP)) },
-            { icon: "chevrons-up", onClick: () => setExtraH((h) => Math.max(0, h - EXTRA_STEP)) },
-            { icon: "rotate-ccw", onClick: () => setStickers((l) => l.slice(0, -1)) },
-            { icon: "scan", onClick: () => setActiveId(null) },
-            { icon: "help-circle", onClick: () => { setShowTip(true); setTimeout(() => setShowTip(false), 4200); } },
-          ].map((b) => (
-            <button key={b.icon} onClick={b.onClick}
-              style={{ width: 46, height: 46, borderRadius: "50%", border: b.main ? "none" : "1px solid rgba(70,58,45,0.12)", cursor: "pointer", background: b.main ? PURPLE : "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: b.main ? "0 6px 16px rgba(107,95,207,0.32)" : "0 3px 10px rgba(70,58,45,0.10)" }}>
-              <Icon name={b.icon} size={20} color={b.main ? "#fff" : "var(--text-body)"} stroke={1.7} />
-            </button>
-          ))}
+        <div style={{ position: "fixed", right: 10, top: "50%", transform: "translateY(-50%)", zIndex: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "12px 8px", background: "rgba(255,255,255,0.82)", borderRadius: 22, boxShadow: "0 8px 24px rgba(70,58,45,0.16)", backdropFilter: "blur(6px)", maxHeight: "82vh", overflowY: "auto" }}>
+          <ToolBtn icon="plus" label="응원 스티커 붙이기" onClick={openPicker} main size={46} />
+          <ToolBtn icon="chevrons-down" label="공간 늘리기" onClick={() => setExtraH((h) => Math.min(EXTRA_MAX * EXTRA_STEP, h + EXTRA_STEP))} size={46} />
+          <ToolBtn icon="chevrons-up" label="공간 줄이기" onClick={() => setExtraH((h) => Math.max(0, h - EXTRA_STEP))} size={46} />
+          <ToolBtn icon="rotate-ccw" label="되돌리기" onClick={undo} disabled={!canUndo} size={46} />
+          <ToolBtn icon="rotate-cw" label="되돌리기 취소" onClick={redo} disabled={!canRedo} size={46} />
+          <ToolBtn icon="help-circle" label="사용 안내" onClick={() => { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }} size={46} />
         </div>
       )}
       {pickerModal}
