@@ -119,8 +119,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     const rect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
     const h = rect && rect.height ? rect.height : 1;
     const w = rect && rect.width ? rect.width : 1;
-    const renderedPx = (pc ? 40 : 34) * s.scale;
-    return { sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y / h, scale: renderedPx / w, rotate: s.rotate };
+    const base = pc ? 40 : 34;
+    const renderedPx = base * s.scale;
+    const out = { sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y / h, scale: renderedPx / w, rotate: s.rotate };
+    console.log("[SHARE-DEBUG] save: cardWidth=", w, "cardHeight=", h, "pc=", pc, "base=", base,
+      "| sticker", s.src, "local.y=", s.y, "local.scale=", s.scale, "renderedPx=", renderedPx, "-> db.y=", out.y, "db.scale=", out.scale);
+    return out;
   };
 
   // "소중한 사람에게 공유하기" = 마음약국 내부 공유(짧은 ID 링크) 기능. PNG 캡처/파일 공유는
@@ -256,17 +260,33 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     if (!rawSharedStickers.current || !boardRef.current) return;
     const rect = boardRef.current.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const converted = rawSharedStickers.current.map((s) => ({
-      id: "shared-" + Math.random(),
-      src: s.src,
-      x: s.x,                                                  // 카드 너비 대비 % — 그대로 사용
-      y: (s.y || 0) * rect.height,                              // 카드 높이 대비 비율 → 로컬 px
-      scale: ((s.scale || 0) * rect.width) / (pc ? 40 : 34),   // 카드 너비 대비 비율 → 로컬 scale
-      rotate: s.rotate || 0,
-    }));
+    const base = pc ? 40 : 34;
+    console.log("[SHARE-DEBUG] restore: cardWidth=", rect.width, "cardHeight=", rect.height, "pc=", pc, "base=", base);
+    const converted = rawSharedStickers.current.map((s) => {
+      const localScale = ((s.scale || 0) * rect.width) / base;
+      const localY = (s.y || 0) * rect.height;
+      console.log("[SHARE-DEBUG] restore sticker", s.src, "| db.x=", s.x, "db.y=", s.y, "db.scale=", s.scale,
+        "-> local.y=", localY, "local.scale=", localScale, "renderedPx=", base * localScale);
+      return {
+        id: "shared-" + Math.random(),
+        src: s.src,
+        x: s.x,               // 카드 너비 대비 % — 그대로 사용
+        y: localY,             // 카드 높이 대비 비율 → 로컬 px
+        scale: localScale,     // 카드 너비 대비 비율 → 로컬 scale
+        rotate: s.rotate || 0,
+      };
+    });
     rawSharedStickers.current = null;
     setStickers(converted);
   }, []);
+
+  // 렌더링 직전 최종 px 확인용 — stickers가 바뀔 때마다(추가/복원 등) 실제 화면에 그려질 크기를 찍는다.
+  React.useEffect(() => {
+    const base = pc ? 40 : 34;
+    stickers.forEach((s) => {
+      console.log("[SHARE-DEBUG] render:", s.src, "| local.scale=", s.scale, "base=", base, "-> rendered px=", base * s.scale, "x%=", s.x, "y(px)=", s.y);
+    });
+  }, [stickers, pc]);
 
   // Undo/Redo — 스티커 추가·삭제·이동·크기·회전은 전부 stickers 스냅샷 단위로 기록
   const recordHistory = (snapshot) => {
@@ -502,7 +522,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   // ── 처방전 옆 세로 툴바 + 선택 모달 ──
   // 상단 1차 분류는 고정 3탭(공통응원/테이프/기본꾸밈) + 감정별 탭. 전부 평평한 배열.
   const catItems = (STICKER_FILES && STICKER_FILES[pickerCat]) || [];
-  const isBasicCat = pickerCat === "basic"; // 기본꾸밈 — 다른 탭보다 촘촘한 그리드 + 작은 배치 크기
+  const isBasicCat = pickerCat === "basic"; // 기본꾸밈 — 다른 탭보다 촘촘한 그리드
+  const isSmallDefaultCat = pickerCat === "basic" || pickerCat === "tape"; // 기본꾸밈+테이프 — 작은 기본 배치 크기
   const openPicker = (e) => { e.stopPropagation(); setShowPicker(true); setHintSeen(true); };
   const ToolBtn = ({ icon, label, onClick, main, size = 38, disabled }) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, opacity: disabled ? 0.4 : 1, transition: "opacity 160ms ease" }}>
@@ -550,7 +571,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         {/* 기본꾸밈만 다른 탭보다 훨씬 촘촘한 그리드(열 2배) — 장식용 소도구를 빠르게 둘러보는 느낌 */}
         <div style={{ display: "grid", gridTemplateColumns: pc ? `repeat(${isBasicCat ? 8 : 4}, minmax(${isBasicCat ? 56 : 120}px, 1fr))` : `repeat(${isBasicCat ? 8 : 4}, 1fr)`, gap: isBasicCat ? 6 : (pc ? 14 : 8), maxHeight: pc ? "56vh" : "46vh", overflowY: "auto" }}>
           {catItems.map((src, i) => (
-            <button key={src} onClick={() => addSticker(src, { small: isBasicCat })}
+            <button key={src} onClick={() => addSticker(src, { small: isSmallDefaultCat })}
               style={{ aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--line-soft)", background: "rgba(255,255,255,0.6)", borderRadius: isBasicCat ? 8 : 14, cursor: "pointer", padding: isBasicCat ? 3 : 6 }}>
               <img src={src} alt="" loading="lazy" draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </button>
