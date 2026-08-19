@@ -73,6 +73,21 @@
     );
   }
 
+  // 공유 데이터 로딩이 끝난 뒤 잠깐 보여주는 감성 인트로 — 버튼 없이 몇 초 뒤 자동으로
+  // 처방전 화면으로 넘어간다(DecorateIntro와 같은 패턴). 문구는 이미지 안에 포함되어 있음.
+  function ShareIntro() {
+    const [vis, setVis] = React.useState(false);
+    React.useEffect(() => {
+      const t = setTimeout(() => setVis(true), 60);
+      return () => clearTimeout(t);
+    }, []);
+    return (
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#F3E8DA" }}>
+        <img src="assets-web/share-intro.webp" alt="당신에게 마음처방전이 도착했어요" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: vis ? 1 : 0, transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1)" }} />
+      </div>
+    );
+  }
+
   // 공유 기간(7일)이 지났거나 존재하지 않는 링크로 들어온 경우.
   function ShareExpired({ onGoMain }) {
     return (
@@ -143,7 +158,7 @@
 
   function App() {
     const sharedId = getSharedId();
-    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareExpired | intro | main | assessment | result | sticker
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | sticker
     const [mood, setMood] = React.useState(null);
     const [sharedStickers, setSharedStickers] = React.useState([]);
     const [shareId, setShareId] = React.useState(null); // 로드에 성공한 공유의 id — StickerScreen에 넘겨 이후 추가 스티커도 같은 공유에 누적
@@ -181,13 +196,20 @@
           setSharedStickers((stickerRows || []).map((row) => ({
             src: row.sticker_asset_id, x: row.x, y: row.y, scale: row.scale, rotate: row.rotate,
           })));
-          setStep("sticker");
+          setStep("shareIntro"); // 몇 초간 감성 인트로를 보여준 뒤 자동으로 처방전 화면으로 넘어감
         } catch (e) {
           if (!cancelled) setStep("shareExpired"); // 만료/삭제/존재하지 않는 링크
         }
       })();
       return () => { cancelled = true; };
     }, [sharedId]);
+
+    // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
+    React.useEffect(() => {
+      if (step !== "shareIntro") return;
+      const t = setTimeout(() => setStep("sticker"), 2800);
+      return () => clearTimeout(t);
+    }, [step]);
 
     // 화면별 배경음악: 1=인트로 안내, 2=감정선택·문진·처방전, 3=저장/공유(스티커 화면에서 세부 제어)
     React.useEffect(() => {
@@ -200,6 +222,8 @@
     let screen = null;
     if (step === "shareLoading") {
       screen = <ShareLoading />;
+    } else if (step === "shareIntro") {
+      screen = <ShareIntro />;
     } else if (step === "shareExpired") {
       screen = <ShareExpired onGoMain={goMainFresh} />;
     } else if (step === "intro") {
