@@ -83,26 +83,28 @@
       return () => clearTimeout(t);
     }, []);
     return (
-      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", backgroundColor: "#F3E8DA" }}>
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "#F3E8DA", overflowY: "auto" }}>
         <style>{`
           @keyframes shareIntroFade { from { opacity: 0; } to { opacity: 1; } }
           @keyframes shareIntroFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         `}</style>
-        <div style={{ flex: "0 0 auto", padding: "clamp(36px,7vh,64px) 32px 24px", textAlign: "center" }}>
+        {/* 텍스트와 비주얼을 하나의 그룹으로 묶어 화면 중앙에 배치 — flex:1로 이미지 영역을
+            남는 뷰포트 높이만큼 늘리지 않고, 콘텐츠 실제 높이만큼만 차지하게 한다. */}
+        <div style={{ width: "100%", maxWidth: 720, padding: "24px 32px 0", textAlign: "center" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: 0, animation: vis ? "shareIntroFade 700ms ease-out 80ms forwards" : "none" }}>
             <Icon name="leaf" size={13} color="#9c7c4e" stroke={1.6} />
             <span style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13, letterSpacing: "0.22em", color: "#9c7c4e" }}>말씀 처방전</span>
             <Icon name="leaf" size={13} color="#9c7c4e" stroke={1.6} style={{ transform: "scaleX(-1)" }} />
           </div>
-          <h1 style={{ margin: "16px 0 0", fontFamily: "var(--font-verse)", fontWeight: 600, fontSize: "clamp(26px,6vw,38px)", lineHeight: 1.45, color: "var(--ink-900)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 260ms forwards" : "none" }}>
+          <h1 style={{ margin: "14px 0 0", fontFamily: "var(--font-verse)", fontWeight: 600, fontSize: "clamp(24px,5.5vw,36px)", lineHeight: 1.4, color: "var(--ink-900)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 260ms forwards" : "none" }}>
             당신에게<br />마음처방전이 도착했어요.
           </h1>
-          <p style={{ margin: "16px 0 0", fontFamily: "var(--font-body)", fontSize: "clamp(14px,3vw,16px)", lineHeight: 1.7, color: "var(--text-muted)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 520ms forwards" : "none" }}>
+          <p style={{ margin: "12px 0 0", fontFamily: "var(--font-body)", fontSize: "clamp(13.5px,3vw,15.5px)", lineHeight: 1.65, color: "var(--text-muted)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 520ms forwards" : "none" }}>
             소중한 누군가가<br />당신의 응원을 기다리고 있어요.
           </p>
         </div>
-        <div style={{ flex: "1 1 auto", position: "relative", overflow: "hidden", opacity: 0, animation: vis ? "shareIntroFade 1100ms ease-out 200ms forwards" : "none" }}>
-          <img src="assets-web/share-intro-scene.webp" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        <div style={{ width: "100%", marginTop: "clamp(16px,3.5vh,28px)", opacity: 0, animation: vis ? "shareIntroFade 1100ms ease-out 200ms forwards" : "none" }}>
+          <img src="assets-web/share-intro-scene.webp" alt="" style={{ display: "block", width: "100%", height: "auto" }} />
         </div>
       </div>
     );
