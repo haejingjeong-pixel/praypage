@@ -76,14 +76,34 @@
   // 공유 데이터 로딩이 끝난 뒤 잠깐 보여주는 감성 인트로 — 버튼 없이 몇 초 뒤 자동으로
   // 처방전 화면으로 넘어간다(DecorateIntro와 같은 패턴). 문구는 이미지 안에 포함되어 있음.
   function ShareIntro() {
+    const { Icon } = window.DesignSystem_d4e5a3;
     const [vis, setVis] = React.useState(false);
     React.useEffect(() => {
       const t = setTimeout(() => setVis(true), 60);
       return () => clearTimeout(t);
     }, []);
     return (
-      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#F3E8DA" }}>
-        <img src="assets-web/share-intro.webp" alt="당신에게 마음처방전이 도착했어요" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: vis ? 1 : 0, transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1)" }} />
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", backgroundColor: "#F3E8DA" }}>
+        <style>{`
+          @keyframes shareIntroFade { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes shareIntroFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        `}</style>
+        <div style={{ flex: "0 0 auto", padding: "clamp(36px,7vh,64px) 32px 24px", textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: 0, animation: vis ? "shareIntroFade 700ms ease-out 80ms forwards" : "none" }}>
+            <Icon name="leaf" size={13} color="#9c7c4e" stroke={1.6} />
+            <span style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13, letterSpacing: "0.22em", color: "#9c7c4e" }}>말씀 처방전</span>
+            <Icon name="leaf" size={13} color="#9c7c4e" stroke={1.6} style={{ transform: "scaleX(-1)" }} />
+          </div>
+          <h1 style={{ margin: "16px 0 0", fontFamily: "var(--font-verse)", fontWeight: 600, fontSize: "clamp(26px,6vw,38px)", lineHeight: 1.45, color: "var(--ink-900)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 260ms forwards" : "none" }}>
+            당신에게<br />마음처방전이 도착했어요.
+          </h1>
+          <p style={{ margin: "16px 0 0", fontFamily: "var(--font-body)", fontSize: "clamp(14px,3vw,16px)", lineHeight: 1.7, color: "var(--text-muted)", opacity: 0, animation: vis ? "shareIntroFadeUp 800ms cubic-bezier(0.22,0.61,0.36,1) 520ms forwards" : "none" }}>
+            소중한 누군가가<br />당신의 응원을 기다리고 있어요.
+          </p>
+        </div>
+        <div style={{ flex: "1 1 auto", position: "relative", overflow: "hidden", opacity: 0, animation: vis ? "shareIntroFade 1100ms ease-out 200ms forwards" : "none" }}>
+          <img src="assets-web/share-intro-scene.webp" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        </div>
       </div>
     );
   }
