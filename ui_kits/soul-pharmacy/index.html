@@ -73,15 +73,18 @@
     );
   }
 
-  // 공유 데이터 로딩이 끝난 뒤 잠깐 보여주는 감성 인트로 — 버튼 없이 몇 초 뒤 자동으로
-  // 처방전 화면으로 넘어간다. 마크업은 ResultScreen.jsx의 처방전 reveal 전 "envelope" 단계
+  // 공유 데이터 로딩이 끝난 뒤 잠깐(3초) 보여주는 감성 인트로 — 버튼 없이 자동으로 처방전
+  // 화면으로 넘어간다. 마크업은 ResultScreen.jsx의 처방전 reveal 전 "envelope" 단계
   // (마음 상태와 무관한 정적 화면, mood/rx 참조 없음)를 문자 그대로 재사용하고 텍스트만
-  // 공유 링크용 문구로 바꾼 것 — wrapper/이미지/텍스트 위치/clamp 폰트/line-height/margin/
-  // 애니메이션 전부 그쪽 값 그대로다. 별도의 background-image/scene 구조나 @media 브레이크
-  // 포인트를 새로 만들지 않는다(그렇게 했더니 A와 계속 어긋났다). ResultScreen에는 있는
-  // 성구 인용 블록은 공유 인트로에는 필요 없어 생략했고, "phase" 상태·클릭 스킵·envExit
-  // 페이드아웃도 옮기지 않았다 — 화면 전환 자체는 App()의 공용 Fade 크로스페이드가 이미
-  // 처리한다.
+  // 공유 링크용 문구로 바꾼 것 — wrapper/이미지/텍스트 위치/clamp 폰트/line-height/margin은
+  // 그쪽 값 그대로다. 다만 등장 애니메이션의 delay/duration은 원본 그대로 두면(마지막
+  // 문구가 3.1초 뒤에야 뜨기 시작) 화면이 3초 만에 넘어가 버려 서브 문구가 뜨기도 전에
+  // 사라졌다 — 그래서 delay/duration만 3초 체류 시간에 맞게 압축했다(순서·easing·
+  // translateY 등 애니메이션 자체의 성격은 동일, 숫자만 축소).
+  // 별도의 background-image/scene 구조나 @media 브레이크포인트를 새로 만들지 않는다
+  // (그렇게 했더니 A와 계속 어긋났다). ResultScreen에는 있는 성구 인용 블록은 공유
+  // 인트로에는 필요 없어 생략했고, "phase" 상태·클릭 스킵·envExit 페이드아웃도 옮기지
+  // 않았다 — 화면 전환 자체는 App()의 공용 Fade 크로스페이드가 이미 처리한다.
   function ShareIntro() {
     return (
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
@@ -89,9 +92,9 @@
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
           <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 1400ms 1300ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 1600ms 2100ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 1600ms 3100ms cubic-bezier(0.22,1,0.32,1) both" }}>소중한 누군가가<br />당신의 응원을 기다리고 있어요.</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 750ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>소중한 누군가가<br />당신의 응원을 기다리고 있어요.</div>
           </div>
         </div>
       </div>
@@ -217,7 +220,7 @@
     // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
     React.useEffect(() => {
       if (step !== "shareIntro") return;
-      const t = setTimeout(() => setStep("sticker"), 2800);
+      const t = setTimeout(() => setStep("sticker"), 3000);
       return () => clearTimeout(t);
     }, [step]);
 
