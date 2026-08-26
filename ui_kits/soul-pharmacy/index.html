@@ -101,6 +101,28 @@
     );
   }
 
+  // shareIntro 다음에 이어지는 두 번째 안내 연출 — "공유하면 스티커로 응원받을 수 있다"는
+  // 사용법 안내. 배경 asset(envelope-scene.png)과 애니메이션 방식은 ShareIntro와 동일하게
+  // 맞춰 같은 화면군처럼 보이게 했다. 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와
+  // 겹쳐서, ShareIntro와 같은 top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된
+  // 만큼 16%로 더 내려 여유를 줬다(시안 승인 값).
+  function ShareGuide() {
+    return (
+      <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
+        <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
+          <div style={{ position: "absolute", left: "50%", top: "16%", transform: "translateX(-50%)", width: "86%", maxWidth: 560, textAlign: "center", pointerEvents: "none" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.9em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both", textWrap: "balance" }}>
+              처방전의 링크를 공유하면<br />스티커로 응원의 메세지를<br />받을 수 있어요.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // 공유 기간(7일)이 지났거나 존재하지 않는 링크로 들어온 경우.
   function ShareExpired({ onGoMain }) {
     return (
@@ -171,7 +193,7 @@
 
   function App() {
     const sharedId = getSharedId();
-    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | sticker
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareGuide | shareExpired | intro | main | assessment | result | sticker
     const [mood, setMood] = React.useState(null);
     const [sharedStickers, setSharedStickers] = React.useState([]);
     const [shareId, setShareId] = React.useState(null); // 로드에 성공한 공유의 id — StickerScreen에 넘겨 이후 추가 스티커도 같은 공유에 누적
@@ -217,10 +239,10 @@
       return () => { cancelled = true; };
     }, [sharedId]);
 
-    // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
+    // shareIntro → shareGuide → sticker: 둘 다 버튼 없이 3초씩 보여준 뒤 자동으로 넘어간다.
     React.useEffect(() => {
-      if (step !== "shareIntro") return;
-      const t = setTimeout(() => setStep("sticker"), 3000);
+      if (step !== "shareIntro" && step !== "shareGuide") return;
+      const t = setTimeout(() => setStep(step === "shareIntro" ? "shareGuide" : "sticker"), 3000);
       return () => clearTimeout(t);
     }, [step]);
 
@@ -237,6 +259,8 @@
       screen = <ShareLoading />;
     } else if (step === "shareIntro") {
       screen = <ShareIntro />;
+    } else if (step === "shareGuide") {
+      screen = <ShareGuide />;
     } else if (step === "shareExpired") {
       screen = <ShareExpired onGoMain={goMainFresh} />;
     } else if (step === "intro") {
