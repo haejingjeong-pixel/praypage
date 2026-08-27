@@ -105,17 +105,21 @@
   // 사용법 안내. 배경 asset(envelope-scene.png)과 애니메이션 방식은 ShareIntro와 동일하게
   // 맞춰 같은 화면군처럼 보이게 했다. 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와
   // 겹쳐서, ShareIntro와 같은 top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된
-  // 만큼 16%로 더 내려 여유를 줬다(시안 승인 값).
+  // 만큼 16%로 더 내려 여유를 줬다(시안 승인 값). "링크를 공유하면"/"스티커로 응원의 메시지"
+  // 두 구절은 색만 다르게 주고 아주 천천히 밝기를 오르내리는 정적인 blink로 눈에 띄게
+  // 했다 — 처음엔 지나가는 빛(sweep) 애니메이션을 썼는데 화면 전체 무드와 안 맞는다는
+  // 피드백을 받고 이 방식으로 바꿨다.
   function ShareGuide() {
+    const shine = { color: "#A97C3F", animation: "shareGuideBlink 3.6s ease-in-out infinite" };
     return (
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
-        <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes shareGuideBlink{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
           <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "16%", transform: "translateX(-50%)", width: "86%", maxWidth: 560, textAlign: "center", pointerEvents: "none" }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
             <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.9em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both", textWrap: "balance" }}>
-              처방전의 링크를 공유하면<br />스티커로 응원의 메세지를<br />받을 수 있어요.
+              처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지</span>를<br />받을 수 있어요.
             </div>
           </div>
         </div>
