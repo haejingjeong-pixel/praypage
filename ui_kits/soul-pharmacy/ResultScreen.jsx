@@ -19,7 +19,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
 
   // loading → loadingExit → envelope(봉투에서 종이가 올라오는 장면) → envExit →
   // shareGuide(공유 안내) → shareGuideExit → reveal(종이만 남아 읽는 장면).
-  // loading/envelope는 3초씩, shareGuide는 문구가 두 줄이라 4초 머무르고, 그 사이 전환은
+  // loading은 3초, envelope는 4초, shareGuide는 문구가 두 줄이라 5초 머무르고, 그 사이 전환은
   // 클릭으로 건너뛸 수 없이 느린 페이드로만 이어진다 — 몰입을 위해 의도적으로 기다리게
   // 하는 구간이라 스킵 인터랙션을 두지 않는다. envelope↔shareGuide는 같은 배경 사진 위에서
   // 텍스트만 바뀌는 것이라 별도 컴포넌트로 분리하지 않고 이 컴포넌트가 한 블록으로 그린다
@@ -34,14 +34,14 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     const t2 = setTimeout(() => setPhase("loadingExit"), 3000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [mood]);
-  // 화면 전환 체이닝: 각 phase가 끝나면 다음 phase로. 지속시간은 "본 화면" 3초,
-  // 전환(Exit) 화면은 1.5~1.8초의 느린 페이드아웃.
+  // 화면 전환 체이닝: 각 phase가 끝나면 다음 phase로. "본 화면"은 loading 3초/envelope 4초/
+  // shareGuide 5초, 전환(Exit) 화면은 1.5~1.8초의 느린 페이드아웃.
   React.useEffect(() => {
     let t;
     if (phase === "loadingExit") t = setTimeout(() => setPhase("envelope"), 1500);
-    else if (phase === "envelope") t = setTimeout(() => setPhase("envExit"), 3000);
+    else if (phase === "envelope") t = setTimeout(() => setPhase("envExit"), 4000);
     else if (phase === "envExit") t = setTimeout(() => setPhase("shareGuide"), 1800);
-    else if (phase === "shareGuide") t = setTimeout(() => setPhase("shareGuideExit"), 4000);
+    else if (phase === "shareGuide") t = setTimeout(() => setPhase("shareGuideExit"), 5000);
     else if (phase === "shareGuideExit") t = setTimeout(() => setPhase("reveal"), 1500);
     return () => clearTimeout(t);
   }, [phase]);
