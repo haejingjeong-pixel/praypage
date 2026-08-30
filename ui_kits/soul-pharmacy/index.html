@@ -101,17 +101,26 @@
     );
   }
 
-  // shareIntro 다음에 이어지는 두 번째 안내 연출 — "공유하면 스티커로 응원받을 수 있다"는
-  // 사용법 안내. 배경 asset(envelope-scene.png)과 애니메이션 방식은 ShareIntro와 동일하게
-  // 맞춰 같은 화면군처럼 보이게 했다. 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와
-  // 겹쳐서, ShareIntro와 같은 top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된
-  // 만큼 16%로 더 내려 여유를 줬다(시안 승인 값). "처방전의"와 "받을 수 있어요."는 일반
-  // 텍스트로 두고, 그 사이 "링크를 공유하면 스티커로 응원의 메시지를"만 색을 다르게 주고
-  // 아주 천천히 밝기를 오르내리는 정적인 blink로 눈에 띄게
-  // 했다 — 처음엔 지나가는 빛(sweep) 애니메이션을 썼는데 화면 전체 무드와 안 맞는다는
-  // 피드백을 받고 이 방식으로 바꿨다.
-  function ShareGuide() {
+  // 처방전(reveal) 다음, 스티커 꾸미기 화면 전에 잠깐 보여주는 안내 연출 — "이 링크를
+  // 공유하면 스티커 응원을 받을 수 있다"는 사용법 안내. 원래는 공유 링크로 들어온 사람
+  // 쪽 흐름(shareIntro 다음)에 넣었었는데, 이 문구는 받는 사람이 아니라 "처방전을 막
+  // 완성해서 이제 공유하려는" 사람에게 보여줘야 하는 안내라 자기 처방전을 만드는 흐름의
+  // decorateIntro 자리(예전 DecorateIntro가 있던 자리)로 옮겼다. 배경 asset
+  // (envelope-scene.png)과 등장 애니메이션은 ShareIntro와 동일한 방식 그대로 유지.
+  // 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와 겹쳐서, ShareIntro와 같은
+  // top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된 만큼 16%로 더 내려
+  // 여유를 줬다(시안 승인 값). "처방전의"와 "받을 수 있어요."는 일반 텍스트로 두고,
+  // 그 사이 "링크를 공유하면 스티커로 응원의 메시지를"만 색을 다르게 주고 아주 천천히
+  // 밝기를 오르내리는 정적인 blink로 눈에 띄게 했다 — 처음엔 지나가는 빛(sweep)
+  // 애니메이션을 썼는데 화면 전체 무드와 안 맞는다는 피드백을 받고 이 방식으로 바꿨다.
+  // DecorateIntro처럼 자체 타이머로 일정 시간 뒤 onDone을 호출해 다음 화면(sticker)으로
+  // 넘어간다.
+  function ShareGuide({ onDone }) {
     const shine = { color: "#A97C3F", animation: "shareGuideBlink 3.6s ease-in-out infinite" };
+    React.useEffect(() => {
+      const t = setTimeout(() => onDone && onDone(), 3000);
+      return () => clearTimeout(t);
+    }, []);
     return (
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
         <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes shareGuideBlink{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
@@ -164,41 +173,9 @@
     );
   }
 
-  // 처방전 꾸미기 안내 막 — 결과 → 꾸미기 사이. 문구가 페이드인, 약 2초 머문 뒤 페이드아웃.
-  function DecorateIntro({ mood, onDone }) {
-    const { Icon, MOODS } = window.DesignSystem_d4e5a3;
-    const m = (MOODS && MOODS[mood]) || null;
-    const [phase, setPhase] = React.useState(0);
-    const [vis, setVis] = React.useState(false);
-    React.useEffect(() => {
-      const t0 = setTimeout(() => setVis(true), 60);
-      const t1 = setTimeout(() => setVis(false), 2200);
-      const t2 = setTimeout(() => { setPhase(1); }, 3000);
-      return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
-    }, []);
-    React.useEffect(() => {
-      if (phase !== 1) return;
-      const t0 = setTimeout(() => setVis(true), 60);
-      const t1 = setTimeout(() => setVis(false), 2600);
-      const t2 = setTimeout(() => onDone && onDone(), 3400);
-      return () => { clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
-    }, [phase]);
-    const tStyle = { fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 22, lineHeight: 1.7, color: "var(--ink-900)", margin: 0 };
-    return (
-      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
-        <div style={{ maxWidth: 520, textAlign: "center", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)", transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1), transform 900ms cubic-bezier(0.22,0.61,0.36,1)" }}>
-          {m && <div style={{ width: 72, height: 72, borderRadius: "50%", background: m.fill, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(120,92,64,0.16)", margin: "0 auto 26px" }}><Icon name={m.icon} size={32} color={m.ink} stroke={1.5} /></div>}
-          {phase === 0
-            ? <p style={tStyle}>이제 받은 마음의 처방을<br/>나만의 방식으로 꾸며볼까요?</p>
-            : <p style={tStyle}>완성된 처방전을 소중한 사람들에게 건네면,<br/>당신을 응원하는 사람들이<br/>마음을 담은 스티커를 붙여줄 거예요.</p>}
-        </div>
-      </div>
-    );
-  }
-
   function App() {
     const sharedId = getSharedId();
-    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareGuide | shareExpired | intro | main | assessment | result | sticker
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | decorateIntro | sticker
     const [mood, setMood] = React.useState(null);
     const [sharedStickers, setSharedStickers] = React.useState([]);
     const [shareId, setShareId] = React.useState(null); // 로드에 성공한 공유의 id — StickerScreen에 넘겨 이후 추가 스티커도 같은 공유에 누적
@@ -244,10 +221,10 @@
       return () => { cancelled = true; };
     }, [sharedId]);
 
-    // shareIntro → shareGuide → sticker: 둘 다 버튼 없이 3초씩 보여준 뒤 자동으로 넘어간다.
+    // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
     React.useEffect(() => {
-      if (step !== "shareIntro" && step !== "shareGuide") return;
-      const t = setTimeout(() => setStep(step === "shareIntro" ? "shareGuide" : "sticker"), 3000);
+      if (step !== "shareIntro") return;
+      const t = setTimeout(() => setStep("sticker"), 3000);
       return () => clearTimeout(t);
     }, [step]);
 
@@ -264,8 +241,6 @@
       screen = <ShareLoading />;
     } else if (step === "shareIntro") {
       screen = <ShareIntro />;
-    } else if (step === "shareGuide") {
-      screen = <ShareGuide />;
     } else if (step === "shareExpired") {
       screen = <ShareExpired onGoMain={goMainFresh} />;
     } else if (step === "intro") {
@@ -283,7 +258,7 @@
     } else if (step === "result") {
       screen = <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("decorateIntro")} />;
     } else if (step === "decorateIntro") {
-      screen = <DecorateIntro mood={mood} onDone={() => setStep("sticker")} />;
+      screen = <ShareGuide onDone={() => setStep("sticker")} />;
     } else if (step === "sticker") {
       screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} initialShareId={shareId} initialExtraH={sharedExtraH} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
     }
