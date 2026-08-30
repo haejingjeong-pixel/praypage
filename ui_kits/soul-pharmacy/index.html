@@ -101,11 +101,12 @@
     );
   }
 
-  // 처방전(reveal) 다음, 스티커 꾸미기 화면 전에 잠깐 보여주는 안내 연출 — "이 링크를
-  // 공유하면 스티커 응원을 받을 수 있다"는 사용법 안내. 원래는 공유 링크로 들어온 사람
-  // 쪽 흐름(shareIntro 다음)에 넣었었는데, 이 문구는 받는 사람이 아니라 "처방전을 막
-  // 완성해서 이제 공유하려는" 사람에게 보여줘야 하는 안내라 자기 처방전을 만드는 흐름의
-  // decorateIntro 자리(예전 DecorateIntro가 있던 자리)로 옮겼다. 배경 asset
+  // ResultScreen(처방전 화면) 자체 phase 시퀀스의 일부 — "당신을 위한 처방전이 준비되었어요"
+  // (envelope phase) 다음, 실제 처방전이 공개되는 reveal phase 전에 잠깐 끼어드는 공유
+  // 안내. "이 링크를 공유하면 스티커 응원을 받을 수 있다"는 내용이라 처방전을 막
+  // 완성해서 이제 공유하려는 사람(자기 처방전을 만드는 흐름)에게 보여줘야 하고, 공유
+  // 링크로 들어온 사람 쪽 흐름(shareIntro)에는 없다 — ResultScreen.jsx가
+  // `window.ShareGuide`로 참조해서 쓰므로 여기서 window에 노출해둔다. 배경 asset
   // (envelope-scene.png)과 등장 애니메이션은 ShareIntro와 동일한 방식 그대로 유지.
   // 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와 겹쳐서, ShareIntro와 같은
   // top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된 만큼 16%로 더 내려
@@ -113,8 +114,7 @@
   // 그 사이 "링크를 공유하면 스티커로 응원의 메시지를"만 색을 다르게 주고 아주 천천히
   // 밝기를 오르내리는 정적인 blink로 눈에 띄게 했다 — 처음엔 지나가는 빛(sweep)
   // 애니메이션을 썼는데 화면 전체 무드와 안 맞는다는 피드백을 받고 이 방식으로 바꿨다.
-  // DecorateIntro처럼 자체 타이머로 일정 시간 뒤 onDone을 호출해 다음 화면(sticker)으로
-  // 넘어간다.
+  // 자체 3초 타이머로 onDone을 호출해 ResultScreen이 reveal phase로 넘어간다.
   function ShareGuide({ onDone }) {
     const shine = { color: "#A97C3F", animation: "shareGuideBlink 3.6s ease-in-out infinite" };
     React.useEffect(() => {
@@ -136,6 +136,7 @@
       </div>
     );
   }
+  window.ShareGuide = ShareGuide; // ResultScreen.jsx(다른 파일)가 참조하므로 노출해둔다.
 
   // 공유 기간(7일)이 지났거나 존재하지 않는 링크로 들어온 경우.
   function ShareExpired({ onGoMain }) {
@@ -175,7 +176,7 @@
 
   function App() {
     const sharedId = getSharedId();
-    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | decorateIntro | sticker
+    const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | sticker
     const [mood, setMood] = React.useState(null);
     const [sharedStickers, setSharedStickers] = React.useState([]);
     const [shareId, setShareId] = React.useState(null); // 로드에 성공한 공유의 id — StickerScreen에 넘겨 이후 추가 스티커도 같은 공유에 누적
@@ -256,9 +257,9 @@
         setStep("result");
       }} />;
     } else if (step === "result") {
-      screen = <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("decorateIntro")} />;
-    } else if (step === "decorateIntro") {
-      screen = <ShareGuide onDone={() => setStep("sticker")} />;
+      // 공유 안내(ShareGuide)는 ResultScreen 자체 phase 시퀀스 안(envelope 다음, reveal 전)에서
+      // 이미 자동으로 보여준다 — "스티커 붙여 공유하기" 버튼은 곧장 sticker로 넘어가면 된다.
+      screen = <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("sticker")} />;
     } else if (step === "sticker") {
       screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} initialShareId={shareId} initialExtraH={sharedExtraH} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
     }

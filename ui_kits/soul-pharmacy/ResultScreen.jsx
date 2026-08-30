@@ -17,7 +17,9 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     return () => window.removeEventListener("resize", pick);
   }, []);
 
-  // loading → envelope(봉투에서 종이가 올라오는 장면) → reveal(종이만 남아 읽는 장면)
+  // loading → envelope(봉투에서 종이가 올라오는 장면) → shareGuide(공유 안내) →
+  // reveal(종이만 남아 읽는 장면). shareGuide는 자기 타이머로 3초 뒤 onDone을 불러
+  // reveal로 넘기므로, 여기서는 그 진입 시점(envExit와 같은 10600ms)만 잡아준다.
   const [phase, setPhase] = React.useState("loading");
   const [msg, setMsg] = React.useState(0);
   const [skipAnim, setSkipAnim] = React.useState(false); // 클릭하면 전체 즉시 표시
@@ -27,12 +29,12 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     const t1 = setTimeout(() => setMsg(1), 2200);
     const t2 = setTimeout(() => setPhase("envelope"), 4400);
     const t2b = setTimeout(() => setPhase("envExit"), 9600);
-    const t3 = setTimeout(() => setPhase("reveal"), 10600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t2b); clearTimeout(t3); };
+    const t2c = setTimeout(() => setPhase("shareGuide"), 10600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t2b); clearTimeout(t2c); };
   }, [mood]);
 
   // 말씀 처방전이 등장하는 시점부터 3번 배경음악으로 크로스페이드
-  React.useEffect(() => { if (window.__bgm && (phase === "envelope" || phase === "reveal")) window.__bgm.play(3); }, [phase]);
+  React.useEffect(() => { if (window.__bgm && (phase === "envelope" || phase === "shareGuide" || phase === "reveal")) window.__bgm.play(3); }, [phase]);
 
   const messages = ["말씀 처방전을 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
 
@@ -81,6 +83,12 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
         </div>
       </div>
     );
+  }
+
+  // ── 공유 안내 (envelope 다음, 실제 처방전 reveal 전) ──
+  // 자체 3초 타이머로 onDone을 호출해 reveal로 넘어간다(index.html에 정의, window로 노출).
+  if (phase === "shareGuide") {
+    return <window.ShareGuide onDone={() => setPhase("reveal")} />;
   }
 
   // ── 처방전 조각들 ──
