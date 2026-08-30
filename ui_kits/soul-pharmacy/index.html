@@ -101,44 +101,6 @@
     );
   }
 
-  // ResultScreen(처방전 화면) 자체 phase 시퀀스의 일부 — "당신을 위한 처방전이 준비되었어요"
-  // (envelope phase) 다음, 실제 처방전이 공개되는 reveal phase 전에 잠깐 끼어드는 공유
-  // 안내. "이 링크를 공유하면 스티커 응원을 받을 수 있다"는 내용이라 처방전을 막
-  // 완성해서 이제 공유하려는 사람(자기 처방전을 만드는 흐름)에게 보여줘야 하고, 공유
-  // 링크로 들어온 사람 쪽 흐름(shareIntro)에는 없다 — ResultScreen.jsx가
-  // `window.ShareGuide`로 참조해서 쓰므로 여기서 window에 노출해둔다. 배경 asset
-  // (envelope-scene.png)과 등장 애니메이션은 ShareIntro와 동일한 방식 그대로 유지.
-  // 텍스트를 화면 정중앙에 두면 배경 속 편지지(카드)와 겹쳐서, ShareIntro와 같은
-  // top:9% 자리(카드가 시작되기 전 벽 여백)에 두되 라벨이 추가된 만큼 16%로 더 내려
-  // 여유를 줬다(시안 승인 값). "처방전의"와 "받을 수 있어요."는 일반 텍스트로 두고,
-  // 그 사이 "링크를 공유하면 스티커로 응원의 메시지를"만 색을 다르게 주고 아주 천천히
-  // 밝기를 오르내리는 정적인 blink로 눈에 띄게 했다 — 처음엔 지나가는 빛(sweep)
-  // 애니메이션을 썼는데 화면 전체 무드와 안 맞는다는 피드백을 받고 이 방식으로 바꿨다.
-  // 자체 4초 타이머로 onDone을 호출해 ResultScreen이 reveal phase로 넘어간다(다른 phase보다
-  // 1초 더 길게 — 문구가 두 줄이라 읽는 데 시간이 더 필요하다는 피드백).
-  function ShareGuide({ onDone }) {
-    const shine = { color: "#A97C3F", animation: "shareGuideBlink 3.6s ease-in-out infinite" };
-    React.useEffect(() => {
-      const t = setTimeout(() => onDone && onDone(), 4000);
-      return () => clearTimeout(t);
-    }, []);
-    return (
-      <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 1500ms ease-out" }}>
-        <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes shareGuideBlink{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
-        <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
-          <div style={{ position: "absolute", left: "50%", top: "16%", transform: "translateX(-50%)", width: "86%", maxWidth: 560, textAlign: "center", pointerEvents: "none" }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.9em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both", textWrap: "balance" }}>
-              처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  window.ShareGuide = ShareGuide; // ResultScreen.jsx(다른 파일)가 참조하므로 노출해둔다.
-
   // 공유 기간(7일)이 지났거나 존재하지 않는 링크로 들어온 경우.
   function ShareExpired({ onGoMain }) {
     return (
@@ -258,8 +220,8 @@
         setStep("result");
       }} />;
     } else if (step === "result") {
-      // 공유 안내(ShareGuide)는 ResultScreen 자체 phase 시퀀스 안(envelope 다음, reveal 전)에서
-      // 이미 자동으로 보여준다 — "스티커 붙여 공유하기" 버튼은 곧장 sticker로 넘어가면 된다.
+      // 공유 안내(shareGuide phase)는 ResultScreen 자체 phase 시퀀스 안(envelope 다음, reveal
+      // 전)에서 이미 자동으로 보여준다 — "스티커 붙여 공유하기" 버튼은 곧장 sticker로 넘어가면 된다.
       screen = <window.ResultScreen mood={mood} rx={rx} onAgain={() => { setRx(null); setStep("main"); }} onDecorate={() => setStep("sticker")} />;
     } else if (step === "sticker") {
       screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} initialShareId={shareId} initialExtraH={sharedExtraH} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
