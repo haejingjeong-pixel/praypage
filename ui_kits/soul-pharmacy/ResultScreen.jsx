@@ -110,7 +110,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
                 </div>
               </div>
               <div style={{ position: "absolute", inset: 0, opacity: showGuideText ? 1 : 0, transition: "opacity 900ms ease" }}>
-                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.5em", textWrap: "balance" }}>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(20px,2.6vw,30px)", lineHeight: 1.55, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.5em", textWrap: "balance" }}>
                   처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
                 </div>
               </div>
