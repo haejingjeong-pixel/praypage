@@ -90,26 +90,30 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
             봉투 문구가 순차 등장 → (배경 그대로) 봉투 문구 페이드아웃 + 공유 안내 문구 페이드인. */}
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
           <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
-          {/* 봉투 문구 */}
-          <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none", opacity: showEnvText ? 1 : 0, transition: "opacity 900ms ease" }}>
+          <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
+            {/* 라벨 — 배경처럼 이 네 phase 내내 한 번만 마운트되어 고정. envelope/shareGuide가
+                똑같이 "말씀 처방전"을 쓰길래 따로 두면 여기도 같이 깜빡였다. */}
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 800ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 800ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
-            <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 800ms 850ms cubic-bezier(0.22,1,0.32,1) both" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7em" }}>
-                <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto", transform: "scaleX(-1)" }} />
-                <span style={{ fontFamily: "'Noto Serif KR', serif", fontWeight: 500, fontSize: "clamp(16px,1.55vw,22px)", letterSpacing: "-0.02em", color: "#5B4A3C" }}>내가 너와 함께 함이라</span>
-                <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto" }} />
+            {/* 라벨 아래 콘텐츠 영역 — 봉투 본문(제목/부제/성구)이 실제 높이를 만들고,
+                공유 안내 문구는 그 위에 absolute로 겹쳐서 같은 자리에서 크로스페이드한다. */}
+            <div style={{ position: "relative" }}>
+              <div style={{ opacity: showEnvText ? 1 : 0, transition: "opacity 900ms ease" }}>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 800ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
+                <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 800ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
+                <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 800ms 850ms cubic-bezier(0.22,1,0.32,1) both" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7em" }}>
+                    <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto", transform: "scaleX(-1)" }} />
+                    <span style={{ fontFamily: "'Noto Serif KR', serif", fontWeight: 500, fontSize: "clamp(16px,1.55vw,22px)", letterSpacing: "-0.02em", color: "#5B4A3C" }}>내가 너와 함께 함이라</span>
+                    <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto" }} />
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(13px,1.2vw,17px)", color: "#8C7565", marginTop: "0.5em" }}>이사야 41:10</div>
+                </div>
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(13px,1.2vw,17px)", color: "#8C7565", marginTop: "0.5em" }}>이사야 41:10</div>
-            </div>
-          </div>
-          {/* 공유 안내 문구 — 봉투 문구와 같은 이미지 위, 자리만 아래(16%)로 다르다. 진입은
-              이 그룹의 opacity 전환(900ms)만으로 충분해서 rxup 개별 stagger는 쓰지 않는다. */}
-          <div style={{ position: "absolute", left: "50%", top: "16%", transform: "translateX(-50%)", width: "86%", maxWidth: 560, textAlign: "center", pointerEvents: "none", opacity: showGuideText ? 1 : 0, transition: "opacity 900ms ease" }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.9em", textWrap: "balance" }}>
-              처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
+              <div style={{ position: "absolute", inset: 0, opacity: showGuideText ? 1 : 0, transition: "opacity 900ms ease" }}>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(16px,2.1vw,21px)", lineHeight: 1.6, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.5em", textWrap: "balance" }}>
+                  처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
+                </div>
+              </div>
             </div>
           </div>
         </div>
