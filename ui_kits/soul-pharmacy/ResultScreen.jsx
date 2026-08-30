@@ -19,10 +19,11 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
 
   // loading → loadingExit → envelope(봉투에서 종이가 올라오는 장면) → envExit →
   // shareGuide(공유 안내) → shareGuideExit → reveal(종이만 남아 읽는 장면).
-  // 각 "본 화면"은 3초씩 머무르고, 그 사이 전환은 클릭으로 건너뛸 수 없이 느린 페이드로만
-  // 이어진다 — 몰입을 위해 의도적으로 기다리게 하는 구간이라 스킵 인터랙션을 두지 않는다.
-  // shareGuide는 별도 컴포넌트라 자기 타이머(3초)로 스스로 shareGuideExit을 부르고,
-  // 나머지 전환은 이 컴포넌트가 아래 두 번째 effect에서 체이닝한다.
+  // loading/envelope는 3초씩, shareGuide는 문구가 두 줄이라 4초 머무르고, 그 사이 전환은
+  // 클릭으로 건너뛸 수 없이 느린 페이드로만 이어진다 — 몰입을 위해 의도적으로 기다리게
+  // 하는 구간이라 스킵 인터랙션을 두지 않는다. shareGuide는 별도 컴포넌트라 자기
+  // 타이머(4초)로 스스로 shareGuideExit을 부르고, 나머지 전환은 이 컴포넌트가 아래
+  // 두 번째 effect에서 체이닝한다.
   const [phase, setPhase] = React.useState("loading");
   const [msg, setMsg] = React.useState(0);
   const [skipAnim, setSkipAnim] = React.useState(false); // 더블클릭하면 처방전 섹션들만 즉시 표시
