@@ -17,36 +17,47 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     return () => window.removeEventListener("resize", pick);
   }, []);
 
-  // loading → envelope(봉투에서 종이가 올라오는 장면) → shareGuide(공유 안내) →
-  // reveal(종이만 남아 읽는 장면). shareGuide는 자기 타이머로 3초 뒤 onDone을 불러
-  // reveal로 넘기므로, 여기서는 그 진입 시점(envExit와 같은 10600ms)만 잡아준다.
+  // loading → loadingExit → envelope(봉투에서 종이가 올라오는 장면) → envExit →
+  // shareGuide(공유 안내) → shareGuideExit → reveal(종이만 남아 읽는 장면).
+  // 각 "본 화면"은 3초씩 머무르고, 그 사이 전환은 클릭으로 건너뛸 수 없이 느린 페이드로만
+  // 이어진다 — 몰입을 위해 의도적으로 기다리게 하는 구간이라 스킵 인터랙션을 두지 않는다.
+  // shareGuide는 별도 컴포넌트라 자기 타이머(3초)로 스스로 shareGuideExit을 부르고,
+  // 나머지 전환은 이 컴포넌트가 아래 두 번째 effect에서 체이닝한다.
   const [phase, setPhase] = React.useState("loading");
   const [msg, setMsg] = React.useState(0);
-  const [skipAnim, setSkipAnim] = React.useState(false); // 클릭하면 전체 즉시 표시
+  const [skipAnim, setSkipAnim] = React.useState(false); // 더블클릭하면 처방전 섹션들만 즉시 표시
   React.useEffect(() => { setSkipAnim(false); }, [mood]);
   React.useEffect(() => {
     setPhase("loading"); setMsg(0);
-    const t1 = setTimeout(() => setMsg(1), 2200);
-    const t2 = setTimeout(() => setPhase("envelope"), 4400);
-    const t2b = setTimeout(() => setPhase("envExit"), 9600);
-    const t2c = setTimeout(() => setPhase("shareGuide"), 10600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t2b); clearTimeout(t2c); };
+    const t1 = setTimeout(() => setMsg(1), 1500);
+    const t2 = setTimeout(() => setPhase("loadingExit"), 3000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [mood]);
+  // 화면 전환 체이닝: 각 phase가 끝나면 다음 phase로. 지속시간은 "본 화면" 3초,
+  // 전환(Exit) 화면은 1.5~1.8초의 느린 페이드아웃.
+  React.useEffect(() => {
+    let t;
+    if (phase === "loadingExit") t = setTimeout(() => setPhase("envelope"), 1500);
+    else if (phase === "envelope") t = setTimeout(() => setPhase("envExit"), 3000);
+    else if (phase === "envExit") t = setTimeout(() => setPhase("shareGuide"), 1800);
+    else if (phase === "shareGuideExit") t = setTimeout(() => setPhase("reveal"), 1500);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   // 말씀 처방전이 등장하는 시점부터 3번 배경음악으로 크로스페이드
   React.useEffect(() => { if (window.__bgm && (phase === "envelope" || phase === "shareGuide" || phase === "reveal")) window.__bgm.play(3); }, [phase]);
 
   const messages = ["말씀 처방전을 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
 
-  // ── 로딩 화면 ──
-  if (phase === "loading") {
+  // ── 로딩 화면 ── 클릭으로 건너뛸 수 없다(의도적으로 기다리게 하는 구간).
+  if (phase === "loading" || phase === "loadingExit") {
     return (
-      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", background: "radial-gradient(120% 70% at 50% 35%, #FBF7F0 0%, var(--bg-page) 62%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 26, padding: 32 }}>
+      <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", background: "radial-gradient(120% 70% at 50% 35%, #FBF7F0 0%, var(--bg-page) 62%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 26, padding: 32, opacity: phase === "loadingExit" ? 0 : 1, transition: "opacity 1500ms ease" }}>
         <style>{`@keyframes rxdot2{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}@keyframes rxpulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
         <div style={{ width: 68, height: 68, borderRadius: "50%", background: m.fill, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(120,92,64,0.18)", animation: "rxpulse 2.4s ease-in-out infinite" }}>
           <Icon name={m.icon} size={30} color={m.ink} stroke={1.5} />
         </div>
-        <div key={msg} style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 22 : 18, color: "var(--ink-900)", textAlign: "center", animation: "rxstep 520ms ease-out", letterSpacing: "-0.01em" }}>
+        <div key={msg} style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 22 : 18, color: "var(--ink-900)", textAlign: "center", animation: "rxstep 800ms ease-out", letterSpacing: "-0.01em" }}>
           {messages[msg]}
         </div>
         <div style={{ display: "flex", gap: 7 }}>
@@ -58,20 +69,21 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     );
   }
 
-  // ── 봉투 장면 (시안 1컷: 봉투에서 처방전 종이가 올라오는 순간) ──
+  // ── 봉투 장면 (시안 1컷: 봉투에서 처방전 종이가 올라오는 순간) ── 클릭 스킵 없음.
   if (phase === "envelope" || phase === "envExit") {
     return (
-      <div onClick={() => setPhase("reveal")} style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", cursor: "pointer", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", opacity: phase === "envExit" ? 0 : 1, transition: "opacity 1000ms ease", animation: "rxfade 900ms ease-out" }}>
+      <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", opacity: phase === "envExit" ? 0 : 1, transition: "opacity 1800ms ease", animation: "rxfade 1500ms ease-out" }}>
         <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
-        {/* 완성 이미지 1장(봉투+편지지, 브랜딩 텍스트는 이미지에 포함). 이미지 먼저 페이드인 → 상단 문구 순차 등장 */}
+        {/* 완성 이미지 1장(봉투+편지지, 브랜딩 텍스트는 이미지에 포함). 이미지 먼저 페이드인 → 상단 문구 순차 등장.
+            envelope 화면 자체가 3초만 머무르므로(느린 전환은 앞뒤 Exit 페이드가 담당), 문구 등장 지연을
+            그 안에 다 끝나도록 압축했다. */}
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
-          {/* 상단 안내 텍스트 — 이미지가 충분히 드러난 뒤(1.2s~) 순차 페이드업 */}
+          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 1400ms 1300ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 1600ms 2100ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 1600ms 3100ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
-            <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 1600ms 4100ms cubic-bezier(0.22,1,0.32,1) both" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 800ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 800ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
+            <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 800ms 850ms cubic-bezier(0.22,1,0.32,1) both" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7em" }}>
                 <img src="assets-web/leaf-purple.png" alt="" style={{ width: "clamp(26px,2.4vw,36px)", height: "auto", transform: "scaleX(-1)" }} />
                 <span style={{ fontFamily: "'Noto Serif KR', serif", fontWeight: 500, fontSize: "clamp(16px,1.55vw,22px)", letterSpacing: "-0.02em", color: "#5B4A3C" }}>내가 너와 함께 함이라</span>
@@ -85,10 +97,15 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     );
   }
 
-  // ── 공유 안내 (envelope 다음, 실제 처방전 reveal 전) ──
-  // 자체 3초 타이머로 onDone을 호출해 reveal로 넘어간다(index.html에 정의, window로 노출).
-  if (phase === "shareGuide") {
-    return <window.ShareGuide onDone={() => setPhase("reveal")} />;
+  // ── 공유 안내 (envelope 다음, 실제 처방전 reveal 전) ── 클릭 스킵 없음.
+  // 자체 3초 타이머로 onDone을 호출해 shareGuideExit(느린 페이드아웃)으로 넘어간다
+  // (index.html에 정의, window로 노출). 실제 reveal 전환은 위쪽 체이닝 effect가 맡는다.
+  if (phase === "shareGuide" || phase === "shareGuideExit") {
+    return (
+      <div style={{ opacity: phase === "shareGuideExit" ? 0 : 1, transition: "opacity 1500ms ease" }}>
+        <window.ShareGuide onDone={() => setPhase("shareGuideExit")} />
+      </div>
+    );
   }
 
   // ── 처방전 조각들 ──
