@@ -33,7 +33,7 @@ function MainScreen({ selected, onSelect, onNext }) {
   const handlePick = (e, ev) => {
     if (locked.current) return;
     locked.current = true;
-    window.__sfx && window.__sfx.play("assets/thocky_single_click.mp3"); // 마음 카드 선택 전용 사운드 — 체크/다음 버튼 효과음과는 별개
+    window.__sfx && window.__sfx.play("assets/start_click_sound.mp3"); // 마음 카드 선택 전용 사운드 — 체크/다음 버튼 효과음과는 별개
     const rect = ev.currentTarget.getBoundingClientRect();
     onSelect(e.key);
     setFly({ e, rect });
