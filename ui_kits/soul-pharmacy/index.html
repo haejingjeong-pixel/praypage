@@ -227,16 +227,19 @@
       if (!window.__soundSettings) return;
       return window.__soundSettings.subscribe(setSettings);
     }, []);
-    // left와 right를 함께 지정해 컨테이너 폭이 항상 뷰포트 안쪽(양옆 최소 여백 포함)으로
-    // 제한된다 — 폭이 좁아지면 flexWrap으로 두 버튼이 자동으로 세로 배치된다. 이 넓은
+    // right만을 기준으로 고정(왼쪽 값과 조합하지 않음) — 컨테이너는 콘텐츠 폭만큼만
+    // 차지하며 항상 그 오른쪽 끝이 정확히 viewport 오른쪽에서 right만큼 떨어진 지점에
+    // 온다. maxWidth로 (버튼 두 개 + 간격을 합친) 전체 폭이 viewport를 넘지 않도록
+    // 다시 한 번 상한을 걸고, 그래도 좁으면 flexWrap이 세로 배치로 자동 전환한다.
     // 컨테이너 자체는 pointerEvents:none이라 빈 공간을 눌러도 아래 화면 클릭을 막지
     // 않고, 버튼 각각에만 pointerEvents:auto를 되돌려 놓았다.
     return (
       <div style={{
         position: "fixed",
-        top: "max(12px, env(safe-area-inset-top))",
-        left: "max(12px, env(safe-area-inset-left))",
-        right: "max(12px, env(safe-area-inset-right))",
+        top: "max(20px, env(safe-area-inset-top))",
+        right: "max(24px, env(safe-area-inset-right))",
+        maxWidth: "calc(100vw - 40px)",
+        boxSizing: "border-box",
         zIndex: 999999,
         display: "flex",
         flexWrap: "wrap",
