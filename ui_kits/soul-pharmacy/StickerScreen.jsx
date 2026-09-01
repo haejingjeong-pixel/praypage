@@ -180,7 +180,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setShareCopyFailed(false);
-      showToast("링크가 복사되었습니다.\n소중한 사람에게 건네보세요.\n이 공유 처방전은 7일 동안 보관됩니다.", 4000);
+      showToast("처방전의 공유 링크가 복사되었어요.", 2600);
       setTimeout(() => setCopied(false), 2200);
     } catch (e) {
       setShareCopyFailed(true);
