@@ -406,7 +406,7 @@ let __clickSoundEl = null;
 function playClickSound() {
   try {
     if (!__clickSoundEl) {
-      __clickSoundEl = new Audio("assets/click.mp3");
+      __clickSoundEl = new Audio("assets/check_sound_check_only_3.mp3");
     }
     __clickSoundEl.currentTime = 0;
     const p = __clickSoundEl.play();
