@@ -398,6 +398,26 @@ function scallopPath(width, bumps = 9, amp = 8, baseY = 13) {
   return d;
 }
 
+// Q1~Q4 답변 선택 효과음 — 같은 Audio 요소를 재사용해 연속 클릭 시 소리가 겹쳐 쌓이지
+// 않도록(재생 중이면 되감아 재시작) 하고, BGM(window.__bgm)과는 별개 채널이라 서로 방해하지
+// 않는다. 원본이 다소 빠르게 느껴져 재생 속도를 90%로 낮췄다 — preservesPitch를 켜서
+// 피치가 과하게 낮아지지 않게 한다(대부분의 최신 브라우저는 기본값이 true지만 명시).
+let __selectSoundEl = null;
+function playSelectSound() {
+  try {
+    if (!__selectSoundEl) {
+      __selectSoundEl = new Audio("assets/page_sound.mp3");
+      __selectSoundEl.playbackRate = 0.9;
+      __selectSoundEl.preservesPitch = true;
+      __selectSoundEl.mozPreservesPitch = true;
+      __selectSoundEl.webkitPreservesPitch = true;
+    }
+    __selectSoundEl.currentTime = 0;
+    const p = __selectSoundEl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) { /* noop */ }
+}
+
 /**
  * AssessmentPaper — the paper "오늘의 마음 접수카드" that rises out of a mood
  * envelope. Soft scalloped top edge, fixed header, and a STEPPED questionnaire:
@@ -441,10 +461,12 @@ function AssessmentPaper({
     if (v && maxSel === 1) {
       for (let k = 0; k < g.options.length; k++) if (k !== oi && selections[`${step}-${k}`]) onToggle(step, k, false);
       onToggle(step, oi, true);
+      playSelectSound();
     } else if (v && selCount >= maxSel) {
       return; // 상한 도달 — 무시
     } else {
       onToggle(step, oi, v);
+      if (v) playSelectSound();
     }
   };
   // step 0은 접수카드가 봉투에서 올라온 뒤(≈rise 완료)에 애니메이션이 시작되도록 오프셋
