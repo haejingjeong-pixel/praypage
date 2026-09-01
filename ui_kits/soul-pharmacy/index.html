@@ -150,8 +150,8 @@
         <div style={{ maxWidth: 520, textAlign: "center", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)", transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1), transform 900ms cubic-bezier(0.22,0.61,0.36,1)" }}>
           {m && <div style={{ width: 72, height: 72, borderRadius: "50%", background: m.fill, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(120,92,64,0.16)", margin: "0 auto 26px" }}><Icon name={m.icon} size={32} color={m.ink} stroke={1.5} /></div>}
           {phase === 0
-            ? <p style={tStyle}>처방전에 나를 위한<br/>스티커를 붙일 수 있어요.</p>
-            : <p style={tStyle}>완성한 처방전은<br/>응원받고 싶은 사람에게 공유해<br/>응원의 스티커도 받을 수 있어요.</p>}
+            ? <p style={tStyle}>응원받고 싶은 사람에게<br/>마음처방전 링크를 보내보세요.</p>
+            : <p style={tStyle}>링크를 받은 사람이<br/>응원의 마음을 스티커로 남겨줄 수 있어요.</p>}
         </div>
       </div>
     );
