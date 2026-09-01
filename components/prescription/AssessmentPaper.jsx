@@ -49,18 +49,19 @@ function playClickSound() {
 
 // 페이지(문항) 전환 효과음 — 원본이 다소 빠르게 느껴져 재생 속도를 90%로 낮췄다.
 // preservesPitch를 켜서 피치가 과하게 낮아지지 않게 한다(대부분의 최신 브라우저는
-// 기본값이 true지만 명시).
-let __pageTurnSoundEl = null;
+// 기본값이 true지만 명시). "다음" 클릭 직후 체감 지연을 없애기 위해 Audio 요소를 첫 클릭
+// 때 만들지 않고 모듈 로드 시점에 미리 만들어 preload="auto"로 디코딩까지 끝내둔다 —
+// 그래야 실제 클릭 시 fetch/디코딩 대기 없이 곧바로 재생된다.
+let __pageTurnSoundEl = new Audio("assets/page_sound.mp3");
+__pageTurnSoundEl.preload = "auto";
+__pageTurnSoundEl.playbackRate = 0.9;
+__pageTurnSoundEl.preservesPitch = true;
+__pageTurnSoundEl.mozPreservesPitch = true;
+__pageTurnSoundEl.webkitPreservesPitch = true;
+__pageTurnSoundEl.load();
 function playPageTurnSound() {
   if (!__sfxOn()) return;
   try {
-    if (!__pageTurnSoundEl) {
-      __pageTurnSoundEl = new Audio("assets/page_sound.mp3");
-      __pageTurnSoundEl.playbackRate = 0.9;
-      __pageTurnSoundEl.preservesPitch = true;
-      __pageTurnSoundEl.mozPreservesPitch = true;
-      __pageTurnSoundEl.webkitPreservesPitch = true;
-    }
     __pageTurnSoundEl.currentTime = 0;
     const p = __pageTurnSoundEl.play();
     if (p && p.catch) p.catch(() => {});
@@ -145,8 +146,10 @@ export function AssessmentPaper({
   };
   // 페이지(문항) 전환 시에만 재생 — 답변 체크 사운드와는 별개로, "다음/이전"으로 화면이
   // 넘어가는 순간에만 트리거된다.
-  const goPrev = () => { setStep((s) => Math.max(0, s - 1)); playPageTurnSound(); };
-  const goNext = () => { if (!stepAnswered) return; setStep((s) => Math.min(total - 1, s + 1)); playPageTurnSound(); };
+  // 클릭 직후 체감 지연을 줄이려고 사운드를 state 갱신보다 먼저 트리거한다(순서만 바뀜,
+  // 동작은 동일 — setStep은 어차피 비동기 리렌더라 오디오가 먼저 나가는 게 더 즉각적으로 느껴진다).
+  const goPrev = () => { playPageTurnSound(); setStep((s) => Math.max(0, s - 1)); };
+  const goNext = () => { if (!stepAnswered) return; playPageTurnSound(); setStep((s) => Math.min(total - 1, s + 1)); };
   // step 0은 접수카드가 봉투에서 올라온 뒤(≈rise 완료)에 애니메이션이 시작되도록 오프셋
   const o = step === 0 ? 2900 : 0;
   const stepAnswered = g.options.some((_, oi) => selections[`${step}-${oi}`]);
