@@ -35,6 +35,7 @@
   function setMuted(m) {
     muted = !!m;
     Object.keys(els).forEach(function (n) { els[n].muted = muted; });
+    console.log("[__bgm.setMuted]", muted, "tracks:", Object.keys(els).map(function (n) { return n + "=" + els[n].muted; }));
   }
 
   function fadeTo(n, target, ms, onEnd) {
@@ -126,7 +127,10 @@
       if (p && p.catch) p.catch(function () {});
     } catch (e) { /* noop */ }
   }
-  function setMuted(m) { muted = !!m; }
+  function setMuted(m) {
+    muted = !!m;
+    console.log("[__sfx.setMuted]", muted, "cached srcs:", Object.keys(els));
+  }
   window.__sfx = { play: play, setMuted: setMuted, get muted() { return muted; } };
 })();
 
@@ -150,6 +154,7 @@
     try { localStorage.setItem(KEY, JSON.stringify(settings)); } catch (e) {}
   }
   function applyToPlayers() {
+    console.log("[__soundSettings] applyToPlayers", settings, "hasBgm:", !!window.__bgm, "hasSfx:", !!window.__sfx);
     if (window.__bgm && window.__bgm.setMuted) window.__bgm.setMuted(!settings.bgm);
     if (window.__sfx && window.__sfx.setMuted) window.__sfx.setMuted(!settings.sfx);
   }

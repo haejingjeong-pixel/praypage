@@ -250,6 +250,12 @@
       }}>
         <SoundToggle label="BGM" on={settings.bgm} onToggle={() => window.__soundSettings && window.__soundSettings.setBgm(!settings.bgm)} />
         <SoundToggle label="효과음" on={settings.sfx} onToggle={() => window.__soundSettings && window.__soundSettings.setSfx(!settings.sfx)} />
+        {/* 임시 디버그 표시 — 원인 확인 후 제거 예정. 실제 window.__bgm/__sfx의 muted 플래그를
+            그대로 보여줘서, 버튼 상태와 실제 오디오 음소거 플래그가 일치하는지 눈으로 바로
+            확인할 수 있게 한다. */}
+        <div style={{ flexBasis: "100%", textAlign: "right", fontSize: 10, color: "#8a7a68", background: "rgba(255,255,255,0.85)", padding: "3px 8px", borderRadius: 8, pointerEvents: "none" }}>
+          debug: bgm.muted={String(window.__bgm && window.__bgm.muted)} / sfx.muted={String(window.__sfx && window.__sfx.muted)}
+        </div>
       </div>
     );
   }
