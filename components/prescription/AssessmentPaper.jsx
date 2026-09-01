@@ -73,14 +73,16 @@ export function AssessmentPaper({
     if (v && maxSel === 1) {
       for (let k = 0; k < g.options.length; k++) if (k !== oi && selections[`${step}-${k}`]) onToggle(step, k, false);
       onToggle(step, oi, true);
-      playSelectSound();
     } else if (v && selCount >= maxSel) {
       return; // 상한 도달 — 무시
     } else {
       onToggle(step, oi, v);
-      if (v) playSelectSound();
     }
   };
+  // 페이지(문항) 전환 시에만 재생 — 답변 체크 자체가 아니라 "다음/이전"으로 화면이
+  // 넘어가는 순간이 "페이지 넘기는 소리"의 트리거다.
+  const goPrev = () => { setStep((s) => Math.max(0, s - 1)); playSelectSound(); };
+  const goNext = () => { if (!stepAnswered) return; setStep((s) => Math.min(total - 1, s + 1)); playSelectSound(); };
   // step 0은 접수카드가 봉투에서 올라온 뒤(≈rise 완료)에 애니메이션이 시작되도록 오프셋
   const o = step === 0 ? 2900 : 0;
   const stepAnswered = g.options.some((_, oi) => selections[`${step}-${oi}`]);
@@ -159,7 +161,7 @@ export function AssessmentPaper({
       {/* footer nav — 중앙 정렬 화살표 (봉투에 가리지 않도록 컴팩트하게) */}
       <div style={{ padding: pc ? "16px 56px 26px" : "14px 26px 24px", marginTop: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
         <button
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          onClick={goPrev}
           disabled={step === 0}
           aria-label="이전"
           style={{ width: 42, height: 42, borderRadius: "50%", border: "1.5px solid var(--line-soft)", background: "var(--cream)", cursor: step === 0 ? "default" : "pointer", opacity: step === 0 ? 0.3 : 1, display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto" }}
@@ -170,7 +172,7 @@ export function AssessmentPaper({
           <Button tone="rx" size="md" disabled={!stepAnswered} onClick={onSubmit} style={{ minWidth: 150 }}>{ctaLabel}</Button>
         ) : (
           <button
-            onClick={() => stepAnswered && setStep((s) => Math.min(total - 1, s + 1))}
+            onClick={goNext}
             disabled={!stepAnswered}
             aria-label="다음"
             style={{ width: 42, height: 42, borderRadius: "50%", border: "none", background: stepAnswered ? "var(--rx-blue-500)" : "var(--line-soft)", cursor: stepAnswered ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", transition: "background 200ms ease" }}
