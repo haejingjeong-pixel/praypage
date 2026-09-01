@@ -256,8 +256,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     if (flow !== "done" || flowType !== "share" || askShare) return;
     setCompletePhase(0);
     setCompletePhaseVisible(true);
-    const t1 = setTimeout(() => setCompletePhaseVisible(false), 1900);
-    const t2 = setTimeout(() => { setCompletePhase(1); setCompletePhaseVisible(true); }, 2240);
+    const t1 = setTimeout(() => setCompletePhaseVisible(false), 2400);
+    const t2 = setTimeout(() => { setCompletePhase(1); setCompletePhaseVisible(true); }, 3100);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [flow, flowType, askShare]);
   React.useEffect(() => () => flowTimers.current.forEach(clearTimeout), []);
@@ -825,7 +825,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
                 <img src={flowType === "save" ? "assets-web/icon-save.webp" : "assets-web/icon-share.webp"} alt="" style={{ width: pc ? 104 : 88, height: pc ? 104 : 88, objectFit: "contain", display: "block", margin: "0 auto 16px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }} />
                 <p style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em", color: "#8E86DE", margin: "0 0 14px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 150ms forwards" }}>{flowType === "save" ? "저장이 완료되었어요" : "공유가 완료되었어요"}</p>
                 {flowType === "share" ? (
-                  <div style={{ opacity: completePhaseVisible ? 1 : 0, transition: "opacity 320ms ease" }}>
+                  <div style={{ opacity: completePhaseVisible ? 1 : 0, transition: "opacity 700ms ease" }}>
                     {completePhase === 0 ? (
                       <h2 style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 32 : 25, lineHeight: 1.35, color: "var(--ink-900)", margin: 0, opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 300ms forwards" }}>
                         응원의 마음을<br />따뜻하게 전했어요
