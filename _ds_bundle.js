@@ -402,11 +402,33 @@ function scallopPath(width, bumps = 9, amp = 8, baseY = 13) {
 // 사운드 파일을 쓴다. 각각 자기 자신의 Audio 요소를 재사용해 연속 클릭 시 소리가 겹쳐
 // 쌓이지 않도록(재생 중이면 되감아 재시작) 하고, BGM(window.__bgm)과는 별개 채널이라
 // 서로 방해하지 않는다.
+// 체크 사운드는 재생 볼륨을 기본(1.0) 대비 약 2배로 키워야 해서 <audio>의 volume 속성
+// (최대 1.0)만으로는 부족하다 — Web Audio API로 GainNode(2배 증폭) 뒤에 리미터
+// (DynamicsCompressorNode)를 걸어 찢어짐/클리핑 없이 안전하게 증폭한다. 이 그래프는 체크
+// 사운드 전용이며, 다른 효과음(다음 버튼·문진완료·마음카드)의 볼륨에는 영향을 주지 않는다.
 let __clickSoundEl = null;
 function playClickSound() {
   try {
     if (!__clickSoundEl) {
       __clickSoundEl = new Audio("assets/check_sound_check_only_3.mp3");
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new Ctx();
+        const source = ctx.createMediaElementSource(__clickSoundEl);
+        const gain = ctx.createGain();
+        gain.gain.value = 2; // 체크 사운드만 약 2배 증폭
+        const limiter = ctx.createDynamicsCompressor(); // 증폭 후 찢어짐 방지용 리미터
+        limiter.threshold.value = -6;
+        limiter.knee.value = 0;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.001;
+        limiter.release.value = 0.1;
+        source.connect(gain).connect(limiter).connect(ctx.destination);
+        __clickSoundEl.__audioCtx = ctx;
+      } catch (err) { /* Web Audio 사용 불가 환경 — 기본 볼륨으로 재생 */ }
+    }
+    if (__clickSoundEl.__audioCtx && __clickSoundEl.__audioCtx.state === "suspended") {
+      __clickSoundEl.__audioCtx.resume();
     }
     __clickSoundEl.currentTime = 0;
     const p = __clickSoundEl.play();
