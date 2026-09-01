@@ -211,8 +211,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     } catch (e) { /* noop */ }
   };
 
+  // 자가문진 이후 화면들의 "주요 CTA 버튼" 공통 클릭 사운드 — window.__sfx가 src별로
+  // Audio 요소를 캐시해 재사용하므로 연속 클릭해도 겹쳐 쌓이지 않는다.
+  const playCta = () => { window.__sfx && window.__sfx.play("assets/click_tight.mp3", 1.3); };
+
   const flowTimers = React.useRef([]);
   const openConfirm = (type) => {
+    playCta();
     if (finalizing) return;
     setActiveId(null);
     setShowPicker(false);
@@ -221,10 +226,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     setFinalizing(true);
   };
   const cancelConfirm = () => {
+    playCta();
     setConfirmType(null);
     setFinalizing(false);
   };
   const runExport = () => {
+    playCta();
     const type = confirmType;
     setConfirmType(null);
     flowTimers.current.forEach(clearTimeout);
@@ -243,6 +250,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     ];
   };
   const finishCompletion = () => {
+    playCta();
     if (flow !== "done") return;
     setFlow("fadeout");
     setTimeout(() => onNext && onNext(), 700);
@@ -250,12 +258,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   // 저장 완료 직후 "소중한 사람에게도 공유할까요?" 질문 — 저장을 다시 하거나 처방전을
   // 새로 만들지 않고, 이미 저장된 결과에 이어서 공유 여부만 한 번 더 물어보는 단계.
   const acceptSharePrompt = () => {
+    playCta();
     setAskShare(false);
     // 실패하면 flowType은 "save"로 남아 기존 저장 완료 화면으로 자연스럽게 돌아간다
     // (share() 내부에서 이미 실패 토스트를 띄움).
     share().then((ok) => { if (ok) setFlowType("share"); });
   };
-  const declineSharePrompt = () => setAskShare(false);
+  const declineSharePrompt = () => { playCta(); setAskShare(false); };
   React.useEffect(() => {
     if (flow !== "done" || askShare) return; // 질문에 답하기 전에는 자동으로 흐름이 끊기지 않도록 대기
     const t = setTimeout(() => { setFlow("fadeout"); setTimeout(() => onNext && onNext(), 700); }, 6500);

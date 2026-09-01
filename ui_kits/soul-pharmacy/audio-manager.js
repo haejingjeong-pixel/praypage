@@ -91,3 +91,31 @@
 
   window.__bgm = { play: play, unlock: unlock, get current() { return current; } };
 })();
+
+// 전역 클릭 효과음 싱글턴 (window.__sfx) — 자가문진 이후 화면들의 "주요 CTA 버튼"이
+// 공통으로 쓰는 달칵 사운드. src별로 Audio 요소를 하나씩 캐시해 재사용하므로, 같은
+// 버튼을 연속으로 눌러도 재생 중인 소리를 되감아 재시작할 뿐 여러 겹으로 쌓이지 않는다.
+// BGM(window.__bgm)과는 별개 채널이라 서로 방해하지 않는다.
+(function () {
+  if (window.__sfx) return;
+  var els = {};
+  function play(src, rate) {
+    try {
+      var a = els[src];
+      if (!a) {
+        a = new Audio(src);
+        if (rate) {
+          a.playbackRate = rate;
+          a.preservesPitch = true;
+          a.mozPreservesPitch = true;
+          a.webkitPreservesPitch = true;
+        }
+        els[src] = a;
+      }
+      a.currentTime = 0;
+      var p = a.play();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) { /* noop */ }
+  }
+  window.__sfx = { play: play };
+})();
