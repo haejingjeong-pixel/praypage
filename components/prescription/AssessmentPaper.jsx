@@ -39,6 +39,19 @@ function playPageTurnSound() {
   } catch (e) { /* noop */ }
 }
 
+// "문진 완료" 버튼 전용 달칵 사운드 — 페이지 전환/체크 사운드와 다시 별개 채널.
+let __submitSoundEl = null;
+function playSubmitSound() {
+  try {
+    if (!__submitSoundEl) {
+      __submitSoundEl = new Audio("assets/click.mp3");
+    }
+    __submitSoundEl.currentTime = 0;
+    const p = __submitSoundEl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) { /* noop */ }
+}
+
 function scallopPath(width, bumps = 9, amp = 8, baseY = 13) {
   const step = width / bumps;
   let d = `M0,${baseY} `;
@@ -186,7 +199,7 @@ export function AssessmentPaper({
           <Icon name="chevron-left" size={20} color="var(--text-muted)" stroke={1.8} />
         </button>
         {isLast ? (
-          <Button tone="rx" size="md" disabled={!stepAnswered} onClick={onSubmit} style={{ minWidth: 150 }}>{ctaLabel}</Button>
+          <Button tone="rx" size="md" disabled={!stepAnswered} onClick={() => { playSubmitSound(); onSubmit && onSubmit(); }} style={{ minWidth: 150 }}>{ctaLabel}</Button>
         ) : (
           <button
             onClick={goNext}

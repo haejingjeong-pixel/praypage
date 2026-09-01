@@ -433,6 +433,19 @@ function playPageTurnSound() {
   } catch (e) { /* noop */ }
 }
 
+// "문진 완료" 버튼 전용 달칵 사운드 — 페이지 전환/체크 사운드와 다시 별개 채널.
+let __submitSoundEl = null;
+function playSubmitSound() {
+  try {
+    if (!__submitSoundEl) {
+      __submitSoundEl = new Audio("assets/click.mp3");
+    }
+    __submitSoundEl.currentTime = 0;
+    const p = __submitSoundEl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) { /* noop */ }
+}
+
 /**
  * AssessmentPaper — the paper "오늘의 마음 접수카드" that rises out of a mood
  * envelope. Soft scalloped top edge, fixed header, and a STEPPED questionnaire:
@@ -708,7 +721,7 @@ function AssessmentPaper({
     tone: "rx",
     size: "md",
     disabled: !stepAnswered,
-    onClick: onSubmit,
+    onClick: () => { playSubmitSound(); onSubmit && onSubmit(); },
     style: {
       minWidth: 150
     }
