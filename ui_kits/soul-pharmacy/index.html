@@ -213,6 +213,7 @@
           boxShadow: "0 4px 12px rgba(91,74,60,0.12)", cursor: "pointer",
           fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 11.5, letterSpacing: "0.02em",
           color: on ? "#5B4A3C" : "#B5A897", WebkitTapHighlightColor: "transparent",
+          flex: "0 0 auto", whiteSpace: "nowrap", pointerEvents: "auto", boxSizing: "border-box",
         }}
       >
         {Icon && <Icon name={on ? "volume-2" : "volume-x"} size={14} stroke={2} color={on ? "#5B4A3C" : "#B5A897"} />}
@@ -226,8 +227,24 @@
       if (!window.__soundSettings) return;
       return window.__soundSettings.subscribe(setSettings);
     }, []);
+    // left와 right를 함께 지정해 컨테이너 폭이 항상 뷰포트 안쪽(양옆 최소 여백 포함)으로
+    // 제한된다 — 폭이 좁아지면 flexWrap으로 두 버튼이 자동으로 세로 배치된다. 이 넓은
+    // 컨테이너 자체는 pointerEvents:none이라 빈 공간을 눌러도 아래 화면 클릭을 막지
+    // 않고, 버튼 각각에만 pointerEvents:auto를 되돌려 놓았다.
     return (
-      <div style={{ position: "fixed", top: "max(12px, env(safe-area-inset-top))", right: "max(12px, env(safe-area-inset-right))", zIndex: 999999, display: "flex", gap: 7 }}>
+      <div style={{
+        position: "fixed",
+        top: "max(12px, env(safe-area-inset-top))",
+        left: "max(12px, env(safe-area-inset-left))",
+        right: "max(12px, env(safe-area-inset-right))",
+        zIndex: 999999,
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "flex-end",
+        alignItems: "flex-start",
+        gap: 7,
+        pointerEvents: "none",
+      }}>
         <SoundToggle label="BGM" on={settings.bgm} onToggle={() => window.__soundSettings && window.__soundSettings.setBgm(!settings.bgm)} />
         <SoundToggle label="효과음" on={settings.sfx} onToggle={() => window.__soundSettings && window.__soundSettings.setSfx(!settings.sfx)} />
       </div>
