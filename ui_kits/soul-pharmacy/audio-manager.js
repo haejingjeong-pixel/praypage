@@ -18,6 +18,7 @@
   var current = null;         // 현재(또는 목표) 트랙 번호
   var unlocked = false;
   var pending = null;         // 잠금 해제 전 예약된 트랙
+  var muted = false;          // BGM ON/OFF — 재생/크로스페이드 로직은 그대로 두고 출력만 음소거
 
   function make(n) {
     if (els[n]) return els[n];
@@ -26,8 +27,14 @@
     a.loop = true;
     a.preload = "auto";
     a.volume = 0;
+    a.muted = muted;
     els[n] = a;
     return a;
+  }
+
+  function setMuted(m) {
+    muted = !!m;
+    Object.keys(els).forEach(function (n) { els[n].muted = muted; });
   }
 
   function fadeTo(n, target, ms, onEnd) {
@@ -89,7 +96,7 @@
     window.addEventListener(ev, unlock, { once: false, passive: true });
   });
 
-  window.__bgm = { play: play, unlock: unlock, get current() { return current; } };
+  window.__bgm = { play: play, unlock: unlock, setMuted: setMuted, get muted() { return muted; }, get current() { return current; } };
 })();
 
 // 전역 클릭 효과음 싱글턴 (window.__sfx) — 자가문진 이후 화면들의 "주요 CTA 버튼"이
@@ -99,7 +106,9 @@
 (function () {
   if (window.__sfx) return;
   var els = {};
+  var muted = false; // 효과음 ON/OFF — 꺼져 있으면 재생 자체를 건너뛴다(기존 재생 로직은 불변)
   function play(src, rate) {
+    if (muted) return;
     try {
       var a = els[src];
       if (!a) {
@@ -117,5 +126,47 @@
       if (p && p.catch) p.catch(function () {});
     } catch (e) { /* noop */ }
   }
-  window.__sfx = { play: play };
+  function setMuted(m) { muted = !!m; }
+  window.__sfx = { play: play, setMuted: setMuted, get muted() { return muted; } };
+})();
+
+// 사운드 설정(BGM/효과음 개별 ON-OFF) — localStorage에 영속시켜 새로고침·화면 전환 후에도
+// 유지한다. window.__bgm/__sfx의 기존 재생·크로스페이드·타이밍 로직은 전혀 건드리지 않고,
+// 이 모듈이 그 위에서 음소거 상태만 적용/구독시킨다.
+(function () {
+  if (window.__soundSettings) return;
+  var KEY = "soulpharmacy-sound-settings-v1";
+  var settings = { bgm: true, sfx: true };
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (typeof parsed.bgm === "boolean") settings.bgm = parsed.bgm;
+      if (typeof parsed.sfx === "boolean") settings.sfx = parsed.sfx;
+    }
+  } catch (e) { /* localStorage 사용 불가 — 기본값(둘 다 ON) 유지 */ }
+
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(settings)); } catch (e) {}
+  }
+  function applyToPlayers() {
+    if (window.__bgm && window.__bgm.setMuted) window.__bgm.setMuted(!settings.bgm);
+    if (window.__sfx && window.__sfx.setMuted) window.__sfx.setMuted(!settings.sfx);
+  }
+  var listeners = [];
+  function notify() {
+    var snap = { bgm: settings.bgm, sfx: settings.sfx };
+    listeners.forEach(function (fn) { try { fn(snap); } catch (e) {} });
+  }
+  applyToPlayers();
+
+  window.__soundSettings = {
+    get: function () { return { bgm: settings.bgm, sfx: settings.sfx }; },
+    setBgm: function (on) { settings.bgm = !!on; persist(); applyToPlayers(); notify(); },
+    setSfx: function (on) { settings.sfx = !!on; persist(); applyToPlayers(); notify(); },
+    subscribe: function (fn) {
+      listeners.push(fn);
+      return function () { listeners = listeners.filter(function (f) { return f !== fn; }); };
+    },
+  };
 })();

@@ -195,6 +195,45 @@
     );
   }
 
+  // 우측 상단 고정 BGM/효과음 ON-OFF 컨트롤 — 마음약국 전체 화면(App 최상단)에 항상 떠 있다.
+  // window.__soundSettings(audio-manager.js)를 그대로 구독만 할 뿐, 각 화면의 BGM 재생
+  // 시점이나 효과음 트리거 로직은 전혀 건드리지 않는다. 설정은 localStorage에 영속되어
+  // 새로고침·화면 전환에도 유지된다.
+  function SoundToggle({ label, on, onToggle }) {
+    const { Icon } = window.DesignSystem_d4e5a3 || {};
+    return (
+      <button
+        onClick={onToggle}
+        aria-pressed={on}
+        aria-label={`${label} ${on ? "끄기" : "켜기"}`}
+        style={{
+          display: "flex", alignItems: "center", gap: 6, height: 32, padding: "0 11px",
+          borderRadius: 999, border: on ? "1px solid rgba(91,74,60,0.20)" : "1px solid rgba(91,74,60,0.12)",
+          background: on ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.55)",
+          boxShadow: "0 4px 12px rgba(91,74,60,0.12)", cursor: "pointer",
+          fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 11.5, letterSpacing: "0.02em",
+          color: on ? "#5B4A3C" : "#B5A897", WebkitTapHighlightColor: "transparent",
+        }}
+      >
+        {Icon && <Icon name={on ? "volume-2" : "volume-x"} size={14} stroke={2} color={on ? "#5B4A3C" : "#B5A897"} />}
+        <span>{label}</span>
+      </button>
+    );
+  }
+  function SoundControl() {
+    const [settings, setSettings] = React.useState(() => (window.__soundSettings ? window.__soundSettings.get() : { bgm: true, sfx: true }));
+    React.useEffect(() => {
+      if (!window.__soundSettings) return;
+      return window.__soundSettings.subscribe(setSettings);
+    }, []);
+    return (
+      <div style={{ position: "fixed", top: "max(12px, env(safe-area-inset-top))", right: "max(12px, env(safe-area-inset-right))", zIndex: 999999, display: "flex", gap: 7 }}>
+        <SoundToggle label="BGM" on={settings.bgm} onToggle={() => window.__soundSettings && window.__soundSettings.setBgm(!settings.bgm)} />
+        <SoundToggle label="효과음" on={settings.sfx} onToggle={() => window.__soundSettings && window.__soundSettings.setSfx(!settings.sfx)} />
+      </div>
+    );
+  }
+
   function App() {
     const sharedId = getSharedId();
     const [step, setStep] = React.useState(sharedId ? "shareLoading" : "intro"); // shareLoading | shareIntro | shareExpired | intro | main | assessment | result | decorateIntro | sticker
@@ -289,7 +328,12 @@
     } else if (step === "sticker") {
       screen = <window.StickerScreen mood={mood} rx={rx} initialStickers={sharedStickers} initialShareId={shareId} initialExtraH={sharedExtraH} onBack={() => setStep("result")} onNext={() => setStep("main")} />;
     }
-    return <Fade step={step}>{screen}</Fade>;
+    return (
+      <React.Fragment>
+        <SoundControl />
+        <Fade step={step}>{screen}</Fade>
+      </React.Fragment>
+    );
   }
   ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>

@@ -4,6 +4,10 @@ import { Divider } from "./Divider.jsx";
 import { Checkbox } from "../forms/Checkbox.jsx";
 import { Button } from "../actions/Button.jsx";
 
+// window.__soundSettings(audio-manager.js)의 효과음 ON/OFF를 따른다 — 이 파일의 세 사운드
+// 함수는 window.__sfx를 거치지 않는 독립 채널이라 각자 재생 직전에 직접 확인해야 한다.
+function __sfxOn() { return !window.__soundSettings || window.__soundSettings.get().sfx; }
+
 // Q1~Q4의 두 효과음 — 답변 선택(체크)과 "다음" 페이지 전환은 역할이 달라 서로 다른
 // 사운드 파일을 쓴다. 각각 자기 자신의 Audio 요소를 재사용해 연속 클릭 시 소리가 겹쳐
 // 쌓이지 않도록(재생 중이면 되감아 재시작) 하고, BGM(window.__bgm)과는 별개 채널이라
@@ -14,6 +18,7 @@ import { Button } from "../actions/Button.jsx";
 // 사운드 전용이며, 다른 효과음(다음 버튼·문진완료·마음카드)의 볼륨에는 영향을 주지 않는다.
 let __clickSoundEl = null;
 function playClickSound() {
+  if (!__sfxOn()) return;
   try {
     if (!__clickSoundEl) {
       __clickSoundEl = new Audio("assets/check_sound_check_only_3.mp3");
@@ -47,6 +52,7 @@ function playClickSound() {
 // 기본값이 true지만 명시).
 let __pageTurnSoundEl = null;
 function playPageTurnSound() {
+  if (!__sfxOn()) return;
   try {
     if (!__pageTurnSoundEl) {
       __pageTurnSoundEl = new Audio("assets/page_sound.mp3");
@@ -65,6 +71,7 @@ function playPageTurnSound() {
 // 원본이 다소 느리게 느껴져 재생 속도를 130%로 높였다(preservesPitch로 피치 왜곡 방지).
 let __submitSoundEl = null;
 function playSubmitSound() {
+  if (!__sfxOn()) return;
   try {
     if (!__submitSoundEl) {
       __submitSoundEl = new Audio("assets/click_tight.mp3");
