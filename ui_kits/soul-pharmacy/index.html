@@ -86,15 +86,19 @@
   // 인트로에는 필요 없어 생략했고, "phase" 상태·클릭 스킵·envExit 페이드아웃도 옮기지
   // 않았다 — 화면 전환 자체는 App()의 공용 Fade 크로스페이드가 이미 처리한다.
   // 문구를 1페이지("당신에게 마음처방전이 도착했어요.") → 2페이지("누군가 당신의 응원을 받고
-  // 싶어 이 마음처방전을 보냈어요.")로 순차 페이드인/아웃 전환한다. 배경·봉투 이미지·"말씀
-  // 처방전" 라벨·전체 레이아웃은 그대로 두고 중앙 문구 영역만 크로스페이드된다.
+  // 싶어 이 마음처방전을 보냈어요.") → 3페이지("응원의 마음을 스티커로 붙여 전해주세요.")로
+  // 순차 페이드인/아웃 전환한다. 1~2페이지는 "왜 도착했는지" 설명이고, 3페이지는 "무엇을
+  // 하면 되는지" 행동 안내라 역할이 다르다. 배경·봉투 이미지·"말씀 처방전" 라벨·전체
+  // 레이아웃은 그대로 두고 중앙 문구 영역만 크로스페이드된다.
   function ShareIntro() {
     const [page, setPage] = React.useState(0);
     const [pageVisible, setPageVisible] = React.useState(true);
     React.useEffect(() => {
       const t1 = setTimeout(() => setPageVisible(false), 2100);
       const t2 = setTimeout(() => { setPage(1); setPageVisible(true); }, 2650);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      const t3 = setTimeout(() => setPageVisible(false), 4300);
+      const t4 = setTimeout(() => { setPage(2); setPageVisible(true); }, 4850);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
     }, []);
     return (
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
@@ -106,8 +110,10 @@
             <div style={{ marginTop: "0.5em", opacity: pageVisible ? 1 : 0, transition: "opacity 550ms ease" }}>
               {page === 0 ? (
                 <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(20px,2.6vw,32px)", color: "#5B4A3C", letterSpacing: "0.02em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
-              ) : (
+              ) : page === 1 ? (
                 <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(20px,2.6vw,32px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>누군가 당신의 응원을 받고 싶어<br />이 마음처방전을 보냈어요.</div>
+              ) : (
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(20px,2.6vw,32px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>응원의 마음을<br />스티커로 붙여 전해주세요.</div>
               )}
             </div>
           </div>
@@ -238,11 +244,11 @@
     }, [sharedId]);
 
     // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
-    // 1페이지→2페이지 문구가 순차로 페이드 전환되므로(ShareIntro 내부), 두 문구를 모두
-    // 읽을 시간을 주기 위해 체류 시간을 5.3초로 늘렸다.
+    // 1→2→3페이지 문구가 순차로 페이드 전환되므로(ShareIntro 내부), 세 문구를 모두
+    // 읽을 시간을 주기 위해 체류 시간을 7.4초로 늘렸다.
     React.useEffect(() => {
       if (step !== "shareIntro") return;
-      const t = setTimeout(() => setStep("sticker"), 5300);
+      const t = setTimeout(() => setStep("sticker"), 7400);
       return () => clearTimeout(t);
     }, [step]);
 
