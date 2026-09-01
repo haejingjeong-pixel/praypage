@@ -438,7 +438,7 @@ let __submitSoundEl = null;
 function playSubmitSound() {
   try {
     if (!__submitSoundEl) {
-      __submitSoundEl = new Audio("assets/click.mp3");
+      __submitSoundEl = new Audio("assets/click_tight.mp3");
     }
     __submitSoundEl.currentTime = 0;
     const p = __submitSoundEl.play();
