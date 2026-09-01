@@ -434,11 +434,16 @@ function playPageTurnSound() {
 }
 
 // "문진 완료" 버튼 전용 달칵 사운드 — 페이지 전환/체크 사운드와 다시 별개 채널.
+// 원본이 다소 느리게 느껴져 재생 속도를 130%로 높였다(preservesPitch로 피치 왜곡 방지).
 let __submitSoundEl = null;
 function playSubmitSound() {
   try {
     if (!__submitSoundEl) {
       __submitSoundEl = new Audio("assets/click_tight.mp3");
+      __submitSoundEl.playbackRate = 1.3;
+      __submitSoundEl.preservesPitch = true;
+      __submitSoundEl.mozPreservesPitch = true;
+      __submitSoundEl.webkitPreservesPitch = true;
     }
     __submitSoundEl.currentTime = 0;
     const p = __submitSoundEl.play();
