@@ -253,9 +253,17 @@
         {/* 임시 디버그 표시 — 원인 확인 후 제거 예정. 실제 window.__bgm/__sfx의 muted 플래그를
             그대로 보여줘서, 버튼 상태와 실제 오디오 음소거 플래그가 일치하는지 눈으로 바로
             확인할 수 있게 한다. */}
-        <div style={{ flexBasis: "100%", textAlign: "right", fontSize: 10, color: "#8a7a68", background: "rgba(255,255,255,0.85)", padding: "3px 8px", borderRadius: 8, pointerEvents: "none" }}>
-          debug: bgm.muted={String(window.__bgm && window.__bgm.muted)} / sfx.muted={String(window.__sfx && window.__sfx.muted)}
+        <div style={{ flexBasis: "100%", textAlign: "right", fontSize: 10, color: "#8a7a68", background: "rgba(255,255,255,0.85)", padding: "3px 8px", borderRadius: 8, pointerEvents: "none", lineHeight: 1.6 }}>
+          debug: settings.bgm={String(settings.bgm)} settings.sfx={String(settings.sfx)}<br />
+          bgm.muted={String(window.__bgm && window.__bgm.muted)} sfx.muted={String(window.__sfx && window.__sfx.muted)}<br />
+          localStorage={typeof localStorage !== "undefined" ? String(localStorage.getItem("soulpharmacy-sound-settings-v1")) : "n/a"}
         </div>
+        <button
+          onClick={() => { try { localStorage.removeItem("soulpharmacy-sound-settings-v1"); } catch (e) {} location.reload(); }}
+          style={{ flexBasis: "100%", textAlign: "right", fontSize: 10, color: "#8a7a68", background: "rgba(255,255,255,0.85)", padding: "3px 8px", borderRadius: 8, pointerEvents: "auto", border: "1px solid rgba(91,74,60,0.2)", cursor: "pointer", marginTop: 4 }}
+        >
+          설정 초기화 후 새로고침
+        </button>
       </div>
     );
   }
