@@ -398,22 +398,37 @@ function scallopPath(width, bumps = 9, amp = 8, baseY = 13) {
   return d;
 }
 
-// Q1~Q4 답변 선택 효과음 — 같은 Audio 요소를 재사용해 연속 클릭 시 소리가 겹쳐 쌓이지
-// 않도록(재생 중이면 되감아 재시작) 하고, BGM(window.__bgm)과는 별개 채널이라 서로 방해하지
-// 않는다. 원본이 다소 빠르게 느껴져 재생 속도를 90%로 낮췄다 — preservesPitch를 켜서
-// 피치가 과하게 낮아지지 않게 한다(대부분의 최신 브라우저는 기본값이 true지만 명시).
-let __selectSoundEl = null;
-function playSelectSound() {
+// Q1~Q4의 두 효과음 — 답변 선택(체크)과 "다음" 페이지 전환은 역할이 달라 서로 다른
+// 사운드 파일을 쓴다. 각각 자기 자신의 Audio 요소를 재사용해 연속 클릭 시 소리가 겹쳐
+// 쌓이지 않도록(재생 중이면 되감아 재시작) 하고, BGM(window.__bgm)과는 별개 채널이라
+// 서로 방해하지 않는다.
+let __clickSoundEl = null;
+function playClickSound() {
   try {
-    if (!__selectSoundEl) {
-      __selectSoundEl = new Audio("assets/page_sound.mp3");
-      __selectSoundEl.playbackRate = 0.9;
-      __selectSoundEl.preservesPitch = true;
-      __selectSoundEl.mozPreservesPitch = true;
-      __selectSoundEl.webkitPreservesPitch = true;
+    if (!__clickSoundEl) {
+      __clickSoundEl = new Audio("assets/click.mp3");
     }
-    __selectSoundEl.currentTime = 0;
-    const p = __selectSoundEl.play();
+    __clickSoundEl.currentTime = 0;
+    const p = __clickSoundEl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) { /* noop */ }
+}
+
+// 페이지(문항) 전환 효과음 — 원본이 다소 빠르게 느껴져 재생 속도를 90%로 낮췄다.
+// preservesPitch를 켜서 피치가 과하게 낮아지지 않게 한다(대부분의 최신 브라우저는
+// 기본값이 true지만 명시).
+let __pageTurnSoundEl = null;
+function playPageTurnSound() {
+  try {
+    if (!__pageTurnSoundEl) {
+      __pageTurnSoundEl = new Audio("assets/page_sound.mp3");
+      __pageTurnSoundEl.playbackRate = 0.9;
+      __pageTurnSoundEl.preservesPitch = true;
+      __pageTurnSoundEl.mozPreservesPitch = true;
+      __pageTurnSoundEl.webkitPreservesPitch = true;
+    }
+    __pageTurnSoundEl.currentTime = 0;
+    const p = __pageTurnSoundEl.play();
     if (p && p.catch) p.catch(() => {});
   } catch (e) { /* noop */ }
 }
@@ -461,16 +476,18 @@ function AssessmentPaper({
     if (v && maxSel === 1) {
       for (let k = 0; k < g.options.length; k++) if (k !== oi && selections[`${step}-${k}`]) onToggle(step, k, false);
       onToggle(step, oi, true);
+      playClickSound();
     } else if (v && selCount >= maxSel) {
       return; // 상한 도달 — 무시
     } else {
       onToggle(step, oi, v);
+      if (v) playClickSound();
     }
   };
-  // 페이지(문항) 전환 시에만 재생 — 답변 체크 자체가 아니라 "다음/이전"으로 화면이
-  // 넘어가는 순간이 "페이지 넘기는 소리"의 트리거다.
-  const goPrev = () => { setStep((s) => Math.max(0, s - 1)); playSelectSound(); };
-  const goNext = () => { if (!stepAnswered) return; setStep((s) => Math.min(total - 1, s + 1)); playSelectSound(); };
+  // 페이지(문항) 전환 시에만 재생 — 답변 체크 사운드와는 별개로, "다음/이전"으로 화면이
+  // 넘어가는 순간에만 트리거된다.
+  const goPrev = () => { setStep((s) => Math.max(0, s - 1)); playPageTurnSound(); };
+  const goNext = () => { if (!stepAnswered) return; setStep((s) => Math.min(total - 1, s + 1)); playPageTurnSound(); };
   // step 0은 접수카드가 봉투에서 올라온 뒤(≈rise 완료)에 애니메이션이 시작되도록 오프셋
   const o = step === 0 ? 2900 : 0;
   const stepAnswered = g.options.some((_, oi) => selections[`${step}-${oi}`]);
