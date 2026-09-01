@@ -29,8 +29,134 @@ const DEFAULT_NOTES = [
   { t: "너는 소중해! ☺", s: "heart", c: "blue", x: 82, y: 88, r: 7 },
 ];
 
+// 스티커 화면 최초 접속자 전용 단계별 안내(튜토리얼) — localStorage에 "본 적 있음"을
+// 남겨서 다음 방문부터는 자동으로 뜨지 않는다. 노출 여부 판단(hasSeenStickerTutorial)과
+// 노출 트리거(showTutorial state)를 분리해뒀으니, 나중에 "다시보기" 버튼을 붙일 땐
+// StickerScreen 안에서 setShowTutorial(true)만 호출하면 된다.
+const STICKER_TUTORIAL_KEY = "soulpharmacy-sticker-tutorial-seen-v1";
+function hasSeenStickerTutorial() {
+  try { return localStorage.getItem(STICKER_TUTORIAL_KEY) === "1"; } catch (e) { return true; }
+}
+function markStickerTutorialSeen() {
+  try { localStorage.setItem(STICKER_TUTORIAL_KEY, "1"); } catch (e) { /* noop */ }
+}
+
+function TutorialStage({ children }) {
+  return (
+    <div style={{ position: "relative", width: "100%", height: 148, borderRadius: 16, background: "linear-gradient(180deg,#FBF6EC 0%,#F3E8DA 100%)", border: "1px solid rgba(171,136,96,0.16)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {children}
+    </div>
+  );
+}
+// 1단계: 스티커 셋에서 하나가 살짝 커졌다 줄어드는 펄스로 "고른다"는 느낌만 가볍게 준다.
+function TutorialStep1() {
+  const pics = (STICKER_FILES.normal || []).slice(0, 3);
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutPick{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(142,134,222,0)}45%{transform:scale(1.14);box-shadow:0 0 0 8px rgba(142,134,222,0.18)}}"}</style>
+      <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+        {pics.map((src, i) => (
+          <div key={src} style={{ width: 56, height: 56, borderRadius: 14, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", animation: i === 1 ? "tutPick 1800ms ease-in-out infinite" : "none" }}>
+            <img src={src} alt="" style={{ width: 40, height: 40, objectFit: "contain" }} />
+          </div>
+        ))}
+      </div>
+    </TutorialStage>
+  );
+}
+// 2단계: 스티커 하나가 아래에서 카드 위로 떠올라 "붙는" 모션을 반복.
+function TutorialStep2() {
+  const src = (STICKER_FILES.normal || [])[0];
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutDrop{0%{transform:translate(-50%,42px) scale(0.85);opacity:0}55%{transform:translate(-50%,0) scale(1.1);opacity:1}72%{transform:translate(-50%,0) scale(0.95)}85%,100%{transform:translate(-50%,0) scale(1);opacity:1}}"}</style>
+      <div style={{ width: 92, height: 118, borderRadius: 10, background: "#fff", border: "1px solid rgba(171,136,96,0.22)", boxShadow: "0 6px 16px rgba(97,68,42,0.10)", position: "relative" }}>
+        <div style={{ position: "absolute", top: 10, left: 10, right: 10, height: 6, borderRadius: 3, background: "#EFE6D8" }} />
+        <div style={{ position: "absolute", top: 24, left: 10, right: 20, height: 6, borderRadius: 3, background: "#EFE6D8" }} />
+        {src && (
+          <img src={src} alt="" style={{ position: "absolute", left: "58%", top: "62%", width: 40, height: 40, objectFit: "contain", animation: "tutDrop 1800ms cubic-bezier(0.22,1,0.32,1) infinite" }} />
+        )}
+      </div>
+    </TutorialStage>
+  );
+}
+// 3단계: 실제 "소중한 사람에게 공유하기" 버튼과 같은 그라데이션·글로우 애니메이션을 재사용.
+function TutorialStep3() {
+  const { Icon } = window.DesignSystem_d4e5a3;
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 6px 18px rgba(120,108,200,0.34),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}"}</style>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 22px", borderRadius: 999, background: "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)", color: "#fff", fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 700, fontSize: 14.5, animation: "tutGlow 1800ms ease-in-out infinite" }}>
+        <Icon name="share-2" size={17} color="#fff" />
+        소중한 사람에게 공유하기
+      </div>
+    </TutorialStage>
+  );
+}
+// 4단계: 카드 두 장을 화살표로 잇고, 두 번째 카드에 하트(응원 스티커)가 도착하는 모션을 반복.
+function TutorialStep4() {
+  const { Icon } = window.DesignSystem_d4e5a3;
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutArrive{0%,20%{opacity:0;transform:translate(-50%,-50%) scale(0.5)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}72%{transform:translate(-50%,-50%) scale(0.92)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}"}</style>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 60, height: 78, borderRadius: 8, background: "#fff", border: "1px solid rgba(171,136,96,0.22)" }} />
+        <Icon name="arrow-right" size={20} color="#B79A7A" />
+        <div style={{ width: 60, height: 78, borderRadius: 8, background: "#fff", border: "1px solid rgba(171,136,96,0.22)", position: "relative" }}>
+          <div style={{ position: "absolute", left: "50%", top: "50%", width: 26, height: 26, borderRadius: "50%", background: "var(--coral-300)", display: "flex", alignItems: "center", justifyContent: "center", animation: "tutArrive 1800ms ease-in-out infinite" }}>
+            <Icon name="heart" size={13} color="#fff" />
+          </div>
+        </div>
+      </div>
+    </TutorialStage>
+  );
+}
+
+const STICKER_TUTORIAL_STEPS = [
+  { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
+  { Stage: TutorialStep2, text: "스티커를 처방전에 붙여 꾸밀 수 있어요." },
+  { Stage: TutorialStep3, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
+  { Stage: TutorialStep4, text: "링크를 받은 사람이 응원의 스티커를 남겨줄 수 있어요." },
+];
+
+function StickerTutorial({ onDone }) {
+  const [step, setStep] = React.useState(0);
+  const isLast = step === STICKER_TUTORIAL_STEPS.length - 1;
+  const { Stage, text } = STICKER_TUTORIAL_STEPS[step];
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 500000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, background: "rgba(54,46,39,0.38)", boxSizing: "border-box" }}>
+      <div style={{ width: "100%", maxWidth: 380, background: "#FFFCF6", borderRadius: 22, padding: 22, boxShadow: "0 20px 48px rgba(70,58,45,0.24)", boxSizing: "border-box" }}>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 16 }}>
+          {STICKER_TUTORIAL_STEPS.map((_, i) => (
+            <span key={i} style={{ width: i === step ? 20 : 7, height: 7, borderRadius: 999, background: i === step ? "#8E86DE" : "var(--line-soft)", transition: "all 260ms ease" }} />
+          ))}
+        </div>
+        <Stage />
+        <p style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 16.5, lineHeight: 1.6, color: "var(--ink-900)", textAlign: "center", margin: "18px 0 22px" }}>
+          {text}
+        </p>
+        <div style={{ display: "flex", gap: 10 }}>
+          {!isLast && (
+            <button onClick={onDone} style={{ flex: 1, padding: "13px", borderRadius: 999, border: "1px solid var(--line-soft)", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>건너뛰기</button>
+          )}
+          <button
+            onClick={() => (isLast ? onDone() : setStep((s) => s + 1))}
+            style={{ flex: isLast ? 1 : 1.3, padding: "13px", borderRadius: 999, border: "none", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14.5, cursor: "pointer", boxShadow: "0 8px 20px rgba(107,95,207,0.26)" }}
+          >
+            {isLast ? "시작하기" : "다음"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, initialExtraH, onBack, onNext }) {
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
+  // 최초 접속자 전용 튜토리얼 — 화면 진입 시 한 번만 체크(리렌더마다 localStorage를
+  // 다시 읽지 않도록 useState 초기화 함수 안에서만 판단).
+  const [showTutorial, setShowTutorial] = React.useState(() => !hasSeenStickerTutorial());
+  const dismissTutorial = () => { markStickerTutorialSeen(); setShowTutorial(false); };
   const rx = rxProp || window.RX_DATA[mood] || window.RX_DATA.anxious;
   const moodLabel = ((MOODS && MOODS[mood] && MOODS[mood].label) || rx.symptom || "").replace(/\n/g, " ");
   const RX = "var(--rx-ink)";
@@ -902,6 +1028,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
           <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 18 : 16, lineHeight: 1.4, color: "var(--ink-900)", textAlign: "left" }}>처방전의 공유 링크가 복사되었어요.</span>
         </div>
       )}
+      {showTutorial && <StickerTutorial onDone={dismissTutorial} />}
       </div>
     </div>
   );
