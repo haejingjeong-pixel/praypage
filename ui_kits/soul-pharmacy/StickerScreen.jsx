@@ -885,8 +885,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         </div>
       )}
       {copyBanner && (
-        <div style={{ position: "fixed", left: "50%", bottom: pc ? 64 : 44, transform: "translateX(-50%)", zIndex: 100001, width: "min(92vw, 520px)", boxSizing: "border-box", padding: pc ? "26px 36px" : "22px 26px", borderRadius: 22, background: "rgba(40,34,28,0.94)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 20 : 17, lineHeight: 1.5, textAlign: "center", boxShadow: "0 16px 40px rgba(0,0,0,0.32)", pointerEvents: "none", animation: `copyBannerInOut ${COPY_BANNER_MS}ms ease-in-out forwards` }}>
-          <style>{"@keyframes copyBannerInOut{0%{opacity:0;transform:translate(-50%,16px) scale(0.96)}10%{opacity:1;transform:translate(-50%,0) scale(1)}88%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,8px) scale(0.98)}}"}</style>
+        <div style={{ position: "fixed", left: "50%", top: pc ? 64 : 44, transform: "translateX(-50%)", zIndex: 100001, width: "min(92vw, 520px)", boxSizing: "border-box", padding: pc ? "26px 36px" : "22px 26px", borderRadius: 22, background: "rgba(40,34,28,0.94)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 20 : 17, lineHeight: 1.5, textAlign: "center", boxShadow: "0 16px 40px rgba(0,0,0,0.32)", pointerEvents: "none", animation: `copyBannerInOut ${COPY_BANNER_MS}ms ease-in-out forwards` }}>
+          <style>{"@keyframes copyBannerInOut{0%{opacity:0;transform:translate(-50%,-16px) scale(0.96)}10%{opacity:1;transform:translate(-50%,0) scale(1)}88%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-8px) scale(0.98)}}"}</style>
           처방전의 공유 링크가 복사되었어요.
         </div>
       )}
