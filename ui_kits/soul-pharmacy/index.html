@@ -85,7 +85,17 @@
   // (그렇게 했더니 A와 계속 어긋났다). ResultScreen에는 있는 성구 인용 블록은 공유
   // 인트로에는 필요 없어 생략했고, "phase" 상태·클릭 스킵·envExit 페이드아웃도 옮기지
   // 않았다 — 화면 전환 자체는 App()의 공용 Fade 크로스페이드가 이미 처리한다.
+  // 문구를 1페이지("당신에게 마음처방전이 도착했어요.") → 2페이지("누군가 당신의 응원을 받고
+  // 싶어 이 마음처방전을 보냈어요.")로 순차 페이드인/아웃 전환한다. 배경·봉투 이미지·"말씀
+  // 처방전" 라벨·전체 레이아웃은 그대로 두고 중앙 문구 영역만 크로스페이드된다.
   function ShareIntro() {
+    const [page, setPage] = React.useState(0);
+    const [pageVisible, setPageVisible] = React.useState(true);
+    React.useEffect(() => {
+      const t1 = setTimeout(() => setPageVisible(false), 2100);
+      const t2 = setTimeout(() => { setPage(1); setPageVisible(true); }, 2650);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }, []);
     return (
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
         <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
@@ -93,8 +103,13 @@
           <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 750ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>소중한 누군가가<br />당신의 응원을 기다리고 있어요.</div>
+            <div style={{ marginTop: "0.5em", opacity: pageVisible ? 1 : 0, transition: "opacity 550ms ease" }}>
+              {page === 0 ? (
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
+              ) : (
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>누군가 당신의 응원을 받고 싶어<br />이 마음처방전을 보냈어요.</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -223,9 +238,11 @@
     }, [sharedId]);
 
     // shareIntro는 버튼 없이 몇 초 보여준 뒤 자동으로 처방전 화면으로 넘어간다.
+    // 1페이지→2페이지 문구가 순차로 페이드 전환되므로(ShareIntro 내부), 두 문구를 모두
+    // 읽을 시간을 주기 위해 체류 시간을 5.3초로 늘렸다.
     React.useEffect(() => {
       if (step !== "shareIntro") return;
-      const t = setTimeout(() => setStep("sticker"), 3000);
+      const t = setTimeout(() => setStep("sticker"), 5300);
       return () => clearTimeout(t);
     }, [step]);
 
