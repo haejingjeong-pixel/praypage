@@ -76,6 +76,17 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     toastTimer.current = setTimeout(() => setToast(null), duration);
   };
   React.useEffect(() => () => clearTimeout(toastTimer.current), []);
+  // 공유 링크 복사 완료 안내 — 일반 토스트(showToast)와 달리 사용자가 반드시 인지해야 하는
+  // 핵심 피드백이라 별도로 훨씬 크게 보여준다(작은 보조 토스트와 공유하지 않음).
+  const [copyBanner, setCopyBanner] = React.useState(false);
+  const copyBannerTimer = React.useRef(null);
+  const COPY_BANNER_MS = 2800;
+  const showCopyBanner = () => {
+    setCopyBanner(true);
+    clearTimeout(copyBannerTimer.current);
+    copyBannerTimer.current = setTimeout(() => setCopyBanner(false), COPY_BANNER_MS);
+  };
+  React.useEffect(() => () => clearTimeout(copyBannerTimer.current), []);
   const [showTip, setShowTip] = React.useState(false);
   const [hoverEmoji, setHoverEmoji] = React.useState(null);
   const [showPicker, setShowPicker] = React.useState(false);
@@ -180,7 +191,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setShareCopyFailed(false);
-      showToast("처방전의 공유 링크가 복사되었어요.", 2600);
+      showCopyBanner();
       setTimeout(() => setCopied(false), 2200);
     } catch (e) {
       setShareCopyFailed(true);
@@ -871,6 +882,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         <div style={{ position: "fixed", left: "50%", bottom: pc ? 40 : 28, transform: "translateX(-50%)", zIndex: 100000, maxWidth: "calc(100% - 32px)", padding: "14px 24px", borderRadius: 18, background: "rgba(48,42,36,0.92)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14, lineHeight: 1.6, textAlign: "center", whiteSpace: "pre-line", boxShadow: "0 10px 26px rgba(0,0,0,0.24)", pointerEvents: "none", animation: `toastInOut ${toastDuration}ms ease-in-out forwards` }}>
           <style>{"@keyframes toastInOut{0%{opacity:0;transform:translate(-50%,10px)}8%{opacity:1;transform:translate(-50%,0)}90%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}"}</style>
           {toast}
+        </div>
+      )}
+      {copyBanner && (
+        <div style={{ position: "fixed", left: "50%", bottom: pc ? 64 : 44, transform: "translateX(-50%)", zIndex: 100001, width: "min(92vw, 520px)", boxSizing: "border-box", padding: pc ? "26px 36px" : "22px 26px", borderRadius: 22, background: "rgba(40,34,28,0.94)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 20 : 17, lineHeight: 1.5, textAlign: "center", boxShadow: "0 16px 40px rgba(0,0,0,0.32)", pointerEvents: "none", animation: `copyBannerInOut ${COPY_BANNER_MS}ms ease-in-out forwards` }}>
+          <style>{"@keyframes copyBannerInOut{0%{opacity:0;transform:translate(-50%,16px) scale(0.96)}10%{opacity:1;transform:translate(-50%,0) scale(1)}88%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,8px) scale(0.98)}}"}</style>
+          처방전의 공유 링크가 복사되었어요.
         </div>
       )}
       </div>
