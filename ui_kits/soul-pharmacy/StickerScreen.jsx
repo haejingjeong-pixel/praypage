@@ -66,24 +66,53 @@ function TutorialStep1() {
     </TutorialStage>
   );
 }
-// 2단계: 스티커 하나가 아래에서 카드 위로 떠올라 "붙는" 모션을 반복.
-function TutorialStep2() {
+// 2단계: 고른 스티커 → 실제 "스티커 추가" 버튼(ToolBtn과 동일한 보라색 원형+plus 아이콘)을
+// 그대로 재현해 어디를 눌러야 하는지 강조. 버튼이 눌리는 동작(살짝 축소)과 그 주위로 퍼지는
+// 링(ripple)을 반복해 "여기를 탭하세요"가 시각적으로 분명하게 전달되도록 한다.
+function TutorialStepAddButton() {
+  const { Icon } = window.DesignSystem_d4e5a3;
   const src = (STICKER_FILES.normal || [])[0];
   return (
     <TutorialStage>
-      <style>{"@keyframes tutDrop{0%{transform:translate(-50%,42px) scale(0.85);opacity:0}55%{transform:translate(-50%,0) scale(1.1);opacity:1}72%{transform:translate(-50%,0) scale(0.95)}85%,100%{transform:translate(-50%,0) scale(1);opacity:1}}"}</style>
+      <style>{"@keyframes tutPress{0%,100%{transform:scale(1)}50%{transform:scale(0.86)}}@keyframes tutRing{0%{transform:scale(0.85);opacity:0.5}100%{transform:scale(2);opacity:0}}"}</style>
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        {src && (
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#fff", border: "2px solid #8E86DE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <img src={src} alt="" style={{ width: 32, height: 32, objectFit: "contain" }} />
+          </div>
+        )}
+        <Icon name="arrow-right" size={16} color="#B79A7A" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+          <div style={{ position: "relative", width: 52, height: 52 }}>
+            <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid #8f86c9", animation: "tutRing 1600ms ease-out infinite" }} />
+            <div style={{ position: "relative", width: 52, height: 52, borderRadius: "50%", background: "#8f86c9", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(120,104,78,0.22)", animation: "tutPress 1600ms ease-in-out infinite" }}>
+              <Icon name="plus" size={22} color="#fff" stroke={1.7} />
+            </div>
+          </div>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 10.5, color: "var(--text-muted)", whiteSpace: "nowrap" }}>스티커 추가</span>
+        </div>
+      </div>
+    </TutorialStage>
+  );
+}
+// 3단계: 스티커가 카드 위에 나타난 뒤 다른 위치로 슥 옮겨지는 동작을 반복해 "이동"까지 보여준다.
+function TutorialStepMove() {
+  const src = (STICKER_FILES.normal || [])[0];
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutMove{0%{transform:translate(-50%,-50%) scale(0.7);opacity:0}28%{transform:translate(-50%,-50%) scale(1.08);opacity:1}50%{transform:translate(-50%,-50%) scale(1);opacity:1}78%,100%{transform:translate(calc(-50% - 26px), calc(-50% - 14px)) scale(1);opacity:1}}"}</style>
       <div style={{ width: 92, height: 118, borderRadius: 10, background: "#fff", border: "1px solid rgba(171,136,96,0.22)", boxShadow: "0 6px 16px rgba(97,68,42,0.10)", position: "relative" }}>
         <div style={{ position: "absolute", top: 10, left: 10, right: 10, height: 6, borderRadius: 3, background: "#EFE6D8" }} />
         <div style={{ position: "absolute", top: 24, left: 10, right: 20, height: 6, borderRadius: 3, background: "#EFE6D8" }} />
         {src && (
-          <img src={src} alt="" style={{ position: "absolute", left: "58%", top: "62%", width: 40, height: 40, objectFit: "contain", animation: "tutDrop 1800ms cubic-bezier(0.22,1,0.32,1) infinite" }} />
+          <img src={src} alt="" style={{ position: "absolute", left: "70%", top: "68%", width: 38, height: 38, objectFit: "contain", animation: "tutMove 2000ms cubic-bezier(0.22,1,0.32,1) infinite" }} />
         )}
       </div>
     </TutorialStage>
   );
 }
-// 3단계: 실제 "소중한 사람에게 공유하기" 버튼과 같은 그라데이션·글로우 애니메이션을 재사용.
-function TutorialStep3() {
+// 4단계: 실제 "소중한 사람에게 공유하기" 버튼과 같은 그라데이션·글로우 애니메이션을 재사용.
+function TutorialStepShare() {
   const { Icon } = window.DesignSystem_d4e5a3;
   return (
     <TutorialStage>
@@ -95,30 +124,12 @@ function TutorialStep3() {
     </TutorialStage>
   );
 }
-// 4단계: 카드 두 장을 화살표로 잇고, 두 번째 카드에 하트(응원 스티커)가 도착하는 모션을 반복.
-function TutorialStep4() {
-  const { Icon } = window.DesignSystem_d4e5a3;
-  return (
-    <TutorialStage>
-      <style>{"@keyframes tutArrive{0%,20%{opacity:0;transform:translate(-50%,-50%) scale(0.5)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}72%{transform:translate(-50%,-50%) scale(0.92)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}"}</style>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 60, height: 78, borderRadius: 8, background: "#fff", border: "1px solid rgba(171,136,96,0.22)" }} />
-        <Icon name="arrow-right" size={20} color="#B79A7A" />
-        <div style={{ width: 60, height: 78, borderRadius: 8, background: "#fff", border: "1px solid rgba(171,136,96,0.22)", position: "relative" }}>
-          <div style={{ position: "absolute", left: "50%", top: "50%", width: 26, height: 26, borderRadius: "50%", background: "var(--coral-300)", display: "flex", alignItems: "center", justifyContent: "center", animation: "tutArrive 1800ms ease-in-out infinite" }}>
-            <Icon name="heart" size={13} color="#fff" />
-          </div>
-        </div>
-      </div>
-    </TutorialStage>
-  );
-}
 
 const STICKER_TUTORIAL_STEPS = [
   { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
-  { Stage: TutorialStep2, text: "스티커를 처방전에 붙여 꾸밀 수 있어요." },
-  { Stage: TutorialStep3, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
-  { Stage: TutorialStep4, text: "링크를 받은 사람이 응원의 스티커를 남겨줄 수 있어요." },
+  { Stage: TutorialStepAddButton, text: "스티커를 고른 뒤 '스티커 추가' 버튼을 눌러주세요." },
+  { Stage: TutorialStepMove, text: "추가된 스티커를 원하는 위치로 옮겨 꾸며보세요." },
+  { Stage: TutorialStepShare, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
 ];
 
 function StickerTutorial({ onDone }) {
