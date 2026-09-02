@@ -35,7 +35,9 @@ const DEFAULT_NOTES = [
 // StickerScreen 안에서 setShowTutorial(true)만 호출하면 된다.
 const STICKER_TUTORIAL_KEY = "soulpharmacy-sticker-tutorial-seen-v1";
 function hasSeenStickerTutorial() {
-  try { return localStorage.getItem(STICKER_TUTORIAL_KEY) === "1"; } catch (e) { return true; }
+  // localStorage 접근 자체가 막힌 환경(프라이버시 설정 등)이면 "본 적 없음"으로 보고
+  // 튜토리얼을 보여준다 — 반대로 처리하면 어떤 경우든 튜토리얼이 영영 안 뜰 수 있다.
+  try { return localStorage.getItem(STICKER_TUTORIAL_KEY) === "1"; } catch (e) { return false; }
 }
 function markStickerTutorialSeen() {
   try { localStorage.setItem(STICKER_TUTORIAL_KEY, "1"); } catch (e) { /* noop */ }
