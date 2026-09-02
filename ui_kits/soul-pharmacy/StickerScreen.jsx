@@ -50,7 +50,8 @@ function TutorialStage({ children }) {
     </div>
   );
 }
-// 1단계: 스티커 셋에서 하나가 살짝 커졌다 줄어드는 펄스로 "고른다"는 느낌만 가볍게 준다.
+// 2단계: 추가 버튼을 눌러 열린 목록에서 스티커 셋 하나가 살짝 커졌다 줄어드는 펄스로
+// "고른다"는 느낌만 가볍게 준다.
 function TutorialStep1() {
   const pics = (STICKER_FILES.normal || []).slice(0, 3);
   return (
@@ -66,31 +67,24 @@ function TutorialStep1() {
     </TutorialStage>
   );
 }
-// 2단계: 고른 스티커 → 실제 "스티커 추가" 버튼(ToolBtn과 동일한 보라색 원형+plus 아이콘)을
-// 그대로 재현해 어디를 눌러야 하는지 강조. 버튼이 눌리는 동작(살짝 축소)과 그 주위로 퍼지는
-// 링(ripple)을 반복해 "여기를 탭하세요"가 시각적으로 분명하게 전달되도록 한다.
+// 1단계: 실제 "스티커 추가" 버튼(ToolBtn과 동일한 보라색 원형+plus 아이콘)을 그대로 재현해
+// 어디를 눌러야 스티커 목록이 열리는지 강조. 실제 앱에서는 이 버튼을 먼저 눌러야 스티커
+// 고르는 화면이 뜨므로, 튜토리얼도 그 순서를 그대로 따른다(고르기 → 추가 버튼이 아니라
+// 추가 버튼 → 고르기). 버튼이 눌리는 동작(살짝 축소)과 주위로 퍼지는 링(ripple)을 반복해
+// "여기를 탭하세요"가 시각적으로 분명하게 전달되도록 한다.
 function TutorialStepAddButton() {
   const { Icon } = window.DesignSystem_d4e5a3;
-  const src = (STICKER_FILES.normal || [])[0];
   return (
     <TutorialStage>
       <style>{"@keyframes tutPress{0%,100%{transform:scale(1)}50%{transform:scale(0.86)}}@keyframes tutRing{0%{transform:scale(0.85);opacity:0.5}100%{transform:scale(2);opacity:0}}"}</style>
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        {src && (
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#fff", border: "2px solid #8E86DE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <img src={src} alt="" style={{ width: 32, height: 32, objectFit: "contain" }} />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+        <div style={{ position: "relative", width: 58, height: 58 }}>
+          <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid #8f86c9", animation: "tutRing 1600ms ease-out infinite" }} />
+          <div style={{ position: "relative", width: 58, height: 58, borderRadius: "50%", background: "#8f86c9", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(120,104,78,0.22)", animation: "tutPress 1600ms ease-in-out infinite" }}>
+            <Icon name="plus" size={24} color="#fff" stroke={1.7} />
           </div>
-        )}
-        <Icon name="arrow-right" size={16} color="#B79A7A" />
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-          <div style={{ position: "relative", width: 52, height: 52 }}>
-            <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid #8f86c9", animation: "tutRing 1600ms ease-out infinite" }} />
-            <div style={{ position: "relative", width: 52, height: 52, borderRadius: "50%", background: "#8f86c9", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(120,104,78,0.22)", animation: "tutPress 1600ms ease-in-out infinite" }}>
-              <Icon name="plus" size={22} color="#fff" stroke={1.7} />
-            </div>
-          </div>
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 10.5, color: "var(--text-muted)", whiteSpace: "nowrap" }}>스티커 추가</span>
         </div>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>스티커 추가</span>
       </div>
     </TutorialStage>
   );
@@ -125,9 +119,11 @@ function TutorialStepShare() {
   );
 }
 
+// 실제 앱 흐름은 "스티커 추가" 버튼을 먼저 눌러야 고르는 목록이 열리므로, 튜토리얼도 그
+// 순서(추가 버튼 → 고르기 → 옮기기 → 공유)를 그대로 따른다.
 const STICKER_TUTORIAL_STEPS = [
+  { Stage: TutorialStepAddButton, text: "'스티커 추가' 버튼을 눌러 스티커 목록을 열어보세요." },
   { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
-  { Stage: TutorialStepAddButton, text: "스티커를 고른 뒤 '스티커 추가' 버튼을 눌러주세요." },
   { Stage: TutorialStepMove, text: "추가된 스티커를 원하는 위치로 옮겨 꾸며보세요." },
   { Stage: TutorialStepShare, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
 ];
