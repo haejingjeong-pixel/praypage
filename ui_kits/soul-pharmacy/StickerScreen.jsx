@@ -135,6 +135,9 @@ function StickerTutorial({ onDone }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 500000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, background: "rgba(54,46,39,0.38)", boxSizing: "border-box" }}>
       <div style={{ width: "100%", maxWidth: 380, background: "#FFFCF6", borderRadius: 22, padding: 22, boxShadow: "0 20px 48px rgba(70,58,45,0.24)", boxSizing: "border-box" }}>
+        <p style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: 17, lineHeight: 1.4, color: "var(--ink-900)", textAlign: "center", margin: "0 0 14px" }}>
+          꾸미기 이용 안내
+        </p>
         <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 16 }}>
           {STICKER_TUTORIAL_STEPS.map((_, i) => (
             <span key={i} style={{ width: i === step ? 20 : 7, height: 7, borderRadius: 999, background: i === step ? "#8E86DE" : "var(--line-soft)", transition: "all 260ms ease" }} />
