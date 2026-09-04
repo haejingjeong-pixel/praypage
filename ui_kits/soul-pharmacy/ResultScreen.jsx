@@ -17,6 +17,36 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     return () => window.removeEventListener("resize", pick);
   }, []);
 
+  // "처방전 저장하기" — 스티커 꾸미기 화면의 저장(꾸민 처방전)과는 완전히 별개 기능.
+  // 여기서는 이 화면(reveal)에서 보는 긴 상세 처방전(성구·소견·복용법·주의사항·작은실천 전부)을
+  // 그대로 이미지 한 장으로 저장한다. sheet 노드 자체는 높이 제한/overflow:hidden이 없어서,
+  // 화면 스크롤 위치와 무관하게 html-to-image가 sheet 전체 높이를 캡처한다(뷰포트 캡처가 아님).
+  const exportRef = React.useRef(null);
+  const [savingRx, setSavingRx] = React.useState(false);
+  const saveDetailedPrescription = async () => {
+    if (!window.htmlToImage || !exportRef.current || savingRx) return;
+    setSavingRx(true);
+    // 캡처 시점에 아직 등장 애니메이션(Reveal)이 덜 끝난 섹션이 있으면 반투명하게 찍힐 수 있어,
+    // 캡처 직전 skipAnim을 켜 모든 섹션을 즉시 완전히 보이는 상태로 만든 뒤(리렌더 반영을
+    // double rAF로 기다렸다가) 캡처한다 — 더블클릭 스킵과 동일한 매커니즘 재사용.
+    setSkipAnim(true);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    try {
+      const blob = await window.htmlToImage.toBlob(exportRef.current, {
+        pixelRatio: 2.5, cacheBust: true, backgroundColor: "#FCFBF6",
+        filter: (node) => !(node instanceof HTMLElement && node.dataset && node.dataset.exportIgnore === "true"),
+      });
+      if (blob) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "마음약국-상세처방전.png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+    } catch (e) { /* noop */ }
+    setSavingRx(false);
+  };
+
   // loading → loadingExit → envelope(봉투에서 종이가 올라오는 장면) → envExit →
   // shareGuide(공유 안내) → shareGuideExit → reveal(종이만 남아 읽는 장면).
   // loading은 3초, envelope는 4초, shareGuide는 문구가 두 줄이라 5초 머무르고, 그 사이 전환은
@@ -166,7 +196,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
   const Typewriter = ({ text = "", style }) => <span style={style}>{text}</span>;
 
   const sheet = (
-    <div style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box", animation: "rxstep 950ms ease-out" }}>
+    <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box", animation: "rxstep 950ms ease-out" }}>
       <div style={{ position: "absolute", inset: 10, border: "1px solid rgba(120,104,78,0.14)", borderRadius: 4, pointerEvents: "none" }} />
 
       <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${padX}px ${pc ? 34 : 26}px` }}>
@@ -266,13 +296,24 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
     </div>
   );
 
+  // "처방전 저장하기" — 이 화면(상세 처방전 원본)만 저장하는 버튼. 스티커 꾸미기 화면의 저장
+  // 버튼과는 완전히 별개(파일명도 다름: 마음약국-상세처방전.png vs 마음약국-처방전.png).
+  const saveRxBtn = (
+    <button onClick={saveDetailedPrescription} disabled={savingRx} style={{ width: "100%", maxWidth: sheetW, boxSizing: "border-box", height: 50, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, border: "1px solid rgba(171,136,96,0.22)", cursor: savingRx ? "default" : "pointer", background: "#F7EBDD", boxShadow: "0 5px 14px rgba(97,68,42,0.09)", color: "#6A533F", opacity: savingRx ? 0.7 : 1, animation: "rxstep 1050ms ease-out 180ms both" }}>
+      <Icon name="download" size={18} color="#6A533F" stroke={1.7} />
+      <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: 500, fontSize: 16, color: "#6A533F", letterSpacing: "0.01em" }}>{savingRx ? "저장 중…" : "처방전 저장하기"}</span>
+    </button>
+  );
+
   return (
     <div onDoubleClick={() => setSkipAnim(true)} style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", boxSizing: "border-box" }}>
       <div aria-hidden="true" style={{ position: "fixed", inset: 0, backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat", zIndex: 0, pointerEvents: "none" }} />
       <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100vh", overflowY: "auto", overflowX: "hidden", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "34px 28px 28px" : "22px 16px 24px" }}>
       <style>{`@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`}</style>
       {sheet}
-      <div style={{ height: 28, flex: "0 0 auto" }} />
+      <div style={{ height: 16, flex: "0 0 auto" }} />
+      {saveRxBtn}
+      <div style={{ height: 20, flex: "0 0 auto" }} />
       {actions}
       <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: "14px 0 0", animation: "rxstep 1050ms ease-out 360ms both" }}><span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span> 이 말씀은 당신을 위해 준비되었어요 <span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span></p>
       </div>
