@@ -13,6 +13,14 @@
 <!-- 배포 엔트리: 실제 앱은 ui_kits/soul-pharmacy/index.html.
      인라인 번들(2.86MB, 옛 base64 PNG) 대신 앱을 그대로 임베드해
      WebP 에셋을 필요 시점에만 지연 로드한다. 초기 다운로드 용량 대폭 감소. -->
-<iframe src="ui_kits/soul-pharmacy/index.html" title="마음약국" allow="autoplay"></iframe>
+<iframe id="app" title="마음약국" allow="autoplay"></iframe>
+<script>
+  // 공유 링크(?id=...)로 들어온 경우 이 쿼리스트링이 iframe 안 실제 앱까지 전달돼야
+  // 공유받은 처방전을 바로 열 수 있다. src를 고정 문자열로 두면 부모 페이지가 받은
+  // ?id=...가 iframe에 전혀 넘어가지 않아 공유 링크가 무조건 첫 화면으로 시작되는
+  // 버그가 있었다 — 부모의 search/hash를 그대로 이어붙여 전달한다.
+  document.getElementById("app").src =
+    "ui_kits/soul-pharmacy/index.html" + window.location.search + window.location.hash;
+</script>
 </body>
 </html>
