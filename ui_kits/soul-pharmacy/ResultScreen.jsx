@@ -289,24 +289,16 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
       <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: accent ? 600 : 500, fontSize: 16, color: accent ? "#fff" : "#6A533F", letterSpacing: "0.01em" }}>{label}</span>
     </button>
   );
+  // 다시하기 / 처방전 저장하기 / 스티커 붙여 공유하기 — 하나의 액션 버튼 그룹. 세 버튼 모두
+  // paperBtn(같은 높이·모서리·패딩·아이콘 크기·폰트 크기)을 쓰고, 위계는 색으로만 표현한다
+  // (다시하기·처방전 저장하기 = 아이보리 서브 톤, 스티커 붙여 공유하기만 보라 메인 CTA).
+  // 아주 좁은 화면에서 셋 다 한 줄에 안 들어가면 자연스럽게 2줄로 줄바꿈되도록 flexWrap 처리.
   const actions = (
-    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", gap: 14, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
-      {paperBtn("rotate-cw", "다시하기", onAgain, 158)}
-      {paperBtn("share-2", "스티커 붙여 공유하기", onDecorate, 235, true)}
+    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
+      {paperBtn("rotate-cw", "다시하기", onAgain, 140)}
+      {paperBtn("download", savingRx ? "저장 중…" : "처방전 저장하기", saveDetailedPrescription, 172)}
+      {paperBtn("share-2", "스티커 붙여 공유하기", onDecorate, 210, true)}
     </div>
-  );
-
-  // "처방전 저장하기" — 이 화면(상세 처방전 원본)만 저장하는 버튼. 스티커 꾸미기 화면의 저장
-  // 버튼과는 완전히 별개(파일명도 다름: 마음약국-상세처방전.png vs 마음약국-처방전.png).
-  // 하단 "다시하기/스티커 붙여 공유하기"(paperBtn)와 같은 크림톤 서브 버튼 스타일을 그대로 옮겨
-  // 쓰되(색/테두리/그림자/높이/모서리 동일), paperBtn의 flex:1은 2버튼 가로 배치 전용이라
-  // 이 버튼 하나만 단독 배치하면 화면 폭만큼 늘어나 버려서 직접 고정폭 버튼으로 만든다 —
-  // 보라색 메인 CTA보다 튀면 안 되므로 accent 없는 톤 그대로.
-  const saveRxBtn = (
-    <button onClick={() => { window.__sfx && window.__sfx.play("assets/click_tight.mp3", 1.3); saveDetailedPrescription(); }} style={{ width: 190, maxWidth: "68%", height: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 16px", borderRadius: 14, border: "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: "#F7EBDD", boxShadow: "0 5px 14px rgba(97,68,42,0.09)", animation: "rxstep 1050ms ease-out 180ms both" }}>
-      <Icon name="download" size={18} color="#6A533F" stroke={1.7} />
-      <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: 500, fontSize: 16, color: "#6A533F", letterSpacing: "0.01em" }}>{savingRx ? "저장 중…" : "처방전 저장하기"}</span>
-    </button>
   );
 
   return (
@@ -315,9 +307,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
       <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100vh", overflowY: "auto", overflowX: "hidden", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", padding: pc ? "34px 28px 28px" : "22px 16px 24px" }}>
       <style>{`@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes rxGlow{0%,100%{box-shadow:0 3px 10px rgba(120,108,200,0.20),inset 0 2px 6px rgba(255,255,255,0.5),inset 0 -3px 8px rgba(90,78,150,0.26)}50%{box-shadow:0 4px 12px rgba(120,108,200,0.26),inset 0 2px 10px rgba(255,255,255,0.85),inset 0 -3px 8px rgba(90,78,150,0.3)}}`}</style>
       {sheet}
-      <div style={{ height: 16, flex: "0 0 auto" }} />
-      {saveRxBtn}
-      <div style={{ height: 20, flex: "0 0 auto" }} />
+      <div style={{ height: 28, flex: "0 0 auto" }} />
       {actions}
       <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: "14px 0 0", animation: "rxstep 1050ms ease-out 360ms both" }}><span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span> 이 말씀은 당신을 위해 준비되었어요 <span style={{ color: "#E0917E", opacity: 1.4 }}>♥</span></p>
       </div>
