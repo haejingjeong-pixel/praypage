@@ -273,7 +273,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
           <Icon name="heart" size={10} color="#FFF9F4" stroke={2.2} />
         </span>
       </span>
-      <span style={{ flex: 1, textAlign: "center", fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 20 : 17 }}>스티커 붙여 공유하기</span>
+      <span style={{ flex: 1, textAlign: "center", fontFamily: "var(--font-title)", fontWeight: 700, fontSize: pc ? 20 : 17 }}>내 결과 공유하기</span>
       <Icon name="chevron-right" size={20} color="#F7FAFF" stroke={2} />
     </button>
   );
@@ -289,15 +289,15 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
       <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: accent ? 600 : 500, fontSize: 16, color: accent ? "#fff" : "#6A533F", letterSpacing: "0.01em" }}>{label}</span>
     </button>
   );
-  // 다시하기 / 처방전 저장하기 / 스티커 붙여 공유하기 — 하나의 액션 버튼 그룹. 세 버튼 모두
+  // 다시하기 / 처방전 저장하기 / 내 결과 공유하기 — 하나의 액션 버튼 그룹. 세 버튼 모두
   // paperBtn(같은 높이·모서리·패딩·아이콘 크기·폰트 크기)을 쓰고, 위계는 색으로만 표현한다
-  // (다시하기·처방전 저장하기 = 아이보리 서브 톤, 스티커 붙여 공유하기만 보라 메인 CTA).
+  // (다시하기·처방전 저장하기 = 아이보리 서브 톤, 내 결과 공유하기만 보라 메인 CTA).
   // 아주 좁은 화면에서 셋 다 한 줄에 안 들어가면 자연스럽게 2줄로 줄바꿈되도록 flexWrap 처리.
   const actions = (
     <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
       {paperBtn("rotate-cw", "다시하기", onAgain, 140)}
       {paperBtn("download", savingRx ? "저장 중…" : "처방전 저장하기", saveDetailedPrescription, 172)}
-      {paperBtn("share-2", "스티커 붙여 공유하기", onDecorate, 210, true)}
+      {paperBtn("share-2", "내 결과 공유하기", onDecorate, 180, true)}
     </div>
   );
 

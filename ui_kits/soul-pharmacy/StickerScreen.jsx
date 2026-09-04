@@ -984,6 +984,14 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 18 : 16, color: "var(--text-strong)" }}>처방전 꾸미기</span>
         <span style={{ width: 22 }} />
       </div>
+      {/* 본인(처방 발급자, shareId 없음)과 공유 링크로 들어온 사람(shareId 있음)은 스티커를
+          붙이는 목적이 다르므로 안내 문구를 구분한다 — 본인은 자기 응원도 붙이고 공유까지
+          이어지도록, 공유받은 사람은 처방전 주인에게 남기는 응원이라는 점을 알려준다. */}
+      <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: pc ? 14 : 13, lineHeight: 1.6, color: "var(--text-muted)", whiteSpace: "pre-line", margin: "-4px 0 14px" }}>
+        {shareId
+          ? "소중한 사람이 받은 처방전이에요.\n마음을 담아 응원 스티커를 붙여보세요."
+          : "링크를 공유하면 소중한 사람에게 응원의 스티커를 받을 수 있어요.\n먼저 나를 위한 응원 스티커도 붙여보세요!"}
+      </p>
       {shareId && (
         <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
