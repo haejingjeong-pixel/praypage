@@ -67,7 +67,7 @@ function TutorialStep1() {
     </TutorialStage>
   );
 }
-// 1단계: 실제 "스티커 추가" 버튼(ToolBtn과 동일한 보라색 원형+plus 아이콘)을 그대로 재현해
+// 1단계: 실제 "응원 스티커 붙이기" 버튼(ToolBtn과 동일한 보라색 원형+plus 아이콘)을 그대로 재현해
 // 어디를 눌러야 스티커 목록이 열리는지 강조. 실제 앱에서는 이 버튼을 먼저 눌러야 스티커
 // 고르는 화면이 뜨므로, 튜토리얼도 그 순서를 그대로 따른다(고르기 → 추가 버튼이 아니라
 // 추가 버튼 → 고르기). 버튼이 눌리는 동작(살짝 축소)과 주위로 퍼지는 링(ripple)을 반복해
@@ -84,7 +84,7 @@ function TutorialStepAddButton() {
             <Icon name="plus" size={24} color="#fff" stroke={1.7} />
           </div>
         </div>
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>스티커 추가</span>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>응원 스티커 붙이기</span>
       </div>
     </TutorialStage>
   );
@@ -119,10 +119,10 @@ function TutorialStepShare() {
   );
 }
 
-// 실제 앱 흐름은 "스티커 추가" 버튼을 먼저 눌러야 고르는 목록이 열리므로, 튜토리얼도 그
+// 실제 앱 흐름은 "응원 스티커 붙이기" 버튼을 먼저 눌러야 고르는 목록이 열리므로, 튜토리얼도 그
 // 순서(추가 버튼 → 고르기 → 옮기기 → 공유)를 그대로 따른다.
 const STICKER_TUTORIAL_STEPS = [
-  { Stage: TutorialStepAddButton, text: "'스티커 추가' 버튼을 눌러 스티커 목록을 열어보세요." },
+  { Stage: TutorialStepAddButton, text: "'응원 스티커 붙이기' 버튼을 눌러 스티커를 추가해 주세요." },
   { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
   { Stage: TutorialStepMove, text: "추가된 스티커를 원하는 위치로 옮겨 꾸며보세요." },
   { Stage: TutorialStepShare, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
