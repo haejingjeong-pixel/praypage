@@ -426,6 +426,25 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     setFlow("fadeout");
     setTimeout(() => onNext && onNext(), 700);
   };
+  // "링크 다시 복사하기" — 새 공유 링크를 만들지 않고, share()에서 이미 만들어져 shareUrl에
+  // 남아있는 같은 링크를 다시 클립보드에 복사만 한다. 성공 안내는 최초 복사 때와 동일한
+  // copyBanner("처방전의 공유 링크가 복사되었어요.")를 재사용.
+  const recopyShareLink = async () => {
+    playCta();
+    if (!shareUrl) return;
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("no-clipboard");
+      await navigator.clipboard.writeText(shareUrl);
+      showCopyBanner();
+    } catch (e) {
+      showToast("링크 복사에 실패했어요. 위에 표시된 링크를 직접 선택해 복사해주세요.");
+    }
+  };
+  // "말씀광장 가기" — 외부 성경사전 사이트. 새 탭으로 열어 이 화면(완료 상태)은 그대로 유지한다.
+  const goToWordPlaza = () => {
+    playCta();
+    window.open("https://www.wordsquare.org/", "_blank", "noopener,noreferrer");
+  };
   // 저장 완료 직후 "소중한 사람에게도 공유할까요?" 질문 — 저장을 다시 하거나 처방전을
   // 새로 만들지 않고, 이미 저장된 결과에 이어서 공유 여부만 한 번 더 물어보는 단계.
   const acceptSharePrompt = () => {
@@ -436,11 +455,14 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     share().then((ok) => { if (ok) setFlowType("share"); });
   };
   const declineSharePrompt = () => { playCta(); setAskShare(false); };
+  // 저장 완료 화면은 기존처럼 6.5초 후 자동으로 메인으로 돌아간다. 공유 완료 화면(flowType
+  // === "share")은 자동 이동 없이 그대로 머물러 있고, 사용자가 아래 버튼으로 직접 다음 행동을
+  // 고른다(링크 다시 복사하기 / 다시 문진하기 / 말씀광장 가기).
   React.useEffect(() => {
-    if (flow !== "done" || askShare) return; // 질문에 답하기 전에는 자동으로 흐름이 끊기지 않도록 대기
+    if (flow !== "done" || askShare || flowType === "share") return; // 질문에 답하기 전에는 자동으로 흐름이 끊기지 않도록 대기
     const t = setTimeout(() => { setFlow("fadeout"); setTimeout(() => onNext && onNext(), 700); }, 6500);
     return () => clearTimeout(t);
-  }, [flow, askShare]);
+  }, [flow, askShare, flowType]);
   // 공유 완료 화면 1단계("응원의 마음을 따뜻하게 전했어요") → 2단계(본문+버튼)로 자동 전환.
   // flow가 새로 "done"이 될 때마다(재공유 등으로 다시 들어와도) 1단계부터 다시 보여준다.
   React.useEffect(() => {
@@ -1045,8 +1067,13 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
                             style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto 22px", padding: "13px 14px", borderRadius: 12, border: "1px solid var(--line-soft)", background: "#fff", color: "var(--ink-900)", fontFamily: "var(--font-body)", fontSize: 14, textAlign: "center", boxSizing: "border-box", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 120ms forwards" }}
                           />
                         )}
-                        <button onClick={finishCompletion} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 250ms forwards" }}>메인으로 돌아가기</button>
-                        <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-faint)", margin: "18px 0 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 400ms forwards" }}>잠시 후 메인으로 돌아갑니다</p>
+                        {/* 자동으로 메인에 돌아가지 않고 이 화면에 머문다 — 다음 행동은 아래 3개 버튼 중 직접 선택.
+                            링크 다시 복사하기(주 액션) → 다시 문진하기 / 말씀광장 가기(보조 액션 2개). */}
+                        <button onClick={recopyShareLink} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 250ms forwards" }}>링크 다시 복사하기</button>
+                        <div style={{ display: "flex", gap: 10, width: "100%", maxWidth: 420, margin: "12px auto 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 400ms forwards" }}>
+                          <button onClick={finishCompletion} style={{ flex: 1, padding: "14px 10px", borderRadius: 999, border: "1px solid var(--line-soft)", cursor: "pointer", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14.5 }}>다시 문진하기</button>
+                          <button onClick={goToWordPlaza} style={{ flex: 1, padding: "14px 10px", borderRadius: 999, border: "1px solid var(--line-soft)", cursor: "pointer", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 14.5 }}>말씀광장 가기</button>
+                        </div>
                       </React.Fragment>
                     )}
                   </div>
