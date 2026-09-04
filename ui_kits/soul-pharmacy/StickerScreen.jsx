@@ -50,7 +50,7 @@ function TutorialStage({ children }) {
     </div>
   );
 }
-// 2단계: 추가 버튼을 눌러 열린 목록에서 스티커 셋 하나가 살짝 커졌다 줄어드는 펄스로
+// 3단계: 추가 버튼을 눌러 열린 목록에서 스티커 셋 하나가 살짝 커졌다 줄어드는 펄스로
 // "고른다"는 느낌만 가볍게 준다.
 function TutorialStep1() {
   const pics = (STICKER_FILES.normal || []).slice(0, 3);
@@ -89,7 +89,35 @@ function TutorialStepAddButton() {
     </TutorialStage>
   );
 }
-// 3단계: 스티커가 카드 위에 나타난 뒤 다른 위치로 슥 옮겨지는 동작을 반복해 "이동"까지 보여준다.
+// 2단계: 실제 "공간 늘리기"·"공간 줄이기" 버튼(ToolBtn의 보조 버튼과 동일한 아이보리 원형+셰브런
+// 아이콘)을 나란히 재현해, 처방전 아래 여백을 늘렸다 다시 줄일 수도 있다는 걸 함께 알려준다.
+// 링/펄스 강조는 "늘리기" 쪽에만 줘서 먼저 눈에 띄어야 할 동작의 우선순위를 살렸다.
+function TutorialStepExpand() {
+  const { Icon } = window.DesignSystem_d4e5a3;
+  return (
+    <TutorialStage>
+      <style>{"@keyframes tutPress{0%,100%{transform:scale(1)}50%{transform:scale(0.86)}}@keyframes tutRing{0%{transform:scale(0.85);opacity:0.5}100%{transform:scale(2);opacity:0}}"}</style>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 22 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <div style={{ position: "relative", width: 58, height: 58 }}>
+            <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid rgba(120,104,78,0.35)", animation: "tutRing 1600ms ease-out infinite" }} />
+            <div style={{ position: "relative", width: 58, height: 58, borderRadius: "50%", background: "rgba(253,251,246,0.95)", border: "1px solid rgba(120,104,78,0.16)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 7px rgba(90,74,52,0.08)", animation: "tutPress 1600ms ease-in-out infinite" }}>
+              <Icon name="chevrons-down" size={22} color="var(--text-body)" stroke={1.7} />
+            </div>
+          </div>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>공간 늘리기</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: 0.6 }}>
+          <div style={{ width: 58, height: 58, borderRadius: "50%", background: "rgba(253,251,246,0.95)", border: "1px solid rgba(120,104,78,0.16)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 7px rgba(90,74,52,0.08)" }}>
+            <Icon name="chevrons-up" size={22} color="var(--text-body)" stroke={1.7} />
+          </div>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap" }}>공간 줄이기</span>
+        </div>
+      </div>
+    </TutorialStage>
+  );
+}
+// 4단계: 스티커가 카드 위에 나타난 뒤 다른 위치로 슥 옮겨지는 동작을 반복해 "이동"까지 보여준다.
 function TutorialStepMove() {
   const src = (STICKER_FILES.normal || [])[0];
   return (
@@ -105,7 +133,7 @@ function TutorialStepMove() {
     </TutorialStage>
   );
 }
-// 4단계: 실제 "소중한 사람에게 공유하기" 버튼과 같은 그라데이션·글로우 애니메이션을 재사용.
+// 5단계: 실제 "소중한 사람에게 공유하기" 버튼과 같은 그라데이션·글로우 애니메이션을 재사용.
 function TutorialStepShare() {
   const { Icon } = window.DesignSystem_d4e5a3;
   return (
@@ -120,9 +148,11 @@ function TutorialStepShare() {
 }
 
 // 실제 앱 흐름은 "응원 스티커 붙이기" 버튼을 먼저 눌러야 고르는 목록이 열리므로, 튜토리얼도 그
-// 순서(추가 버튼 → 고르기 → 옮기기 → 공유)를 그대로 따른다.
+// 순서(추가 버튼 → 공간 늘리기 → 고르기 → 옮기기 → 공유)를 그대로 따른다. 공간 늘리기는 스티커를
+// 붙이다 공간이 부족해지는 시점에야 필요해지는 기능이라 추가 버튼 바로 다음, 고르기 전에 배치했다.
 const STICKER_TUTORIAL_STEPS = [
   { Stage: TutorialStepAddButton, text: "'응원 스티커 붙이기' 버튼을 눌러 스티커를 추가해 주세요." },
+  { Stage: TutorialStepExpand, text: "스티커를 붙일 공간이 부족하다면 '공간 늘리기' 버튼을, 다시 줄이고 싶다면 '공간 줄이기' 버튼을 눌러보세요." },
   { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
   { Stage: TutorialStepMove, text: "추가된 스티커를 원하는 위치로 옮겨 꾸며보세요." },
   { Stage: TutorialStepShare, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
