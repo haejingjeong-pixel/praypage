@@ -40,6 +40,7 @@
 <script src="stickers-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="rx-prescriptions.js"></script>
+<script src="rx-share-summaries.js"></script>
 <script>
   // 공유 기능용 Supabase 클라이언트 — anon(공개) 키, RLS로 insert/select만 허용됨.
   window.supabaseClient = window.supabase.createClient(
@@ -52,7 +53,7 @@
 <script type="text/babel" src="MainScreen.jsx?v=soundctl1"></script>
 <script type="text/babel" src="AssessmentScreen.jsx"></script>
 <script type="text/babel" src="ResultScreen.jsx?v=soundctl1"></script>
-<script type="text/babel" src="StickerScreen.jsx?v=tutorial8"></script>
+<script type="text/babel" src="StickerScreen.jsx?v=tutorial9"></script>
 <script type="text/babel">
   // 링크 공유 상태: URL에는 Supabase의 짧은 공유 ID(?id=)만 있고, 실제 처방전/스티커
   // 상태는 Supabase에서 조회해 복원한다. 처방전 본문(성구·복용법 등)은 저장하지 않고

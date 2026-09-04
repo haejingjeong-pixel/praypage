@@ -206,6 +206,9 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   // 공유카드용: 성구 전문 대신 핵심 2~3줄만. 첫 문장(또는 ~58자)까지.
   const _v = (rx.verse || "").trim();
   const shortVerse = _v.length > 62 ? (_v.slice(0, 58).trim() + "…") : _v;
+  // 공유 링크로 들어온 사람("응원 스티커를 붙이는 사람")을 위한 마음 요약 문단 — rx-share-summaries.js.
+  // 감정/유형별 문구가 아직 없는 조합이면 null이라 아래에서 자연히 섹션이 안 뜬다.
+  const shareSummary = (window.getRxShareSummary && rx.rxNum) ? window.getRxShareSummary(mood, rx.rxNum) : null;
   const rxDate = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\.$/, "").replace(/\s/g, "");
   // 기본 응원 스티커 — 카드가 비어 보이지 않도록 서로 다른 위치·각도로 미리 배치 (편집 가능)
   const SEED_STICKERS = [];
@@ -953,6 +956,18 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
         </p>
+      )}
+      {/* 공유받은 사람 전용 — 성구·처방전만으로는 어떤 마음으로 응원하면 좋을지 바로 와닿지 않을
+          수 있어서, 지금 어떤 마음을 지나고 있고 어떤 응원이 필요한지 한 문단으로 풀어서 보여준다.
+          본인이 자기 처방전을 꾸밀 때(=shareId 없음)는 필요 없는 안내라 그때는 렌더링하지 않는다. */}
+      {shareId && shareSummary && (
+        <div style={{ width: sheetW, maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.75)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 16, padding: pc ? "18px 22px" : "16px 18px", marginBottom: 18, boxShadow: "0 4px 14px rgba(90,74,52,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <Icon name="hand-heart" size={15} color="var(--rx-ink)" stroke={1.8} />
+            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 12, color: "var(--rx-ink)", letterSpacing: "0.04em" }}>이런 마음으로 응원해주세요</span>
+          </div>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.65, color: "var(--ink-900)", margin: 0 }}>{shareSummary}</p>
+        </div>
       )}
 
       <div style={{ display: "flex", flexDirection: pc ? "row" : "column", alignItems: pc ? "flex-start" : "center", justifyContent: "center", gap: pc ? 22 : 16, maxWidth: "100%" }}>
