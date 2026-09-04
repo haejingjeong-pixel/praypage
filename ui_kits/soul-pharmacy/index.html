@@ -40,6 +40,7 @@
 <script src="stickers-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <script src="rx-prescriptions.js"></script>
+<script src="rx-answer-mapping.js"></script>
 <script src="rx-share-summaries.js"></script>
 <script>
   // 공유 기능용 Supabase 클라이언트 — anon(공개) 키, RLS로 insert/select만 허용됨.
@@ -349,7 +350,9 @@
       screen = <window.MainScreen selected={mood} onSelect={setMood} onNext={(k) => setStep("assessment")} />;
     } else if (step === "assessment") {
       screen = <window.AssessmentScreen mood={mood} onBack={() => setStep("main")} onSubmit={(selections) => {
-        const chosen = window.resolvePrescription(mood, selections, null);
+        // 문진 응답(Q1/Q2/Q3) 기반 점수 매핑이 있으면 그걸로, 없는 감정(default 등)은
+        // 기존 랜덤 뽑기로 폴백 — rx-answer-mapping.js.
+        const chosen = window.resolvePrescriptionByAssessment(mood, selections) || window.resolvePrescription(mood, selections, null);
         setRx(chosen);
         setStep("result");
       }} />;

@@ -71,6 +71,7 @@
 <script src="assessment-data.js"></script>
 <script src="rx-data.js"></script>
 <script src="rx-prescriptions.js"></script>
+<script src="rx-answer-mapping.js"></script>
 <script src="rx-share-summaries.js"></script>
 <script type="text/babel" src="MainScreen.standalone.jsx"></script>
 <script type="text/babel" src="AssessmentScreen.standalone.jsx"></script>
@@ -95,7 +96,7 @@
     }
     if (step === "assessment") {
       return <window.AssessmentScreen mood={mood} onBack={() => setStep("main")} onSubmit={(selections) => {
-        const chosen = window.resolvePrescription(mood, selections, null);
+        const chosen = window.resolvePrescriptionByAssessment(mood, selections) || window.resolvePrescription(mood, selections, null);
         setRx(chosen); setStep("result");
       }} />;
     }
