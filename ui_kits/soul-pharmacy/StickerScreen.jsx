@@ -829,6 +829,16 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
             </div>
           </div>
 
+          {/* 마음 요약 문단 — 공유 링크로 들어온 사람("응원 스티커를 붙이는 사람")을 위한 안내.
+              처방 말씀 바로 아래, 스티커 캔버스 바로 위. 처방 말씀 라벨과 같은 스타일(가운데 정렬
+              캡션)로 이어붙여서 카드 안 새 섹션이 아니라 처방전 본문의 연장처럼 보이게 한다. */}
+          {shareId && shareSummary && (
+            <div style={{ width: "100%", marginTop: pc ? 26 : 20 }}>
+              <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>마음 요약</div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14 : 13, lineHeight: 1.65, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 560 : 420, textAlign: "left" }}>{shareSummary}</p>
+            </div>
+          )}
+
           {/* 스티커 캔버스 — 처방전 전체에 자유롭게, 텍스트는 보호 */}
           <div ref={stickerZoneRef} data-sticker-zone style={{ position: "relative", width: "100%", flex: "1 1 auto", minHeight: (pc ? 150 : 110) + extraH, display: "flex", alignItems: "center", justifyContent: "center", transition: "min-height 320ms ease-out" }}>
             {!finalizing && stickers.length === 0 && (
@@ -957,19 +967,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
         </p>
       )}
-      {/* 공유받은 사람 전용 — 성구·처방전만으로는 어떤 마음으로 응원하면 좋을지 바로 와닿지 않을
-          수 있어서, 지금 어떤 마음을 지나고 있고 어떤 응원이 필요한지 한 문단으로 풀어서 보여준다.
-          본인이 자기 처방전을 꾸밀 때(=shareId 없음)는 필요 없는 안내라 그때는 렌더링하지 않는다. */}
-      {shareId && shareSummary && (
-        <div style={{ width: sheetW, maxWidth: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.75)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 16, padding: pc ? "18px 22px" : "16px 18px", marginBottom: 18, boxShadow: "0 4px 14px rgba(90,74,52,0.06)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-            <Icon name="hand-heart" size={15} color="var(--rx-ink)" stroke={1.8} />
-            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 12, color: "var(--rx-ink)", letterSpacing: "0.04em" }}>이런 마음으로 응원해주세요</span>
-          </div>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.65, color: "var(--ink-900)", margin: 0 }}>{shareSummary}</p>
-        </div>
-      )}
-
       <div style={{ display: "flex", flexDirection: pc ? "row" : "column", alignItems: pc ? "flex-start" : "center", justifyContent: "center", gap: pc ? 22 : 16, maxWidth: "100%" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "100%" }}>
           {board}
