@@ -298,8 +298,12 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
 
   // "처방전 저장하기" — 이 화면(상세 처방전 원본)만 저장하는 버튼. 스티커 꾸미기 화면의 저장
   // 버튼과는 완전히 별개(파일명도 다름: 마음약국-상세처방전.png vs 마음약국-처방전.png).
+  // 하단 "다시하기/스티커 붙여 공유하기"(paperBtn)와 같은 크림톤 서브 버튼 스타일을 그대로 옮겨
+  // 쓰되(색/테두리/그림자/높이/모서리 동일), paperBtn의 flex:1은 2버튼 가로 배치 전용이라
+  // 이 버튼 하나만 단독 배치하면 화면 폭만큼 늘어나 버려서 직접 고정폭 버튼으로 만든다 —
+  // 보라색 메인 CTA보다 튀면 안 되므로 accent 없는 톤 그대로.
   const saveRxBtn = (
-    <button onClick={saveDetailedPrescription} disabled={savingRx} style={{ width: "100%", maxWidth: sheetW, boxSizing: "border-box", height: 50, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, border: "1px solid rgba(171,136,96,0.22)", cursor: savingRx ? "default" : "pointer", background: "#F7EBDD", boxShadow: "0 5px 14px rgba(97,68,42,0.09)", color: "#6A533F", opacity: savingRx ? 0.7 : 1, animation: "rxstep 1050ms ease-out 180ms both" }}>
+    <button onClick={() => { window.__sfx && window.__sfx.play("assets/click_tight.mp3", 1.3); saveDetailedPrescription(); }} style={{ width: 190, maxWidth: "68%", height: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 16px", borderRadius: 14, border: "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: "#F7EBDD", boxShadow: "0 5px 14px rgba(97,68,42,0.09)", animation: "rxstep 1050ms ease-out 180ms both" }}>
       <Icon name="download" size={18} color="#6A533F" stroke={1.7} />
       <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: 500, fontSize: 16, color: "#6A533F", letterSpacing: "0.01em" }}>{savingRx ? "저장 중…" : "처방전 저장하기"}</span>
     </button>
