@@ -851,10 +851,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
             </div>
           </div>
 
-          {/* 마음 요약 문단 — 공유 링크로 들어온 사람("응원 스티커를 붙이는 사람")을 위한 안내.
-              처방 말씀 바로 아래, 스티커 캔버스 바로 위. 처방 말씀 라벨과 같은 스타일(가운데 정렬
-              캡션)로 이어붙여서 카드 안 새 섹션이 아니라 처방전 본문의 연장처럼 보이게 한다. */}
-          {shareId && shareSummary && (
+          {/* 마음 요약 문단 — 처방 말씀 바로 아래, 스티커 캔버스 바로 위. 처방 말씀 라벨과 같은
+              스타일(가운데 정렬 캡션)로 이어붙여서 카드 안 새 섹션이 아니라 처방전 본문의 연장처럼
+              보이게 한다. 본인/공유받은 사람 구분 없이 처방이 있으면 항상 보인다. */}
+          {shareSummary && (
             <div style={{ width: "100%", marginTop: pc ? 26 : 20 }}>
               <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>마음 요약</div>
               <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14 : 13, lineHeight: 1.65, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 560 : 420, textAlign: "left" }}>{shareSummary}</p>
