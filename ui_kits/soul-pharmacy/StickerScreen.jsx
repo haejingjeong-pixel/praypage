@@ -994,10 +994,15 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       {/* transform 애니메이션을 position:sticky 요소에 직접 걸면 브라우저가 sticky 오프셋을
           잘못 계산해 등장 연출이 재생되지 않거나 어긋나는 경우가 있어(sticky+transform 조합의
           알려진 렌더링 버그), sticky는 바깥 래퍼가 맡고 transform 애니메이션은 transform이 없는
-          안쪽 카드에만 건다. */}
+          안쪽 카드에만 건다.
+          지연시간(420ms)도 중요: index.html의 화면 전환(Fade)이 결과→스티커 화면 사이에
+          340ms 페이드를 거는데, 그 페이드가 끝나기 전에(화면이 아직 안 보일 때) 이 배너가
+          이미 마운트되어 애니메이션이 조용히 진행되고 있으면, 실제로 화면이 다 보일 즈음엔
+          연출이 이미 대부분 끝나 있어 거의 안 보인다. 그래서 Fade가 끝난 뒤에야 애니메이션이
+          시작되도록 340ms + 여유분만큼 지연시킨다. */}
       <style>{"@keyframes guideBannerIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}"}</style>
       <div style={{ position: "sticky", top: 0, zIndex: 30, width: sheetW, maxWidth: "100%", marginBottom: 16 }}>
-        <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) both" }}>
+        <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", opacity: 0, animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) 420ms both" }}>
           <Icon name="sparkles" size={20} color="#8E86DE" stroke={1.8} style={{ flexShrink: 0, marginTop: 1 }} />
           <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
             {shareId ? (
