@@ -986,12 +986,28 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       </div>
       {/* 본인(처방 발급자, shareId 없음)과 공유 링크로 들어온 사람(shareId 있음)은 스티커를
           붙이는 목적이 다르므로 안내 문구를 구분한다 — 본인은 자기 응원도 붙이고 공유까지
-          이어지도록, 공유받은 사람은 처방전 주인에게 남기는 응원이라는 점을 알려준다. */}
-      <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: pc ? 14 : 13, lineHeight: 1.6, color: "var(--text-muted)", whiteSpace: "pre-line", margin: "-4px 0 14px" }}>
-        {shareId
-          ? "소중한 사람이 받은 처방전이에요.\n마음을 담아 응원 스티커를 붙여보세요."
-          : "링크를 공유하면 소중한 사람에게 응원의 스티커를 받을 수 있어요.\n먼저 나를 위한 응원 스티커도 붙여보세요!"}
-      </p>
+          이어지도록, 공유받은 사람은 처방전 주인에게 남기는 응원이라는 점을 알려준다.
+          이 화면 전체에 대한 사용 안내라 처방전 카드 안이 아니라 상단에 별도 배너로 둔다.
+          토스트처럼 등장할 때만 위에서 스윽 나타나는 연출(guideBannerIn)을 주되, 토스트와
+          달리 시간이 지나도 사라지지 않고 position:sticky로 스크롤해도 화면 위쪽에 계속
+          붙어 있어서, 스티커를 붙이는 동안에도 계속 눈에 들어온다. */}
+      <style>{"@keyframes guideBannerIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}"}</style>
+      <div style={{ position: "sticky", top: 0, zIndex: 30, width: sheetW, maxWidth: "100%", boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", marginBottom: 16, borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) both" }}>
+        <Icon name="sparkles" size={20} color="#8E86DE" stroke={1.8} style={{ flexShrink: 0, marginTop: 1 }} />
+        <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
+          {shareId ? (
+            <React.Fragment>
+              소중한 사람이 받은 처방전이에요.<br />
+              <span style={{ fontWeight: 700, color: "#6B5FCF" }}>마음을 담아 응원 스티커를 붙여보세요!</span>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              링크를 공유해서 스티커로 응원의 메세지를 받을 수 있어요.<br />
+              <span style={{ fontWeight: 700, color: "#6B5FCF" }}>나에게도 응원의 스티커를 붙여보세요!</span>
+            </React.Fragment>
+          )}
+        </p>
+      </div>
       {shareId && (
         <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
