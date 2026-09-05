@@ -72,7 +72,11 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   const paperH = pc ? 700 : 620;
   const stageH = paperBottom + paperH + 16;
   // 봉투 하단 꼬리는 감정 문구 조금 아래에서 끝나도록 트림(빈 공간 제거). 상단은 트림하지 않음.
-  const clipH = stageH - envImgH * 0.30;
+  // +16px 여유: 트림 비율(30%)만 쓰면 2줄짜리 감정명(마음이 무너졌어요 등 8개 중 6개)의
+  // 하단이 모바일 -1~3px, PC -5~7px씩 항상 살짝 잘렸다. 봉투 이미지/트림 비율은 그대로 두고
+  // 텍스트가 잘리지 않을 만큼만 클립 높이에 여유를 더한다(트림 비중 대비 미미해서 빈 꼬리
+  // 가리기 의도에는 영향 없음).
+  const clipH = stageH - envImgH * 0.30 + 16;
 
   return (
     <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
