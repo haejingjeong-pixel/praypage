@@ -991,34 +991,39 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
           토스트처럼 등장할 때만 위에서 스윽 나타나는 연출(guideBannerIn)을 주되, 토스트와
           달리 시간이 지나도 사라지지 않고 position:sticky로 스크롤해도 화면 위쪽에 계속
           붙어 있어서, 스티커를 붙이는 동안에도 계속 눈에 들어온다. */}
-      {/* transform 애니메이션을 position:sticky 요소에 직접 걸면 브라우저가 sticky 오프셋을
-          잘못 계산해 등장 연출이 재생되지 않거나 어긋나는 경우가 있어(sticky+transform 조합의
-          알려진 렌더링 버그), sticky는 바깥 래퍼가 맡고 transform 애니메이션은 transform이 없는
-          안쪽 카드에만 건다.
-          지연시간(420ms)도 중요: index.html의 화면 전환(Fade)이 결과→스티커 화면 사이에
-          340ms 페이드를 거는데, 그 페이드가 끝나기 전에(화면이 아직 안 보일 때) 이 배너가
-          이미 마운트되어 애니메이션이 조용히 진행되고 있으면, 실제로 화면이 다 보일 즈음엔
-          연출이 이미 대부분 끝나 있어 거의 안 보인다. 그래서 Fade가 끝난 뒤에야 애니메이션이
-          시작되도록 340ms + 여유분만큼 지연시킨다. */}
-      <style>{"@keyframes guideBannerIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}"}</style>
-      <div style={{ position: "sticky", top: 0, zIndex: 30, width: sheetW, maxWidth: "100%", marginBottom: 16 }}>
-        <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", opacity: 0, animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) 420ms both" }}>
-          <Icon name="sparkles" size={20} color="#8E86DE" stroke={1.8} style={{ flexShrink: 0, marginTop: 1 }} />
-          <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
-            {shareId ? (
-              <React.Fragment>
-                소중한 사람이 받은 처방전이에요.<br />
-                <span style={{ fontWeight: 700, color: "#6B5FCF" }}>마음을 담아 응원 스티커를 붙여보세요!</span>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                링크를 공유해서 스티커로 응원의 메세지를 받을 수 있어요.<br />
-                <span style={{ fontWeight: 700, color: "#6B5FCF" }}>나에게도 응원의 스티커를 붙여보세요!</span>
-              </React.Fragment>
-            )}
-          </p>
-        </div>
-      </div>
+      {/* sticky를 빼서 스크롤하면 다른 내용과 함께 자연스럽게 같이 스크롤되어 화면 밖으로
+          나간다(더 이상 상단에 계속 따라오지 않음) — 몇 초 뒤 사라지는 토스트는 아니고,
+          스크롤해서 지나치기 전까지는 계속 보인다.
+          지연시간(420ms)은 여전히 필요: index.html의 화면 전환(Fade)이 결과→스티커 화면
+          사이에 340ms 페이드를 거는데, 그 전에 이 배너가 이미 마운트되어 애니메이션이 화면이
+          안 보이는 동안 진행되면 실제로 보일 때는 연출이 거의 끝나 있어 안 보인다. 그래서
+          Fade가 끝난 뒤에야 애니메이션이 시작되도록 지연시킨다. */}
+      {/* 저장/공유 확인 화면("이대로 보내도 괜찮을까요?")과 완료 화면에서는 이 배너가 필요 없다
+          — finalizing이 켜지는 순간(openConfirm)부터 완료 화면(flow==="done")까지 계속 true로
+          유지되므로 !finalizing 하나로 두 화면 모두 자연스럽게 가려진다. */}
+      {!finalizing && (
+        <React.Fragment>
+          <style>{"@keyframes guideBannerIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}"}</style>
+          <div style={{ width: sheetW, maxWidth: "100%", marginBottom: 16 }}>
+            <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", opacity: 0, animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) 420ms both" }}>
+              <Icon name="sparkles" size={20} color="#8E86DE" stroke={1.8} style={{ flexShrink: 0, marginTop: 1 }} />
+              <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
+                {shareId ? (
+                  <React.Fragment>
+                    소중한 사람이 받은 처방전이에요.<br />
+                    <span style={{ fontWeight: 700, color: "#6B5FCF" }}>마음을 담아 응원 스티커를 붙여보세요!</span>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    링크를 공유해서 스티커로 응원의 메세지를 받을 수 있어요.<br />
+                    <span style={{ fontWeight: 700, color: "#6B5FCF" }}>나에게도 응원의 스티커를 붙여보세요!</span>
+                  </React.Fragment>
+                )}
+              </p>
+            </div>
+          </div>
+        </React.Fragment>
+      )}
       {shareId && (
         <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
