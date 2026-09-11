@@ -273,6 +273,8 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   const verseRef = React.useRef(null);  // 성구 본문 텍스트(<p>) — 스티커 배치 금지 영역 측정 기준
   const stickerZoneRef = React.useRef(null); // 스티커 자유 배치 영역 — 새 스티커의 "정중앙" 기준
   const dragRef = React.useRef(null);
+  const syncedStickerIds = React.useRef(new Set()); // 이번 세션에서 새로 추가해 이미 DB에 반영한 스티커 id
+  const persistInFlight = React.useRef(null); // 진행 중인 persistNewStickers() 호출 — 중복 insert 방지용
 
   // 초기값부터 정확한 값으로 잡아야 함 — 공유 스티커 좌표 복원이 mount 직후 1회만 실행되므로,
   // false로 시작했다가 나중에 보정되면(구 방식) 그 순간의 잘못된 카드 크기로 변환될 수 있다.
@@ -298,19 +300,38 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   };
 
   // 로컬 좌표(x:%, y:카드 상단 기준 px, scale:배율)를 "카드 자체 기준" 비율로 정규화해서
-  // DB에 쓴다 — x는 이미 %라 그대로, y는 카드 높이 대비 비율로, scale은 실제 렌더 px를
-  // 카드 너비 대비 비율로 바꿔서 저장한다. 이렇게 하면 다른 화면 크기로 열어도(그리고
-  // extraH가 함께 복원되면) 카드 안에서 상대 위치·상대 크기가 그대로 유지된다.
+  // DB에 쓴다 — x는 카드 너비 대비 %라 기기가 달라져도 일관되고, scale도 카드 너비 대비
+  // 렌더 px 비율이라 마찬가지로 일관된다(수식상 base가 저장/복원 양쪽에서 상쇄됨).
+  // y만 예전엔 "카드 전체 높이 대비 비율"로 저장했는데, 카드 전체 높이는 PC/모바일에서
+  // 폰트 크기·성구 줄바꿈 등으로 비례하지 않게 바뀌는 값이라 기기가 다르면 같은 비율이어도
+  // 실제로는 다른 자리에 찍히는 문제가 있었다. 대신 스티커존(stickerZoneRef — 높이가
+  // (pc?150:110)+extraH라는 정해진 공식으로 정해져 텍스트 줄바꿈에 거의 영향받지 않는
+  // 자유 배치 영역)을 기준으로 카드를 3구간(0:존 위쪽, 1:존 안쪽, 2:존 아래쪽)으로 나누고,
+  // 스티커가 속한 구간 + 그 구간 안에서의 상대 위치로 저장한다. 구간1(존 안쪽)이 가장 안정적이고
+  // 실제로 스티커 대부분이 놓이는 영역이라, 이것만으로도 PC↔모바일 간 오차가 크게 줄어든다.
+  // 새 DB 스키마 컬럼을 추가하지 않기 위해 zone(0~2)과 구간 내 비율(0~1)을 y 하나에
+  // "zone + 비율"(0.0~3.0 범위)로 합쳐서 저장한다 — 복원 시 Math.floor로 다시 분리.
+  // coord_v로 이 새 방식(2)과 예전 방식(전체 높이 비율, 없거나 1)을 구분해 예전 공유
+  // 링크도 그대로 복원 가능하게 한다.
   const normalizeStickerForShare = (s) => {
-    const rect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
-    const h = rect && rect.height ? rect.height : 1;
-    const w = rect && rect.width ? rect.width : 1;
+    const boardRect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
+    const zoneRect = stickerZoneRef.current ? stickerZoneRef.current.getBoundingClientRect() : null;
+    const h = boardRect && boardRect.height ? boardRect.height : 1;
+    const w = boardRect && boardRect.width ? boardRect.width : 1;
+    const zoneTop = zoneRect && boardRect ? zoneRect.top - boardRect.top : h * 0.35;
+    const zoneBottom = zoneRect && boardRect ? zoneRect.bottom - boardRect.top : h * 0.65;
     const base = pc ? 40 : 34;
     const renderedPx = base * s.scale;
-    const out = { sticker_asset_id: s.src || s.emoji || "", x: s.x, y: s.y / h, scale: renderedPx / w, rotate: s.rotate };
-    console.log("[SHARE-DEBUG] save: cardWidth=", w, "cardHeight=", h, "pc=", pc, "base=", base,
-      "| sticker", s.src, "local.y=", s.y, "local.scale=", s.scale, "renderedPx=", renderedPx, "-> db.y=", out.y, "db.scale=", out.scale);
-    return out;
+    let zone, frac;
+    if (s.y < zoneTop) {
+      zone = 0; frac = zoneTop > 0 ? s.y / zoneTop : 0;
+    } else if (s.y > zoneBottom) {
+      zone = 2; frac = (h - zoneBottom) > 0 ? (s.y - zoneBottom) / (h - zoneBottom) : 0;
+    } else {
+      zone = 1; frac = (zoneBottom - zoneTop) > 0 ? (s.y - zoneTop) / (zoneBottom - zoneTop) : 0.5;
+    }
+    frac = Math.max(0, Math.min(0.999, frac));
+    return { sticker_asset_id: s.src || s.emoji || "", x: s.x, y: zone + frac, scale: renderedPx / w, rotate: s.rotate, coord_v: 2 };
   };
 
   // "소중한 사람에게 공유하기" = 마음약국 내부 공유(짧은 ID 링크) 기능. PNG 캡처/파일 공유는
@@ -324,34 +345,54 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     for (let i = 0; i < 7; i++) id += SHARE_ID_CHARS[Math.floor(Math.random() * SHARE_ID_CHARS.length)];
     return id;
   };
+  // 이번 세션에서 로컬에 추가된(=아직 DB에 없는) 스티커를 "지금의 최종 위치"로 한 번에
+  // insert한다. 드래그·리사이즈·회전은 로컬 state만 바꾸고 DB에는 절대 건드리지 않으므로
+  // (익명 사용자에게 UPDATE 권한을 주지 않기 위한 의도적 선택 — RLS는 INSERT-only 유지),
+  // "공유하기"/"이미지로 저장하기"처럼 사용자가 배치를 끝냈다고 표시하는 시점에만 그때까지의
+  // 최종 상태를 스냅샷해서 저장한다. 로컬 신규 스티커는 id가 숫자(Date.now()+Math.random())고
+  // 공유 링크로 복원된 기존 스티커는 id가 "shared-"로 시작하는 문자열이라 자연스럽게 구분된다.
+  // 동시에 여러 번 호출돼도(예: 저장 직후 바로 공유) 중복 insert가 나가지 않도록 진행 중인
+  // 호출의 Promise를 재사용한다.
+  const persistNewStickers = (targetId) => {
+    const id = targetId || shareId;
+    if (!id || !window.supabaseClient) return Promise.resolve(true);
+    if (persistInFlight.current) return persistInFlight.current;
+    const unsynced = stickers.filter((s) => typeof s.id === "number" && !syncedStickerIds.current.has(s.id));
+    if (!unsynced.length) return Promise.resolve(true);
+    const rows = unsynced.map((s) => ({ share_id: id, ...normalizeStickerForShare(s) }));
+    const p = window.supabaseClient.from("rx_share_stickers").insert(rows).then(({ error }) => {
+      persistInFlight.current = null;
+      if (error) { console.error("sticker sync failed:", error); return false; }
+      unsynced.forEach((s) => syncedStickerIds.current.add(s.id));
+      return true;
+    });
+    persistInFlight.current = p;
+    return p;
+  };
   const share = async () => {
     if (!window.supabaseClient) { showToast("공유 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요."); return false; }
-    // 이미 이 세션이 공유 링크(shareId)에 묶여 있으면(직접 만들었거나 공유 링크로 들어온 경우)
-    // 새 행을 또 만들지 않고 같은 링크를 재사용한다 — 스티커는 addSticker()에서 이미
-    // rx_share_stickers에 개별 삽입되어 누적돼 있으므로 여기서 다시 저장할 게 없다.
     let id = shareId;
+    let isNew = false;
     if (!id) {
       id = generateShareId();
+      isNew = true;
       try {
         const { error } = await window.supabaseClient.from("rx_shares").insert({
           id, mood, rx_type: rx.rxType, rx_num: rx.rxNum, extra_h: extraH,
         });
         if (error) throw error;
-        if (stickers.length) {
-          // 로컬 px/scale을 이 카드 기준 비율로 정규화해서 저장 — 다른 화면 크기로 열어도
-          // (그리고 extraH가 함께 복원되면) 카드 안에서의 상대 위치·상대 크기가 유지된다.
-          const rows = stickers.map((s) => normalizeStickerForShare(s));
-          const { error: stickerErr } = await window.supabaseClient.from("rx_share_stickers").insert(
-            rows.map((r) => ({ share_id: id, ...r }))
-          );
-          if (stickerErr) throw stickerErr;
-        }
-        setShareId(id);
       } catch (e) {
         showToast("공유 링크를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
         return false;
       }
     }
+    // 이 세션에서 새로 놓인 스티커를 지금의 최종 위치로 저장 — 첫 공유든 재공유든 동일 경로.
+    const synced = await persistNewStickers(id);
+    if (!synced) {
+      showToast("스티커를 저장하지 못했어요. 잠시 후 다시 시도해주세요.");
+      return false;
+    }
+    if (isNew) setShareId(id);
     const url = window.location.origin + window.location.pathname + "?id=" + id;
     setShareUrl(url);
     // "소중한 사람에게 공유하기"는 OS 공유 시트(navigator.share)를 열지 않고 항상 클립보드
@@ -409,6 +450,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     flowTimers.current = [
       setTimeout(async () => {
         if (type === "save") {
+          // 이미 공유 링크에 묶인 방문자(공유 링크로 들어왔거나 재방문)라면, 이미지 저장만
+          // 눌러도 이번에 놓은 스티커는 원래 처방전 주인의 게시판에 그대로 남아야 한다(기존
+          // 동작 유지). 로컬 PNG 저장은 이 결과를 기다리지 않고 바로 진행한다.
+          persistNewStickers();
           saveImage();
           setAskShare(true);
           setFlow("done");
@@ -483,22 +528,36 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   // 공유로 들어온 정규화 좌표를 이 세션의 실제 카드 크기 기준 로컬 px/scale로 변환 — 딱 한 번만.
   // pc는 이미 첫 렌더부터 정확한 값으로 초기화되고 extraH도 initialExtraH로 이미 반영돼 있으므로,
   // mount 직후 boardRef를 재는 시점에 카드는 이미 최종 크기다.
+  // coord_v===2: normalizeStickerForShare와 짝을 이루는 3구간(스티커존 기준) 좌표 — y에
+  // "zone(정수부) + 구간 내 비율(소수부)"로 합쳐 들어있어 Math.floor로 다시 분리한다.
+  // coord_v가 없거나 1: 예전 방식(카드 전체 높이 비율)으로 저장된 기존 공유 링크 — 호환을
+  // 위해 그 수식을 그대로 유지한다.
   React.useEffect(() => {
     if (!rawSharedStickers.current || !boardRef.current) return;
-    const rect = boardRef.current.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
+    const boardRect = boardRef.current.getBoundingClientRect();
+    if (!boardRect.width || !boardRect.height) return;
+    const zoneRect = stickerZoneRef.current ? stickerZoneRef.current.getBoundingClientRect() : null;
+    const h = boardRect.height, w = boardRect.width;
+    const zoneTop = zoneRect ? zoneRect.top - boardRect.top : h * 0.35;
+    const zoneBottom = zoneRect ? zoneRect.bottom - boardRect.top : h * 0.65;
     const base = pc ? 40 : 34;
-    console.log("[SHARE-DEBUG] restore: cardWidth=", rect.width, "cardHeight=", rect.height, "pc=", pc, "base=", base);
     const converted = rawSharedStickers.current.map((s) => {
-      const localScale = ((s.scale || 0) * rect.width) / base;
-      const localY = (s.y || 0) * rect.height;
-      console.log("[SHARE-DEBUG] restore sticker", s.src, "| db.x=", s.x, "db.y=", s.y, "db.scale=", s.scale,
-        "-> local.y=", localY, "local.scale=", localScale, "renderedPx=", base * localScale);
+      const localScale = ((s.scale || 0) * w) / base;
+      let localY;
+      if (s.coord_v === 2) {
+        const zone = Math.floor(s.y || 0);
+        const frac = (s.y || 0) - zone;
+        if (zone <= 0) localY = frac * zoneTop;
+        else if (zone === 1) localY = zoneTop + frac * (zoneBottom - zoneTop);
+        else localY = zoneBottom + frac * (h - zoneBottom);
+      } else {
+        localY = (s.y || 0) * h;
+      }
       return {
         id: "shared-" + Math.random(),
         src: s.src,
         x: s.x,               // 카드 너비 대비 % — 그대로 사용
-        y: localY,             // 카드 높이 대비 비율 → 로컬 px
+        y: localY,
         scale: localScale,     // 카드 너비 대비 비율 → 로컬 scale
         rotate: s.rotate || 0,
       };
@@ -506,14 +565,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     rawSharedStickers.current = null;
     setStickers(converted);
   }, []);
-
-  // 렌더링 직전 최종 px 확인용 — stickers가 바뀔 때마다(추가/복원 등) 실제 화면에 그려질 크기를 찍는다.
-  React.useEffect(() => {
-    const base = pc ? 40 : 34;
-    stickers.forEach((s) => {
-      console.log("[SHARE-DEBUG] render:", s.src, "| local.scale=", s.scale, "base=", base, "-> rendered px=", base * s.scale, "x%=", s.x, "y(px)=", s.y);
-    });
-  }, [stickers, pc]);
 
   // Undo/Redo — 스티커 추가·삭제·이동·크기·회전은 전부 stickers 스냅샷 단위로 기록
   const recordHistory = (snapshot) => {
@@ -544,17 +595,11 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     const floor = small ? 0.6 : 0.85;
     const scale = Math.max(floor, base - grown * 0.02);
     if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
+    // DB 반영은 여기서 하지 않는다 — 이동/리사이즈/회전까지 전부 끝난 "최종" 위치를
+    // persistNewStickers()가 공유하기/이미지로 저장하기 시점에 한 번에 저장한다.
     setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
     setActiveId(id);
     setShowPicker(false);
-    // 이미 공유 링크에 묶인 세션이면(직접 공유했거나 공유 링크로 들어온 경우) 이 스티커를
-    // rx_share_stickers에 즉시 개별 저장 — 위치는 배치 시점 값 그대로 스냅샷된다(이후 드래그로
-    // 미세조정해도 anon에게 UPDATE 권한을 주지 않으므로 DB에는 반영되지 않음, 화면에만 반영).
-    if (shareId && window.supabaseClient) {
-      window.supabaseClient.from("rx_share_stickers").insert({
-        share_id: shareId, ...normalizeStickerForShare({ src, x, y, scale, rotate }),
-      }).then(({ error }) => { if (error) console.error("sticker sync failed:", error); });
-    }
   };
   const updateSticker = (id, patch) => {
     setStickers((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
