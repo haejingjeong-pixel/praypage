@@ -83,9 +83,8 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(250,247,240,0.5) 0%, rgba(250,247,240,0.82) 52%, #F3EEE9 100%)" }} />
       </div>
 
-      <button onClick={onBack} style={{ position: "absolute", top: 16, left: 16, zIndex: 20, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, fontFamily: "var(--font-body)", fontSize: 13 }}>
-        <Icon name="chevron-left" size={19} color="var(--text-muted)" stroke={1.5} /> 뒤로
-      </button>
+      {/* AssessmentScreen.jsx와 동일: 문진을 통째로 나가는 "뒤로"는 없애고 하단 고정
+          "홈으로" 버튼으로 분리 (Q1~Q4 사이 이동은 접수카드 자체의 "이전" 화살표를 쓴다). */}
 
       {/* 상단 안내 (접수카드보다 강조되지 않게 조용히) */}
       <div style={{ textAlign: "center", padding: pc ? "4px 24px 0" : "30px 24px 4px", position: "relative", zIndex: 1 }}>
@@ -196,6 +195,10 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           ))}
         </div>
       </div>
+
+      <button onClick={onBack} style={{ position: "fixed", left: "50%", bottom: 14, transform: "translateX(-50%)", zIndex: 25, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
+        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
+      </button>
     </div>
   );
 }

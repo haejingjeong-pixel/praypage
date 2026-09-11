@@ -92,9 +92,13 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(250,247,240,0.5) 0%, rgba(250,247,240,0.82) 52%, #F3EEE9 100%)" }} />
       </div>
 
-      <button onClick={onBack} style={{ position: "absolute", top: 16, left: 16, zIndex: 20, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4, fontFamily: "var(--font-body)", fontSize: 13 }}>
-        <Icon name="chevron-left" size={19} color="var(--text-muted)" stroke={1.5} /> 뒤로
-      </button>
+      {/* 예전엔 여기(좌상단)에 "뒤로" 버튼이 있었는데, 누르면 문진 전체를 나가 처음(mood 선택)
+          으로 돌아가버려서 — 접수카드 안의 "이전"(◀, AssessmentPaper 내장, Q1~Q4 사이만 이동
+          하고 답변은 그대로 유지)과 혼동됐다. "방금 체크한 것만 조금 고치고 싶은데 처음부터
+          다시?" 처럼 느껴지는 문제라, 이 버튼은 없애고 문진 전체를 나가는 동작은 아래 화면
+          하단 고정 "홈으로" 버튼으로 분리했다. 문진 중 한 단계 뒤로 가는 건 접수카드 자체의
+          "이전" 화살표를 그대로 쓰면 된다(선택값은 AssessmentScreen의 selections state에 있어
+          단계를 오가도 유지됨 — 이 부분은 원래도 문제 없었음). */}
 
 
       {/* 3-레이어 무대 — 봉투 하단은 clip으로 잘라 머문구 지점에서 끝난다 */}
@@ -232,6 +236,13 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           ))}
         </div>
       </div>
+
+      {/* 문진 전체를 그만두고 처음으로 나가는 동작은 이 버튼 하나로만 한다("뒤로"와 분리).
+          z-index를 로딩/준비/안내 오버레이(40/43/42)보다 낮게 둬서 그 단계에서는 오버레이에
+          자연히 가려지고, 접수카드가 보이는 동안에만 하단에 뜬다. */}
+      <button onClick={onBack} style={{ position: "fixed", left: "50%", bottom: 14, transform: "translateX(-50%)", zIndex: 25, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
+        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
+      </button>
     </div>
   );
 }
