@@ -560,6 +560,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         y: localY,
         scale: localScale,     // 카드 너비 대비 비율 → 로컬 scale
         rotate: s.rotate || 0,
+        locked: true, // 공유 링크로 복원된 최종 위치 — 아래 성구 겹침 방지 effect가 절대 건드리지 않음
       };
     });
     rawSharedStickers.current = null;
@@ -597,7 +598,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
     // DB 반영은 여기서 하지 않는다 — 이동/리사이즈/회전까지 전부 끝난 "최종" 위치를
     // persistNewStickers()가 공유하기/이미지로 저장하기 시점에 한 번에 저장한다.
-    setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
+    // locked:false — 아직 사용자가 손대지 않은 자동 배치 상태. 아래 성구 겹침 방지 effect의
+    // 대상이 될 수 있는 건 이 상태뿐이며, 사용자가 한 번이라도 옮기면(endPointer) true로 바뀌어
+    // 이후 리사이즈/PC-모바일 전환으로 이 effect가 다시 실행돼도 더는 건드리지 않는다.
+    setStickers((list) => [...list, { id, src, x, y, scale, rotate, locked: false }]);
     setActiveId(id);
     setShowPicker(false);
   };
@@ -651,8 +655,11 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   }, [extraH]);
 
   // 성구 본문 영역(rx.verse)이 바뀌거나 레이아웃 폭(pc)이 바뀌면 성구 텍스트 박스도 달라진다.
-  // 이미 놓여있던 스티커 중 새 성구 박스와 겹치는 것만, 겹치지 않는 나머지는 그대로 둔 채
-  // 위/아래 중 더 가까운 바깥쪽으로 최소 이동시킨다 (전체 재배치 금지).
+  // "아직 사용자가 손대지 않은 자동 배치 스티커"(locked:false) 중 새 성구 박스와 겹치는 것만,
+  // 겹치지 않는 나머지는 그대로 둔 채 위/아래 중 더 가까운 바깥쪽으로 최소 이동시킨다.
+  // locked:true(사용자가 직접 옮겼거나 공유 링크로 복원된 "최종" 위치)는 절대 건드리지 않는다 —
+  // 이 effect가 PC↔모바일 전환(pc 변경)으로 다시 실행돼도 사용자가 배치한 자리는 그대로 유지돼야
+  // 하기 때문. 그렇지 않으면 마운트 시점만 피해도 이후 리사이즈에서 다시 밀려날 수 있다.
   React.useEffect(() => {
     const raf = requestAnimationFrame(() => {
       if (!boardRef.current || !verseRef.current) return;
@@ -662,6 +669,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       setStickers((list) => {
         let changed = false;
         const next = list.map((s) => {
+          if (s.locked) return s;
           const half = (((pc ? 40 : 34) * s.scale) + 16) / 2;
           const cx = (s.x / 100) * board.width, cy = s.y;
           const overlap = cx - half < zone.r && cx + half > zone.l && cy - half < zone.b && cy + half > zone.t;
@@ -738,7 +746,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   const endPointer = () => {
     const d = dragRef.current;
     if (d && d.mode === "move" && d.invalid && d.lastValid) updateSticker(d.id, d.lastValid);
-    if (d && d.moved && d.before) recordHistory(d.before);
+    if (d && d.moved) {
+      // 실제로 이동/리사이즈/회전이 일어난 경우에만 잠금 — 단순 클릭(선택)만으로는 잠기지 않는다.
+      // 잠긴 스티커는 성구 겹침 방지 effect가 이후 PC↔모바일 전환 등으로 다시 실행되어도 건드리지 않는다.
+      updateSticker(d.id, { locked: true });
+      if (d.before) recordHistory(d.before);
+    }
     setInvalidId(null);
     dragRef.current = null;
     window.removeEventListener("pointermove", onPointerMove);
