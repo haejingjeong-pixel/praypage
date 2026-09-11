@@ -265,7 +265,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   const _defaultCat = (STICKER_FILES && STICKER_FILES[mood]) ? mood : "normal";
   const [pickerCat, setPickerCat] = React.useState(_defaultCat);
   const [hintSeen, setHintSeen] = React.useState(false);
-  const [invalidId, setInvalidId] = React.useState(null);
   const [extraH, setExtraH] = React.useState(initialExtraH || 0); // 사용자가 늘린 하단 꾸미기 공간 (단계)
   const EXTRA_STEP = 150, EXTRA_MAX = 5;
   const boardRef = React.useRef(null);
@@ -690,11 +689,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     e.stopPropagation();
     setActiveId(s.id);
     const board = boardRef.current.getBoundingClientRect();
-    const prot = [].slice.call(boardRef.current.querySelectorAll("[data-protect]")).map((el) => {
-      const r = el.getBoundingClientRect();
-      return { l: r.left - 16, t: r.top - 13, rt: r.right + 16, b: r.bottom + 13 };
-    });
-    dragRef.current = { mode: "move", id: s.id, boardRect: board, prot, lastValid: { x: s.x, y: s.y }, invalid: false,
+    dragRef.current = { mode: "move", id: s.id, boardRect: board,
       before: stickers, moved: false,
       mx: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.width) * 100,
       myPx: (((pc ? 40 : 34) * s.scale) + 16) / 2 };
@@ -729,10 +724,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
       const x = ((e.clientX - d.boardRect.left) / d.boardRect.width) * 100;
       const yPx = e.clientY - d.boardRect.top;
       const nx = Math.max(d.mx, Math.min(100 - d.mx, x)), ny = Math.max(d.myPx, Math.min(d.boardRect.height - d.myPx, yPx));
-      const over = d.prot.some((p) => e.clientX > p.l && e.clientX < p.rt && e.clientY > p.t && e.clientY < p.b);
-      d.invalid = over;
-      if (!over) d.lastValid = { x: nx, y: ny };
-      setInvalidId(over ? d.id : null);
       updateSticker(d.id, { x: nx, y: ny });
     } else if (d.mode === "resize") {
       const dist = Math.hypot(e.clientX - d.cx, e.clientY - d.cy);
@@ -745,14 +736,12 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   };
   const endPointer = () => {
     const d = dragRef.current;
-    if (d && d.mode === "move" && d.invalid && d.lastValid) updateSticker(d.id, d.lastValid);
     if (d && d.moved) {
       // 실제로 이동/리사이즈/회전이 일어난 경우에만 잠금 — 단순 클릭(선택)만으로는 잠기지 않는다.
       // 잠긴 스티커는 성구 겹침 방지 effect가 이후 PC↔모바일 전환 등으로 다시 실행되어도 건드리지 않는다.
       updateSticker(d.id, { locked: true });
       if (d.before) recordHistory(d.before);
     }
-    setInvalidId(null);
     dragRef.current = null;
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", endPointer);
@@ -898,9 +887,10 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
             ))}
           </div>
 
-          {/* 처방 말씀 — 발급 화면과 동일. 성구 본문 텍스트(<p>)만 스티커 배치 금지 영역 —
-              제목·인용부호·출처는 자유 영역, 금지 범위는 startMove()가 data-protect 요소를
-              드래그 시작 시점에 getBoundingClientRect()로 매번 다시 측정해 동적으로 계산 */}
+          {/* 처방 말씀 — 발급 화면과 동일. data-protect(verseRef)는 드래그 중 배치를 막는 용도가
+              아니라, 아직 사용자가 손대지 않은 자동 배치 스티커가 성구와 겹치면 살짝 밀어내는
+              효과(아래 useEffect, [rx.verse, pc])의 기준 영역으로만 쓰인다 — 스티커를 성구 위에
+              직접 드래그해 놓는 것 자체는 막지 않는다. */}
           <div style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
             <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
@@ -975,7 +965,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
                 style={{
                   position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "grab", userSelect: "none",
-                  border: invalidId === s.id ? "2px solid var(--coral-600)" : isActive ? "2px dashed var(--rx-blue-500)" : "none",
+                  border: isActive ? "2px dashed var(--rx-blue-500)" : "none",
                   borderRadius: 12, boxSizing: "border-box",
                 }}
               >
