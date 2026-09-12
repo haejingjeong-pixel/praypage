@@ -269,7 +269,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   const EXTRA_STEP = 150, EXTRA_MAX = 5;
   const boardRef = React.useRef(null);
   const exportRef = React.useRef(null); // 캡처 대상: 처방전 카드 한 장만
-  const verseRef = React.useRef(null);  // 성구 본문 텍스트(<p>) — 스티커 배치 금지 영역 측정 기준
   const stickerZoneRef = React.useRef(null); // 스티커 자유 배치 영역 — 새 스티커의 "정중앙" 기준
   const dragRef = React.useRef(null);
   const syncedStickerIds = React.useRef(new Set()); // 이번 세션에서 새로 추가해 이미 DB에 반영한 스티커 id
@@ -559,7 +558,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
         y: localY,
         scale: localScale,     // 카드 너비 대비 비율 → 로컬 scale
         rotate: s.rotate || 0,
-        locked: true, // 공유 링크로 복원된 최종 위치 — 아래 성구 겹침 방지 effect가 절대 건드리지 않음
       };
     });
     rawSharedStickers.current = null;
@@ -597,10 +595,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     if (!grown) { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }
     // DB 반영은 여기서 하지 않는다 — 이동/리사이즈/회전까지 전부 끝난 "최종" 위치를
     // persistNewStickers()가 공유하기/이미지로 저장하기 시점에 한 번에 저장한다.
-    // locked:false — 아직 사용자가 손대지 않은 자동 배치 상태. 아래 성구 겹침 방지 effect의
-    // 대상이 될 수 있는 건 이 상태뿐이며, 사용자가 한 번이라도 옮기면(endPointer) true로 바뀌어
-    // 이후 리사이즈/PC-모바일 전환으로 이 effect가 다시 실행돼도 더는 건드리지 않는다.
-    setStickers((list) => [...list, { id, src, x, y, scale, rotate, locked: false }]);
+    setStickers((list) => [...list, { id, src, x, y, scale, rotate }]);
     setActiveId(id);
     setShowPicker(false);
   };
@@ -653,38 +648,6 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
     return () => cancelAnimationFrame(raf);
   }, [extraH]);
 
-  // 성구 본문 영역(rx.verse)이 바뀌거나 레이아웃 폭(pc)이 바뀌면 성구 텍스트 박스도 달라진다.
-  // "아직 사용자가 손대지 않은 자동 배치 스티커"(locked:false) 중 새 성구 박스와 겹치는 것만,
-  // 겹치지 않는 나머지는 그대로 둔 채 위/아래 중 더 가까운 바깥쪽으로 최소 이동시킨다.
-  // locked:true(사용자가 직접 옮겼거나 공유 링크로 복원된 "최종" 위치)는 절대 건드리지 않는다 —
-  // 이 effect가 PC↔모바일 전환(pc 변경)으로 다시 실행돼도 사용자가 배치한 자리는 그대로 유지돼야
-  // 하기 때문. 그렇지 않으면 마운트 시점만 피해도 이후 리사이즈에서 다시 밀려날 수 있다.
-  React.useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      if (!boardRef.current || !verseRef.current) return;
-      const board = boardRef.current.getBoundingClientRect();
-      const vr = verseRef.current.getBoundingClientRect();
-      const zone = { l: vr.left - board.left - 16, r: vr.right - board.left + 16, t: vr.top - board.top - 13, b: vr.bottom - board.top + 13 };
-      setStickers((list) => {
-        let changed = false;
-        const next = list.map((s) => {
-          if (s.locked) return s;
-          const half = (((pc ? 40 : 34) * s.scale) + 16) / 2;
-          const cx = (s.x / 100) * board.width, cy = s.y;
-          const overlap = cx - half < zone.r && cx + half > zone.l && cy - half < zone.b && cy + half > zone.t;
-          if (!overlap) return s;
-          changed = true;
-          const distTop = Math.abs(cy - zone.t), distBottom = Math.abs(cy - zone.b);
-          let ny = distTop <= distBottom ? zone.t - half : zone.b + half;
-          ny = Math.max(half, Math.min(board.height - half, ny));
-          return { ...s, y: ny };
-        });
-        return changed ? next : list;
-      });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [rx.verse, pc]);
-
   const startMove = (e, s) => {
     e.stopPropagation();
     setActiveId(s.id);
@@ -736,12 +699,7 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   };
   const endPointer = () => {
     const d = dragRef.current;
-    if (d && d.moved) {
-      // 실제로 이동/리사이즈/회전이 일어난 경우에만 잠금 — 단순 클릭(선택)만으로는 잠기지 않는다.
-      // 잠긴 스티커는 성구 겹침 방지 effect가 이후 PC↔모바일 전환 등으로 다시 실행되어도 건드리지 않는다.
-      updateSticker(d.id, { locked: true });
-      if (d.before) recordHistory(d.before);
-    }
+    if (d && d.moved && d.before) recordHistory(d.before);
     dragRef.current = null;
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", endPointer);
@@ -887,14 +845,11 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
             ))}
           </div>
 
-          {/* 처방 말씀 — 발급 화면과 동일. data-protect(verseRef)는 드래그 중 배치를 막는 용도가
-              아니라, 아직 사용자가 손대지 않은 자동 배치 스티커가 성구와 겹치면 살짝 밀어내는
-              효과(아래 useEffect, [rx.verse, pc])의 기준 영역으로만 쓰인다 — 스티커를 성구 위에
-              직접 드래그해 놓는 것 자체는 막지 않는다. */}
+          {/* 처방 말씀 — 발급 화면과 동일. */}
           <div style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
             <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
-              <p ref={verseRef} data-protect style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
+              <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
               <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: pc ? 14 : 10 }}>{rx.reference}</div>
             </div>
           </div>
