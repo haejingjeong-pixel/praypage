@@ -3,11 +3,18 @@
 // 시안: 좌우 2단 카드가 아니라, 미색 종이 처방전 한 장이 화면 중앙에 넓게 놓인다.
 // 한 장의 인쇄물처럼 — 청색 인쇄선/텍스트, 흰 박스 분리 없이 선과 간격으로 위계 표현.
 // 섹션 순서: 접수 정보 → 마음 소견 → 오늘 곁에 있어줄 말씀 → 복용법 → 주의사항 → 작은 실천.
-function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
+function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorate }) {
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
   const rx = rxProp || window.RX_DATA[mood] || window.RX_DATA.anxious;
   const m = MOODS[mood] || MOODS.anxious;
   const RX = "var(--rx-ink)";
+  // 처방일 = 문진을 완료한 날짜. index.html이 문진 제출 시점에 한 번만 계산해 rxDateProp으로
+  // 내려준다 — 여기서 매 렌더마다 new Date()를 부르면 안 됨(재렌더 때마다 오늘 날짜로 바뀜).
+  // prop이 없는 경우(단독 렌더/테스트 등)에만 마운트 시 1회 계산하는 값으로 대체한다.
+  const [fallbackRxDate] = React.useState(() =>
+    new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\.$/, "").replace(/\s/g, "")
+  );
+  const rxDate = rxDateProp || fallbackRxDate;
 
   const [pc, setPc] = React.useState(false);
   React.useEffect(() => {
@@ -209,7 +216,7 @@ function ResultScreen({ mood, rx: rxProp, onAgain, onDecorate }) {
 
         {/* 접수 정보 표 */}
         <Reveal><div style={{ margin: `${pc ? 4 : 2}px 0 0` }}>
-          {[["처방일", "2026.08.01", "증상", rx.symptom], ["마음 강도", rx.intensity, "처방 단어", rx.word]].map((row, ri) => (
+          {[["처방일", rxDate, "증상", rx.symptom], ["마음 강도", rx.intensity, "처방 단어", rx.word]].map((row, ri) => (
             <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${BORD}` : "none" }}>
               <TL>{row[0]}</TL><TV>{row[1]}</TV>
               <TL>{row[2]}</TL><TV accent={ri === 1}>{row[3]}</TV>

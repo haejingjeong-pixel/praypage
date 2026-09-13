@@ -193,7 +193,7 @@ function StickerTutorial({ onDone }) {
   );
 }
 
-function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, initialExtraH, onBack, onNext }) {
+function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, initialShareId, initialExtraH, onBack, onNext }) {
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
   // 최초 접속자 전용 튜토리얼 — 화면 진입 시 한 번만 체크(리렌더마다 localStorage를
   // 다시 읽지 않도록 useState 초기화 함수 안에서만 판단).
@@ -209,7 +209,14 @@ function StickerScreen({ mood, rx: rxProp, initialStickers, initialShareId, init
   // 공유 링크로 들어온 사람("응원 스티커를 붙이는 사람")을 위한 마음 요약 문단 — rx-share-summaries.js.
   // 감정/유형별 문구가 아직 없는 조합이면 null이라 아래에서 자연히 섹션이 안 뜬다.
   const shareSummary = (window.getRxShareSummary && rx.rxNum) ? window.getRxShareSummary(mood, rx.rxNum) : null;
-  const rxDate = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\.$/, "").replace(/\s/g, "");
+  // 처방일 = 문진을 완료한 날짜(공유 링크로 들어온 경우엔 원본이 처음 만들어진 날짜) — index.html이
+  // 한 번만 계산해 rxDateProp으로 내려준다. 여기서 매 렌더마다 new Date()를 부르면 리렌더할
+  // 때마다, 그리고 공유 링크를 나중에 열 때마다 "오늘" 날짜로 바뀌어버린다. prop이 없는 경우
+  // (단독 렌더/테스트 등)에만 마운트 시 1회 계산하는 값으로 대체한다.
+  const [fallbackRxDate] = React.useState(() =>
+    new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\.$/, "").replace(/\s/g, "")
+  );
+  const rxDate = rxDateProp || fallbackRxDate;
   // 기본 응원 스티커 — 카드가 비어 보이지 않도록 서로 다른 위치·각도로 미리 배치 (편집 가능)
   const SEED_STICKERS = [];
   // 공유 링크로 들어온 스티커는 카드 기준 정규화 좌표(x:%, y:카드 높이 대비 비율, scale:카드 너비
