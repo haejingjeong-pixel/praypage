@@ -59,6 +59,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   const frontW = envW;
   const backW = envW;
   const frontBottom = 0;                  // 앞·뒤 동일 위치
+  const envLeftMargin = (W - envW) / 2;   // 무대(W) 좌측 끝 ~ 실제 봉투 그래픽 좌측 끝 사이 여백
   const paperW = W * 0.78;                // 접수지 더 크게 (메인)
   const paperPadBottom = Math.round(W * 0.07); // 종이 하단 빈 크림 영역(포켓 안으로 tuck)
   const footerPad = 26;                    // AssessmentPaper 푸터 하단 패딩
@@ -76,7 +77,10 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   // 하단이 모바일 -1~3px, PC -5~7px씩 항상 살짝 잘렸다. 봉투 이미지/트림 비율은 그대로 두고
   // 텍스트가 잘리지 않을 만큼만 클립 높이에 여유를 더한다(트림 비중 대비 미미해서 빈 꼬리
   // 가리기 의도에는 영향 없음).
-  const clipH = stageH - envImgH * 0.30 + 16;
+  // 홈으로 버튼(봉투 좌하단)이 감정명과 겹치지 않도록 클립 영역에 추가 여유를 둔다 — 모바일은
+  // 봉투 자체가 작아 여백이 빠듯해서 더 크게 필요하다. 위 +16(라벨 클리핑 방지)과는 별개.
+  const homeBtnReserve = pc ? 4 : 58;
+  const clipH = stageH - envImgH * 0.30 + 16 + homeBtnReserve;
 
   return (
     <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -95,8 +99,9 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
       {/* 예전엔 여기(좌상단)에 "뒤로" 버튼이 있었는데, 누르면 문진 전체를 나가 처음(mood 선택)
           으로 돌아가버려서 — 접수카드 안의 "이전"(◀, AssessmentPaper 내장, Q1~Q4 사이만 이동
           하고 답변은 그대로 유지)과 혼동됐다. "방금 체크한 것만 조금 고치고 싶은데 처음부터
-          다시?" 처럼 느껴지는 문제라, 이 버튼은 없애고 문진 전체를 나가는 동작은 아래 화면
-          하단 고정 "홈으로" 버튼으로 분리했다. 문진 중 한 단계 뒤로 가는 건 접수카드 자체의
+          다시?" 처럼 느껴지는 문제라, 이 버튼은 없애고 문진 전체를 나가는 동작은 봉투 좌측
+          하단의 "홈으로" 버튼으로 분리했다(감정명과 겹치지 않게 봉투 정중앙이 아닌 모서리에 배치
+          — 아래 3-레이어 무대 안에서 렌더링). 문진 중 한 단계 뒤로 가는 건 접수카드 자체의
           "이전" 화살표를 그대로 쓰면 된다(선택값은 AssessmentScreen의 selections state에 있어
           단계를 오가도 유지됨 — 이 부분은 원래도 문제 없었음). */}
 
@@ -180,6 +185,15 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           </div>
         </div>
       </div>
+      {/* 문진 전체를 그만두고 처음으로 나가는 동작은 이 버튼 하나로만 한다("뒤로"와 분리).
+          무대(overflow:hidden) 안에서 봉투 기준 좌하단에 절대배치 — 감정명은 봉투 정중앙
+          (top:62%)에 그대로 두고, 버튼은 거기서 충분히 떨어진 좌측 하단 모서리에 둬서 겹치지
+          않는다. envLeftMargin은 무대 폭(W)과 실제 봉투 그래픽 폭(envW) 사이 여백이라, 화면
+          크기가 바뀌어도 항상 "봉투 좌측 끝에서 pc?32:18px"를 정확히 유지한다. bottom은 이
+          무대(클립 영역) 자체의 바닥 기준이라 봉투 하단 트림 라인 안쪽에 자연히 놓인다. */}
+      <button onClick={onBack} style={{ position: "absolute", left: envLeftMargin + (pc ? 32 : 18), bottom: pc ? 28 : 18, zIndex: 10, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
+        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
+      </button>
       </div>
 
       {/* 준비 화면 — 접수 안내 직전 "준비되셨나요?" */}
@@ -237,12 +251,6 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
         </div>
       </div>
 
-      {/* 문진 전체를 그만두고 처음으로 나가는 동작은 이 버튼 하나로만 한다("뒤로"와 분리).
-          z-index를 로딩/준비/안내 오버레이(40/43/42)보다 낮게 둬서 그 단계에서는 오버레이에
-          자연히 가려지고, 접수카드가 보이는 동안에만 하단에 뜬다. */}
-      <button onClick={onBack} style={{ position: "fixed", left: "50%", bottom: 14, transform: "translateX(-50%)", zIndex: 25, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
-        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
-      </button>
     </div>
   );
 }

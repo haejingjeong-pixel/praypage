@@ -54,6 +54,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   const frontW = envW;
   const backW = envW;
   const frontBottom = 0;                  // 앞·뒤 동일 위치
+  const envLeftMargin = (W - envW) / 2;   // 무대(W) 좌측 끝 ~ 실제 봉투 그래픽 좌측 끝 사이 여백
   const paperW = W * 0.78;                // 접수지 더 크게 (메인)
   const paperPadBottom = Math.round(W * 0.07); // 종이 하단 빈 크림 영역(포켓 안으로 tuck)
   const footerPad = 26;                    // AssessmentPaper 푸터 하단 패딩
@@ -67,7 +68,10 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   // 봉투 하단은 화면 밖으로 잘리게: 감정 문구가 보이는 지점 + 약간의 여백까지만 노출.
   // 문구 아래로 조금만 남기고 나머지 봉투 하단은 잘라, 그 지점에서 스크롤이 끝나게 한다.
   const frontTextFromBottom = envImgH * 0.30;
-  const clipH = stageH - frontTextFromBottom + (pc ? 8 : 40);
+  // 홈으로 버튼(봉투 좌하단)이 감정명과 겹치지 않도록 클립 영역에 추가 여유를 둔다 — 모바일은
+  // 봉투 자체가 작아 여백이 빠듯해서 더 크게 필요하다. 위 (pc?8:40)과는 별개의 여유.
+  const homeBtnReserve = pc ? 0 : 38;
+  const clipH = stageH - frontTextFromBottom + (pc ? 8 : 40) + homeBtnReserve;
 
   return (
     <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -83,8 +87,10 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(250,247,240,0.5) 0%, rgba(250,247,240,0.82) 52%, #F3EEE9 100%)" }} />
       </div>
 
-      {/* AssessmentScreen.jsx와 동일: 문진을 통째로 나가는 "뒤로"는 없애고 하단 고정
-          "홈으로" 버튼으로 분리 (Q1~Q4 사이 이동은 접수카드 자체의 "이전" 화살표를 쓴다). */}
+      {/* AssessmentScreen.jsx와 동일: 문진을 통째로 나가는 "뒤로"는 없애고 봉투 좌측 하단의
+          "홈으로" 버튼으로 분리 (Q1~Q4 사이 이동은 접수카드 자체의 "이전" 화살표를 쓴다).
+          버튼은 감정명과 겹치지 않게 봉투 정중앙이 아닌 모서리에 배치 — 아래 3-레이어 무대 안에서
+          렌더링된다. */}
 
       {/* 상단 안내 (접수카드보다 강조되지 않게 조용히) */}
       <div style={{ textAlign: "center", padding: pc ? "4px 24px 0" : "30px 24px 4px", position: "relative", zIndex: 1 }}>
@@ -172,6 +178,12 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           </div>
         </div>
       </div>
+      {/* 문진 전체를 그만두고 처음으로 나가는 동작은 이 버튼 하나로만 한다("뒤로"와 분리).
+          무대(overflow:hidden) 안에서 봉투 기준 좌하단에 절대배치 — 감정명은 봉투 정중앙에
+          그대로 두고, 버튼은 거기서 충분히 떨어진 좌측 하단 모서리에 둬서 겹치지 않는다. */}
+      <button onClick={onBack} style={{ position: "absolute", left: envLeftMargin + (pc ? 32 : 18), bottom: pc ? 28 : 18, zIndex: 10, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
+        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
+      </button>
       </div>
 
       {/* 로딩 오버레이 — 준비 완료 전까지 UI/애니메이션을 가린다 */}
@@ -195,10 +207,6 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           ))}
         </div>
       </div>
-
-      <button onClick={onBack} style={{ position: "fixed", left: "50%", bottom: 14, transform: "translateX(-50%)", zIndex: 25, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
-        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
-      </button>
     </div>
   );
 }
