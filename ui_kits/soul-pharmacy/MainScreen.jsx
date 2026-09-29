@@ -3,7 +3,7 @@
 // 기존 리스트/제목은 아래로 내려가며 사라진(list-exit) 뒤 onNext로 문진 화면으로 넘어간다.
 function MainScreen({ selected, onSelect, onNext }) {
   const ENVELOPES = [
-    { key: "anxious", img: "assets-web/env-anxious.webp?v=4", label: "불안해요" },
+    { key: "anxious", img: "assets-web/env-anxious.webp?v=5", label: "불안해요" },
     { key: "broken",  img: "assets-web/env-broken.webp?v=4",  label: "마음이\n무너졌어요" },
     { key: "compare", img: "assets-web/env-compare.webp?v=4", label: "비교돼요" },
     { key: "waiting", img: "assets-web/env-waiting.webp?v=4", label: "기다리기\n힘들어요" },
