@@ -133,7 +133,7 @@ function IntroLoading({ onDone }) {
     let done = false;
     const finish = () => { if (!done) { done = true; setBye(true); setTimeout(() => onDone && onDone(), 460); } };
     const urls = ["assets-web/leaf-tl.webp", "assets-web/leaf-br.webp", "assets-web/wood-bar.webp"];
-    for (const m of MOODS) urls.push("assets-web/env-" + m + ".webp");
+    for (const m of MOODS) urls.push("assets-web/env-" + m + ".webp?v=2");
     let loaded = 0;
     const check = () => { loaded++; if (loaded >= urls.length) setTimeout(finish, 200); };
     for (const u of urls) { const img = new Image(); img.onload = check; img.onerror = check; img.src = u; }

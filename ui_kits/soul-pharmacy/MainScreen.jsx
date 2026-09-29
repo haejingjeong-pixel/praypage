@@ -3,14 +3,14 @@
 // 기존 리스트/제목은 아래로 내려가며 사라진(list-exit) 뒤 onNext로 문진 화면으로 넘어간다.
 function MainScreen({ selected, onSelect, onNext }) {
   const ENVELOPES = [
-    { key: "anxious", img: "assets-web/env-anxious.webp", label: "불안해요" },
-    { key: "broken",  img: "assets-web/env-broken.webp",  label: "마음이\n무너졌어요" },
-    { key: "compare", img: "assets-web/env-compare.webp", label: "비교돼요" },
-    { key: "waiting", img: "assets-web/env-waiting.webp", label: "기다리기\n힘들어요" },
-    { key: "forgive", img: "assets-web/env-forgive.webp", label: "용서가\n안 돼요" },
-    { key: "distant", img: "assets-web/env-distant.webp", label: "하나님이\n멀게 느껴져요" },
-    { key: "calling", img: "assets-web/env-calling.webp", label: "책임이\n버거워요" },
-    { key: "thanks",  img: "assets-web/env-thanks.webp",  label: "감사가\n사라졌어요" },
+    { key: "anxious", img: "assets-web/env-anxious.webp?v=2", label: "불안해요" },
+    { key: "broken",  img: "assets-web/env-broken.webp?v=2",  label: "마음이\n무너졌어요" },
+    { key: "compare", img: "assets-web/env-compare.webp?v=2", label: "비교돼요" },
+    { key: "waiting", img: "assets-web/env-waiting.webp?v=2", label: "기다리기\n힘들어요" },
+    { key: "forgive", img: "assets-web/env-forgive.webp?v=2", label: "용서가\n안 돼요" },
+    { key: "distant", img: "assets-web/env-distant.webp?v=2", label: "하나님이\n멀게 느껴져요" },
+    { key: "calling", img: "assets-web/env-calling.webp?v=2", label: "책임이\n버거워요" },
+    { key: "thanks",  img: "assets-web/env-thanks.webp?v=2",  label: "감사가\n사라졌어요" },
   ];
   const ENV_W = 168; // 봉투 표시 폭 (원본 271×315 비율 유지)
 
