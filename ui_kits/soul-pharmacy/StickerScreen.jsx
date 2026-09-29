@@ -296,6 +296,39 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   const panelW = wide ? 400 : (pc ? 300 : sheetW); // 스티커 사이드 패널 폭
   const padX = pc ? 44 : 24;
 
+  // 처방전 카드 내부는 화면 폭과 무관하게 항상 PC 레이아웃(CARD_W=720px)으로 그리고, 좁은 화면에서는
+  // 바깥 래퍼의 transform: scale()로 카드 전체를 화면 폭에 맞게 축소해서 보여준다 — 줄바꿈·스티커
+  // 간격·글자와 스티커의 상대 배치가 PC와 동일하게 유지된다. 카드 안의 레이아웃 분기는 pc 대신
+  // cardPc(항상 true)를 쓰고, 툴바·패널·버튼 등 카드 밖 UI는 계속 pc를 따른다.
+  // 스티커 x(%)/y(px)·scale은 전부 "카드 레이아웃 px" 기준이다. getBoundingClientRect()는 축소가
+  // 반영된 화면 px를 돌려주므로, 화면 좌표를 카드 좌표로 바꿀 땐 boardScaleNow()로 나눈다.
+  const cardPc = true;
+  const CARD_W = 720;
+  const STICKER_BASE = 40; // 스티커 기본 크기(카드 레이아웃 px)
+  const cardFitRef = React.useRef(null);
+  const [cardFitW, setCardFitW] = React.useState(() => (typeof window !== "undefined" ? Math.min(sheetW, window.innerWidth) : CARD_W));
+  const [cardH, setCardH] = React.useState(0);
+  const cardScale = Math.min(1, cardFitW / CARD_W);
+  // 실제로 렌더된 transform을 역산 — state 갱신 타이밍과 무관하게 항상 화면과 일치한다.
+  const boardScaleNow = () => {
+    const el = boardRef.current;
+    if (!el || !el.offsetWidth) return 1;
+    return el.getBoundingClientRect().width / el.offsetWidth || 1;
+  };
+  React.useLayoutEffect(() => {
+    const fit = cardFitRef.current, el = boardRef.current;
+    if (!fit || !el) return;
+    const measure = () => { setCardFitW(fit.clientWidth); setCardH(el.offsetHeight); };
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const ro = new ResizeObserver(measure);
+    ro.observe(fit); ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const captureCard = async () => {
     if (!window.htmlToImage || !exportRef.current) return null;
     return await window.htmlToImage.toBlob(exportRef.current, {
@@ -321,11 +354,12 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   const normalizeStickerForShare = (s) => {
     const boardRect = boardRef.current ? boardRef.current.getBoundingClientRect() : null;
     const zoneRect = stickerZoneRef.current ? stickerZoneRef.current.getBoundingClientRect() : null;
-    const h = boardRect && boardRect.height ? boardRect.height : 1;
-    const w = boardRect && boardRect.width ? boardRect.width : 1;
-    const zoneTop = zoneRect && boardRect ? zoneRect.top - boardRect.top : h * 0.35;
-    const zoneBottom = zoneRect && boardRect ? zoneRect.bottom - boardRect.top : h * 0.65;
-    const base = pc ? 40 : 25;
+    const k = boardScaleNow(); // 화면 px → 카드 레이아웃 px (스티커 y·크기와 같은 단위로 맞춤)
+    const h = boardRect && boardRect.height ? boardRect.height / k : 1;
+    const w = boardRect && boardRect.width ? boardRect.width / k : 1;
+    const zoneTop = zoneRect && boardRect ? (zoneRect.top - boardRect.top) / k : h * 0.35;
+    const zoneBottom = zoneRect && boardRect ? (zoneRect.bottom - boardRect.top) / k : h * 0.65;
+    const base = STICKER_BASE;
     const renderedPx = base * s.scale;
     let zone, frac;
     if (s.y < zoneTop) {
@@ -542,10 +576,11 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     const boardRect = boardRef.current.getBoundingClientRect();
     if (!boardRect.width || !boardRect.height) return;
     const zoneRect = stickerZoneRef.current ? stickerZoneRef.current.getBoundingClientRect() : null;
-    const h = boardRect.height, w = boardRect.width;
-    const zoneTop = zoneRect ? zoneRect.top - boardRect.top : h * 0.35;
-    const zoneBottom = zoneRect ? zoneRect.bottom - boardRect.top : h * 0.65;
-    const base = pc ? 40 : 25;
+    const k = boardScaleNow(); // 화면 px → 카드 레이아웃 px
+    const h = boardRect.height / k, w = boardRect.width / k;
+    const zoneTop = zoneRect ? (zoneRect.top - boardRect.top) / k : h * 0.35;
+    const zoneBottom = zoneRect ? (zoneRect.bottom - boardRect.top) / k : h * 0.65;
+    const base = STICKER_BASE;
     const converted = rawSharedStickers.current.map((s) => {
       const localScale = ((s.scale || 0) * w) / base;
       let localY;
@@ -588,7 +623,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     let x = 50, y = 280; // boardRect/zoneRect를 못 구했을 때의 안전한 기본값
     if (boardRect && zoneRect && boardRect.width && boardRect.height) {
       x = ((zoneRect.left + zoneRect.width / 2 - boardRect.left) / boardRect.width) * 100;
-      y = zoneRect.top + zoneRect.height / 2 - boardRect.top;
+      y = (zoneRect.top + zoneRect.height / 2 - boardRect.top) / boardScaleNow(); // 화면 px → 카드 px
     }
     x += (Math.random() - 0.5) * 6;   // ±3%p 정도의 미세한 흔들림
     y += (Math.random() - 0.5) * 30;  // ±15px 정도의 미세한 흔들림
@@ -640,11 +675,11 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   React.useEffect(() => {
     const raf = requestAnimationFrame(() => {
       if (!boardRef.current) return;
-      const newH = boardRef.current.getBoundingClientRect().height;
+      const newH = boardRef.current.offsetHeight; // 카드 레이아웃 px (축소 전)
       setStickers((list) => {
         let changed = false;
         const next = list.map((s) => {
-          const half = (((pc ? 40 : 25) * s.scale) + 16) / 2;
+          const half = ((STICKER_BASE * s.scale) + 16) / 2;
           const maxY = Math.max(half, newH - half);
           if (s.y > maxY) { changed = true; return { ...s, y: maxY }; }
           return s;
@@ -659,10 +694,11 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     e.stopPropagation();
     setActiveId(s.id);
     const board = boardRef.current.getBoundingClientRect();
-    dragRef.current = { mode: "move", id: s.id, boardRect: board,
+    const k = boardScaleNow(); // 화면 px → 카드 레이아웃 px
+    dragRef.current = { mode: "move", id: s.id, boardRect: board, k,
       before: stickers, moved: false,
-      mx: ((((pc ? 40 : 25) * s.scale) + 16) / 2 / board.width) * 100,
-      myPx: (((pc ? 40 : 25) * s.scale) + 16) / 2 };
+      mx: (((STICKER_BASE * s.scale) + 16) / 2 / (board.width / k)) * 100,
+      myPx: ((STICKER_BASE * s.scale) + 16) / 2 };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", endPointer);
   };
@@ -672,7 +708,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     e.preventDefault();
     const board = boardRef.current.getBoundingClientRect();
     const cx = board.left + (s.x / 100) * board.width;
-    const cy = board.top + s.y;
+    const cy = board.top + s.y * boardScaleNow(); // 카드 px → 화면 px
     dragRef.current = {
       mode, id: s.id, cx, cy,
       startScale: s.scale, startRotate: s.rotate,
@@ -692,8 +728,8 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       // x는 카드 너비 대비 %(너비는 공간 늘리기/줄이기에 영향받지 않음), y는 카드 상단 기준 고정 px —
       // 처방전 높이가 바뀌어도(공간 늘리기/줄이기) 이미 놓인 스티커의 화면 위치가 밀리지 않도록 함
       const x = ((e.clientX - d.boardRect.left) / d.boardRect.width) * 100;
-      const yPx = e.clientY - d.boardRect.top;
-      const nx = Math.max(d.mx, Math.min(100 - d.mx, x)), ny = Math.max(d.myPx, Math.min(d.boardRect.height - d.myPx, yPx));
+      const yPx = (e.clientY - d.boardRect.top) / d.k; // 화면 px → 카드 레이아웃 px
+      const nx = Math.max(d.mx, Math.min(100 - d.mx, x)), ny = Math.max(d.myPx, Math.min(d.boardRect.height / d.k - d.myPx, yPx));
       updateSticker(d.id, { x: nx, y: ny });
     } else if (d.mode === "resize") {
       const dist = Math.hypot(e.clientX - d.cx, e.clientY - d.cy);
@@ -717,15 +753,15 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   const PURPLE = "#6B5FCF";            // 메인 액션(저장·스티커 추가)
   // 표 셀 (라벨칸 + 값칸)
   const TLabel = ({ children }) => (
-    <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", paddingRight: 8, whiteSpace: "nowrap" }}>{children}</div>
+    <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", paddingRight: 8, whiteSpace: "nowrap" }}>{children}</div>
   );
   const TVal = ({ children, accent }) => (
-    <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13, fontWeight: accent ? 700 : 400, color: accent ? INK : "var(--ink-900)" }}>{children}</div>
+    <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 14.5 : 13, fontWeight: accent ? 700 : 400, color: accent ? INK : "var(--ink-900)" }}>{children}</div>
   );
   // 섹션 제목 + 밑줄
   const SecTitle = ({ children }) => (
     <div style={{ width: "100%", textAlign: "left" }}>
-      <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15 : 13.5, color: INK, marginBottom: 8 }}>{children}</div>
+      <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 15 : 13.5, color: INK, marginBottom: 8 }}>{children}</div>
       <div style={{ borderTop: `1.5px solid ${INK}` }} />
     </div>
   );
@@ -822,30 +858,39 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   );
 
   // ── 처방전 (편집 보드) ──
+  // 축소 표시용 래퍼: cardFitRef = 화면에서 카드가 차지할 수 있는 폭(측정용),
+  // 그 안의 박스 = 축소 후 실제 표시 크기, boardRef = 720px 카드 레이아웃 원본(transform으로 축소).
+  // transform은 레이아웃 크기를 바꾸지 않으므로 표시 박스에 축소 후 폭/높이를 직접 지정해
+  // 가로 스크롤·하단 빈 공간이 생기지 않게 한다. 축소는 exportRef 바깥(boardRef)에 걸어야
+  // html-to-image 캡처가 transform 없이 720px 원본 그대로 저장된다.
+  const invScale = 1 / cardScale; // 손잡이·안내처럼 조작용 UI는 축소를 상쇄해 원래 크기로 보이게
   const board = (
+    <div ref={cardFitRef} style={{ width: sheetW, maxWidth: "100%" }}>
+    <div style={{ position: "relative", width: CARD_W * cardScale, height: cardH * cardScale }}>
     <div
       ref={boardRef}
       onPointerDown={(e) => { if (!e.target.closest("[data-sticker]")) setActiveId(null); }}
       style={{
-        position: "relative", width: sheetW, maxWidth: "100%", boxSizing: "border-box",
+        position: "absolute", top: 0, left: 0, width: CARD_W, boxSizing: "border-box",
+        transform: cardScale !== 1 ? `scale(${cardScale})` : "none", transformOrigin: "top left",
         opacity: mounted ? 1 : 0,
         transition: "opacity 950ms ease-out",
       }}
     >
-      <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box" }}>
+      <div ref={exportRef} style={{ position: "relative", width: CARD_W, background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box" }}>
         <div style={{ position: "absolute", inset: 10, border: "1px solid rgba(120,104,78,0.14)", borderRadius: 4, pointerEvents: "none" }} />
-        <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${pc ? 52 : 24}px ${pc ? 30 : 22}px`, minHeight: pc ? 560 : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ position: "relative", padding: `${cardPc ? 42 : 28}px ${cardPc ? 52 : 24}px ${cardPc ? 30 : 22}px`, minHeight: cardPc ? 560 : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* 마스트헤드 — 발급 화면과 동일. 성구 본문 텍스트만 스티커 금지, 이 영역은 부착 가능 */}
-          <div style={{ width: "100%", textAlign: "center", marginBottom: pc ? 14 : 11 }}>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>오늘의 말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
-            <div style={{ borderTop: `1px solid ${LINE}`, width: "100%", marginTop: pc ? 16 : 12 }} />
+          <div style={{ width: "100%", textAlign: "center", marginBottom: cardPc ? 14 : 11 }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: cardPc ? 8 : 6 }}>오늘의 말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: cardPc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
+            <div style={{ borderTop: `1px solid ${LINE}`, width: "100%", marginTop: cardPc ? 16 : 12 }} />
           </div>
 
           {/* 개인 처방 정보 — 발급 화면과 동일한 테두리 표. 스티커 부착 가능 */}
           <div style={{ width: "100%" }}>
             {[["처방일", rxDate, "증상", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "처방 단어", rx.word]].map((row, ri) => (
-              <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${LINE}` : "none" }}>
+              <div key={ri} style={{ display: "grid", gridTemplateColumns: cardPc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: cardPc ? 14 : 12, rowGap: cardPc ? 0 : 7, alignItems: "baseline", padding: `${cardPc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${LINE}` : "none" }}>
                 <TLabel>{row[0]}</TLabel><TVal>{row[1]}</TVal>
                 <TLabel>{row[2]}</TLabel><TVal accent={ri === 1}>{row[3]}</TVal>
               </div>
@@ -853,11 +898,11 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
           </div>
 
           {/* 처방 말씀 — 발급 화면과 동일. */}
-          <div style={{ width: "100%", marginTop: pc ? 30 : 22 }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
-            <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
-              <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: pc ? 14 : 10 }}>{rx.reference}</div>
+          <div style={{ width: "100%", marginTop: cardPc ? 30 : 22 }}>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: cardPc ? 12 : 9 }}>처방 말씀</div>
+            <div style={{ position: "relative", padding: `${cardPc ? 8 : 6}px ${cardPc ? 30 : 20}px ${cardPc ? 6 : 4}px`, textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-verse)", fontSize: cardPc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: cardPc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: cardPc ? 14 : 10 }}>{rx.reference}</div>
             </div>
           </div>
 
@@ -865,35 +910,35 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
               스타일(가운데 정렬 캡션)로 이어붙여서 카드 안 새 섹션이 아니라 처방전 본문의 연장처럼
               보이게 한다. 본인/공유받은 사람 구분 없이 처방이 있으면 항상 보인다. */}
           {shareSummary && (
-            <div style={{ width: "100%", marginTop: pc ? 26 : 20 }}>
-              <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>마음 요약</div>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14 : 13, lineHeight: 1.65, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 560 : 420, textAlign: "left" }}>{shareSummary}</p>
+            <div style={{ width: "100%", marginTop: cardPc ? 26 : 20 }}>
+              <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: cardPc ? 12 : 9 }}>마음 요약</div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 14 : 13, lineHeight: 1.65, color: "var(--ink-900)", margin: "0 auto", maxWidth: cardPc ? 560 : 420, textAlign: "left" }}>{shareSummary}</p>
             </div>
           )}
 
           {/* 스티커 캔버스 — 처방전 전체에 자유롭게, 텍스트는 보호 */}
-          <div ref={stickerZoneRef} data-sticker-zone style={{ position: "relative", width: "100%", flex: "1 1 auto", minHeight: (pc ? 150 : 110) + extraH, display: "flex", alignItems: "center", justifyContent: "center", transition: "min-height 320ms ease-out" }}>
+          <div ref={stickerZoneRef} data-sticker-zone style={{ position: "relative", width: "100%", flex: "1 1 auto", minHeight: (cardPc ? 150 : 110) + extraH, display: "flex", alignItems: "center", justifyContent: "center", transition: "min-height 320ms ease-out" }}>
             {!finalizing && stickers.length === 0 && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.7, pointerEvents: "none" }}>
-                <Icon name="hand-heart" size={pc ? 30 : 26} color="var(--text-faint)" stroke={1.5} />
-                <span style={{ fontFamily: "var(--font-label)", fontSize: pc ? 14 : 13, color: "var(--text-muted)" }}>빈 공간에 스티커를 붙여 처방전을 꾸며보세요.</span>
+                <Icon name="hand-heart" size={cardPc ? 30 : 26} color="var(--text-faint)" stroke={1.5} />
+                <span style={{ fontFamily: "var(--font-label)", fontSize: cardPc ? 14 : 13, color: "var(--text-muted)" }}>빈 공간에 스티커를 붙여 처방전을 꾸며보세요.</span>
               </div>
             )}
           </div>
 
           {/* 복용 안내 — 스티커 부착 가능 */}
           <div style={{ width: "100%", borderTop: `1px solid ${LINE}` }} />
-          <div style={{ width: "100%", marginTop: pc ? 14 : 11 }}><SecTitle>복용 안내</SecTitle>
-          <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: `${pc ? 11 : 9}px 2px ${pc ? 16 : 12}px`, textAlign: "left" }}>
-            <Icon name="clipboard-list" size={pc ? 19 : 17} color={INK} stroke={1.6} />
-            <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 12.5, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, flex: 1 }}>{oneLine}</p>
+          <div style={{ width: "100%", marginTop: cardPc ? 14 : 11 }}><SecTitle>복용 안내</SecTitle>
+          <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: `${cardPc ? 11 : 9}px 2px ${cardPc ? 16 : 12}px`, textAlign: "left" }}>
+            <Icon name="clipboard-list" size={cardPc ? 19 : 17} color={INK} stroke={1.6} />
+            <p style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13.5 : 12.5, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, flex: 1 }}>{oneLine}</p>
           </div></div>
 
           {/* 저장/공유 버튼은 카드 밖 (board 아래)로 이동 */}
           {/* 카드 자체의 정식 콘텐츠라 export에서 제외하면 안 됨 — data-export-ignore를 붙였더니
               html-to-image가 이 노드를 통째로 잘라내면서(일반 문서 흐름) 저장된 카드 높이가
               편집 화면보다 짧아지는 버그가 있었다. */}
-          <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${pc ? 16 : 12}px 0 0` }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${cardPc ? 16 : 12}px 0 0` }}>
             마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
           </p>
         </div>
@@ -901,7 +946,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
         {/* 스티커 레이어 — exportRef(캡처 대상) 내부에 렌더링해야 저장 이미지에 포함됨 */}
         {stickers.map((s) => {
           const isActive = activeId === s.id;
-          const px = (pc ? 40 : 25) * s.scale; // 긴 변 기준 참조 크기 — 드래그 여백 계산 등에서도 계속 씀
+          const px = STICKER_BASE * s.scale; // 긴 변 기준 참조 크기 — 드래그 여백 계산 등에서도 계속 씀
           const boxPad = 8;
           // 조작 박스를 정사각형으로 강제하지 않고 이미지 실제 가로/세로 비율(STICKER_ASPECT)에 맞춘다.
           // 대부분의 스티커 파일은 이미 알파 채널 기준으로 캔버스를 꽉 채우고 있어(투명 여백 거의 없음)
@@ -927,7 +972,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
                 style={{
                   position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "grab", userSelect: "none",
-                  border: isActive ? "2px dashed var(--rx-blue-500)" : "none",
+                  border: isActive ? `${2 * invScale}px dashed var(--rx-blue-500)` : "none",
                   borderRadius: 12, boxSizing: "border-box",
                 }}
               >
@@ -940,19 +985,19 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
                   <span
                     data-export-ignore="true"
                     onClick={(e) => { e.stopPropagation(); removeSticker(s.id); }}
-                    style={{ position: "absolute", top: 0, left: 0, transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--coral-600)", color: "#fff", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 3 }}
+                    style={{ position: "absolute", top: 0, left: 0, transform: `translate(-50%, -50%) scale(${invScale})`, width: 22, height: 22, borderRadius: "50%", background: "var(--coral-600)", color: "#fff", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 3 }}
                   >×</span>
                   <span
                     data-export-ignore="true"
                     onPointerDown={(e) => startResizeRotate(e, s, "rotate")}
-                    style={{ position: "absolute", top: 0, left: "50%", transform: `translate(-50%, -140%) rotate(${-s.rotate}deg)`, width: 26, height: 26, borderRadius: "50%", background: "var(--rx-blue-500)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
+                    style={{ position: "absolute", top: 0, left: "50%", transform: `translate(-50%, -140%) rotate(${-s.rotate}deg) scale(${invScale})`, width: 26, height: 26, borderRadius: "50%", background: "var(--rx-blue-500)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
                   >
                     <Icon name="rotate-cw" size={13} color="#fff" />
                   </span>
                   <span
                     data-export-ignore="true"
                     onPointerDown={(e) => startResizeRotate(e, s, "resize")}
-                    style={{ position: "absolute", top: "100%", left: "100%", transform: "translate(-50%, -50%)", width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", cursor: "nwse-resize", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
+                    style={{ position: "absolute", top: "100%", left: "100%", transform: `translate(-50%, -50%) scale(${invScale})`, width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", cursor: "nwse-resize", boxShadow: "var(--shadow-sm)", touchAction: "none", zIndex: 3 }}
                   />
                 </React.Fragment>
               )}
@@ -962,10 +1007,12 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       </div>
 
       {showTip && (
-        <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", zIndex: 50, background: "rgba(62,71,60,0.92)", color: "#FBFDFF", fontFamily: "var(--font-body)", fontSize: 12.5, lineHeight: 1.5, padding: "10px 14px", borderRadius: 12, boxShadow: "var(--shadow-md)", textAlign: "center", pointerEvents: "none", whiteSpace: "nowrap" }}>
+        <div style={{ position: "absolute", top: 10, left: "50%", transform: `translateX(-50%) scale(${invScale})`, transformOrigin: "top center", zIndex: 50, background: "rgba(62,71,60,0.92)", color: "#FBFDFF", fontFamily: "var(--font-body)", fontSize: 12.5, lineHeight: 1.5, padding: "10px 14px", borderRadius: 12, boxShadow: "var(--shadow-md)", textAlign: "center", pointerEvents: "none", whiteSpace: "nowrap" }}>
           드래그해서 이동 · 손잡이로 크기와 각도 조절
         </div>
       )}
+    </div>
+    </div>
     </div>
   );
 
