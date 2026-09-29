@@ -325,7 +325,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     const w = boardRect && boardRect.width ? boardRect.width : 1;
     const zoneTop = zoneRect && boardRect ? zoneRect.top - boardRect.top : h * 0.35;
     const zoneBottom = zoneRect && boardRect ? zoneRect.bottom - boardRect.top : h * 0.65;
-    const base = pc ? 40 : 34;
+    const base = pc ? 40 : 25;
     const renderedPx = base * s.scale;
     let zone, frac;
     if (s.y < zoneTop) {
@@ -545,7 +545,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     const h = boardRect.height, w = boardRect.width;
     const zoneTop = zoneRect ? zoneRect.top - boardRect.top : h * 0.35;
     const zoneBottom = zoneRect ? zoneRect.bottom - boardRect.top : h * 0.65;
-    const base = pc ? 40 : 34;
+    const base = pc ? 40 : 25;
     const converted = rawSharedStickers.current.map((s) => {
       const localScale = ((s.scale || 0) * w) / base;
       let localY;
@@ -644,7 +644,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       setStickers((list) => {
         let changed = false;
         const next = list.map((s) => {
-          const half = (((pc ? 40 : 34) * s.scale) + 16) / 2;
+          const half = (((pc ? 40 : 25) * s.scale) + 16) / 2;
           const maxY = Math.max(half, newH - half);
           if (s.y > maxY) { changed = true; return { ...s, y: maxY }; }
           return s;
@@ -661,8 +661,8 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
     const board = boardRef.current.getBoundingClientRect();
     dragRef.current = { mode: "move", id: s.id, boardRect: board,
       before: stickers, moved: false,
-      mx: ((((pc ? 40 : 34) * s.scale) + 16) / 2 / board.width) * 100,
-      myPx: (((pc ? 40 : 34) * s.scale) + 16) / 2 };
+      mx: ((((pc ? 40 : 25) * s.scale) + 16) / 2 / board.width) * 100,
+      myPx: (((pc ? 40 : 25) * s.scale) + 16) / 2 };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", endPointer);
   };
@@ -901,7 +901,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
         {/* 스티커 레이어 — exportRef(캡처 대상) 내부에 렌더링해야 저장 이미지에 포함됨 */}
         {stickers.map((s) => {
           const isActive = activeId === s.id;
-          const px = (pc ? 40 : 34) * s.scale; // 긴 변 기준 참조 크기 — 드래그 여백 계산 등에서도 계속 씀
+          const px = (pc ? 40 : 25) * s.scale; // 긴 변 기준 참조 크기 — 드래그 여백 계산 등에서도 계속 씀
           const boxPad = 8;
           // 조작 박스를 정사각형으로 강제하지 않고 이미지 실제 가로/세로 비율(STICKER_ASPECT)에 맞춘다.
           // 대부분의 스티커 파일은 이미 알파 채널 기준으로 캔버스를 꽉 채우고 있어(투명 여백 거의 없음)
