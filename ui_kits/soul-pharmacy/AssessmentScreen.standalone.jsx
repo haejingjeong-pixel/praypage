@@ -86,8 +86,8 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
       {/* AssessmentScreen.jsx와 동일: 문진을 통째로 나가는 "뒤로"는 없애고 화면 좌상단 고정
           "홈으로" 버튼으로 분리 (Q1~Q4 사이 이동은 접수카드 자체의 "이전" 화살표를 쓴다).
           봉투 이미지 위에 얹히지 않도록 봉투 바깥, 화면(viewport) 기준 좌상단에 배치. */}
-      <button onClick={onBack} style={{ position: "fixed", left: pc ? 24 : 16, top: pc ? 24 : 16, zIndex: 5, background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "9px 18px", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-body)", fontSize: 12.5, fontWeight: 600, boxShadow: "0 4px 14px rgba(70,58,45,0.12)", backdropFilter: "blur(4px)" }}>
-        <Icon name="home" size={15} color="var(--text-muted)" stroke={1.7} /> 홈으로
+      <button onClick={onBack} style={{ position: "fixed", left: pc ? 24 : 16, top: pc ? 24 : 16, zIndex: 5, width: "fit-content", whiteSpace: "nowrap", background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999, padding: "6px 10px", cursor: "pointer", color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: 4, fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, lineHeight: 1, boxShadow: "0 2px 8px rgba(70,58,45,0.10)", backdropFilter: "blur(4px)" }}>
+        <Icon name="home" size={13} color="var(--text-muted)" stroke={1.7} />홈으로
       </button>
 
       {/* 상단 안내 (접수카드보다 강조되지 않게 조용히) */}
