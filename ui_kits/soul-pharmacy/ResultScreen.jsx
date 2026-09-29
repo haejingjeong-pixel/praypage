@@ -126,7 +126,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
         {/* 완성 이미지 1장(봉투+편지지, 브랜딩 텍스트는 이미지에 포함). 이미지는 딱 한 번 페이드인 →
             봉투 문구가 순차 등장 → (배경 그대로) 봉투 문구 페이드아웃 + 공유 안내 문구 페이드인. */}
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
+          <img src="assets-web/envelope-scene.png?v=2" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
             {/* 라벨 — 배경처럼 이 네 phase 내내 한 번만 마운트되어 고정. envelope/shareGuide가
                 똑같이 "말씀 처방전"을 쓰길래 따로 두면 여기도 같이 깜빡였다. */}
