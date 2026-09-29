@@ -295,6 +295,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   const sheetW = pc ? 720 : 380;   // 처방전 폭 (가로 넓은 롤링페이퍼)
   const panelW = wide ? 400 : (pc ? 300 : sheetW); // 스티커 사이드 패널 폭
   const padX = pc ? 44 : 24;
+  const GUIDE_W = 380; // 상단 안내바·7일 안내 문구 폭 — 모바일 기준 크기를 PC에서도 그대로 사용
 
   // 처방전 카드 내부는 화면 폭과 무관하게 항상 PC 레이아웃(CARD_W=720px)으로 그리고, 좁은 화면에서는
   // 바깥 래퍼의 transform: scale()로 카드 전체를 화면 폭에 맞게 축소해서 보여준다 — 줄바꿈·스티커
@@ -1064,10 +1065,11 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       {!finalizing && (
         <React.Fragment>
           <style>{"@keyframes guideBannerIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}"}</style>
-          <div style={{ width: sheetW, maxWidth: "100%", marginBottom: 16 }}>
-            <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: pc ? "16px 18px" : "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", opacity: 0, animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) 420ms both" }}>
+          {/* 안내바는 PC/모바일 동일 — 모바일 크기(380px 폭, 여백·글자 크기)를 그대로 쓰고 PC에선 가운데 배치만 한다. */}
+          <div style={{ width: GUIDE_W, maxWidth: "100%", marginBottom: 16 }}>
+            <div style={{ boxSizing: "border-box", display: "flex", alignItems: "flex-start", gap: 10, padding: "14px 15px", borderRadius: 16, background: "#FFFCF6", border: "1px solid rgba(171,136,96,0.28)", boxShadow: "0 8px 20px rgba(97,68,42,0.12)", opacity: 0, animation: "guideBannerIn 550ms cubic-bezier(0.22,1,0.32,1) 420ms both" }}>
               <Icon name="sparkles" size={20} color="#8E86DE" stroke={1.8} style={{ flexShrink: 0, marginTop: 1 }} />
-              <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
+              <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
                 {shareId ? (
                   <React.Fragment>
                     소중한 사람이 받은 처방전이에요.<br />
@@ -1085,7 +1087,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
         </React.Fragment>
       )}
       {shareId && (
-        <p style={{ width: sheetW, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
+        <p style={{ width: GUIDE_W, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
           이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
         </p>
       )}
