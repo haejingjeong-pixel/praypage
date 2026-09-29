@@ -865,7 +865,10 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   // html-to-image 캡처가 transform 없이 720px 원본 그대로 저장된다.
   const invScale = 1 / cardScale; // 손잡이·안내처럼 조작용 UI는 축소를 상쇄해 원래 크기로 보이게
   const board = (
-    <div ref={cardFitRef} style={{ width: sheetW, maxWidth: "100%" }}>
+    // 모바일: 페이지 좌우 여백을 무시하고 화면 폭 전체(최대 720px)를 카드 영역으로 쓴다 —
+    // 여백보다 카드가 크게 보이는 게 우선. 가운데 정렬된 부모 안에서 100vw 폭이 양옆으로
+    // 같은 만큼 넘쳐 화면 가장자리에 딱 맞는다. PC는 기존(sheetW, 부모 폭 이내) 그대로.
+    <div ref={cardFitRef} style={pc ? { width: sheetW, maxWidth: "100%" } : { width: "100vw", maxWidth: CARD_W, alignSelf: "center", flexShrink: 0 }}>
     <div style={{ position: "relative", width: CARD_W * cardScale, height: cardH * cardScale }}>
     <div
       ref={boardRef}
