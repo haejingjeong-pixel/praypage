@@ -86,7 +86,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
         <div style={{ position: "absolute", top: pc ? "9%" : "7%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: pc ? 30 : 14, filter: "blur(4px)", opacity: 0.5 }}>
           {["anxious", "broken", "compare", "waiting", "forgive", "distant", "calling", "thanks"].map((k, i) => (
-            <img key={k} src={`assets-web/env-front-${k}.webp?v=2`} alt="" draggable="false" style={{ width: pc ? 150 : 68, height: "auto", transform: `translateY(${i % 2 ? 20 : 0}px)`, userSelect: "none" }} />
+            <img key={k} src={`assets-web/env-front-${k}.webp?v=3`} alt="" draggable="false" style={{ width: pc ? 150 : 68, height: "auto", transform: `translateY(${i % 2 ? 20 : 0}px)`, userSelect: "none" }} />
           ))}
         </div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(250,247,240,0.5) 0%, rgba(250,247,240,0.82) 52%, #F3EEE9 100%)" }} />
@@ -120,7 +120,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
 
           {/* (1) 봉투 뒷면 */}
           <img
-            src={`assets-web/env-back-${mood}.webp?v=2`}
+            src={`assets-web/env-back-${mood}.webp?v=3`}
             alt=""
             draggable="false"
             style={{ position: "absolute", left: "50%", bottom: 0, transform: "translateX(-50%)", width: backW, height: "auto", zIndex: 1, userSelect: "none", filter: "drop-shadow(0 14px 22px rgba(120,92,64,0.16))", pointerEvents: "none" }}
@@ -170,7 +170,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
               filter: "drop-shadow(0 6px 10px rgba(120,92,64,0.14))",
             }}
           >
-            <img src={`assets-web/env-front-${mood}.webp?v=2`} alt="" draggable="false" style={{ display: "block", width: "100%", height: "auto", userSelect: "none" }} />
+            <img src={`assets-web/env-front-${mood}.webp?v=3`} alt="" draggable="false" style={{ display: "block", width: "100%", height: "auto", userSelect: "none" }} />
             <span
               style={{
                 position: "absolute", left: 0, right: 0, top: "62%", transform: "translateY(-50%)",
