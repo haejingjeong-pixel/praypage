@@ -118,8 +118,6 @@ export function AssessmentPaper({
   width = 340,
   pc = false,
   cardHeight = null,
-  // cardMinHeight: 최소 높이만 보장하고 내용이 길면 카드가 아래로 늘어난다(내부 스크롤 없음).
-  cardMinHeight = null,
   skip: skipProp = false,
   style = {},
 }) {
@@ -177,7 +175,7 @@ export function AssessmentPaper({
         boxShadow: "var(--shadow-rx)",
         fontFamily: "var(--font-body)",
         boxSizing: "border-box",
-        ...(cardHeight ? { height: cardHeight, display: "flex", flexDirection: "column" } : cardMinHeight ? { minHeight: cardMinHeight, display: "flex", flexDirection: "column" } : {}),
+        ...(cardHeight ? { height: cardHeight, display: "flex", flexDirection: "column" } : {}),
         ...style,
       }}
     >
@@ -200,7 +198,7 @@ export function AssessmentPaper({
       </div>
 
       {/* one question at a time */}
-      <div style={{ padding: pc ? "0 56px" : "0 26px", ...(cardHeight ? { flex: 1, minHeight: 0, overflowY: "auto" } : cardMinHeight ? { flex: 1 } : { minHeight: 168 }) }}>
+      <div style={{ padding: pc ? "0 56px" : "0 26px", ...(cardHeight ? { flex: 1, minHeight: 0, overflowY: "auto" } : { minHeight: 168 }) }}>
         <div key={step} style={{ animation: skipAll ? "none" : "rxstep 700ms cubic-bezier(0.22,1,0.32,1)" }}>
           <div style={{ marginBottom: pc ? 16 : 16 }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12 : 11, letterSpacing: "0.16em", color: iconColor, marginBottom: 8, animation: skipAll ? "none" : "rxopt 1200ms cubic-bezier(0.22,1,0.32,1) both", animationDelay: skipAll ? undefined : `${o}ms` }}>Q{g.number}</div>

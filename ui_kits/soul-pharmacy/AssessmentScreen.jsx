@@ -71,23 +71,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   const envH = envImgH;
   // 접수지는 모든 문항에서 동일한 고정 높이 — 문항마다 선택지 수가 달라도
   // 무대 높이·봉투·감정명 위치가 움직이지 않도록 카드 높이를 고정한다.
-  // PC: 고정 높이(문항마다 봉투가 움직이지 않게). 모바일: 최소 620px만 보장하고 선택지가 많으면
-  // 카드가 아래로 늘어난다 — 고정 높이일 때 카드 안쪽에 스크롤이 생겨 4번째 이후 선택지가 처음엔
-  // 안 보였다. 무대 높이는 실제 카드 높이를 재서 맞추므로 봉투도 그만큼 아래로 밀려난다.
-  const MOBILE_PAPER_MIN = 620;
-  const paperRef = React.useRef(null);
-  const [paperMeasuredH, setPaperMeasuredH] = React.useState(MOBILE_PAPER_MIN);
-  React.useLayoutEffect(() => {
-    const el = paperRef.current;
-    if (!el) return;
-    const measure = () => setPaperMeasuredH(el.offsetHeight || MOBILE_PAPER_MIN);
-    measure();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const paperH = pc ? 700 : Math.max(MOBILE_PAPER_MIN, paperMeasuredH);
+  const paperH = pc ? 700 : 620;
   const stageH = paperBottom + paperH + 16;
   // 봉투 하단 꼬리는 감정 문구 조금 아래에서 끝나도록 트림(빈 공간 제거). 상단은 트림하지 않음.
   // +16px 여유: 트림 비율(30%)만 쓰면 2줄짜리 감정명(마음이 무너졌어요 등 8개 중 6개)의
@@ -107,8 +91,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   // 화면 높이가 무대보다 짧으면 무대 전체(봉투·접수카드·감정명)를 같은 비율로 축소해 viewport 안에
   // 들어오게 한다. 개별 요소의 위치 관계는 그대로라 특정 해상도별 보정이 필요 없다.
   const stageTop = pc ? 8 : 12;
-  // 모바일은 축소하지 않고 페이지 전체 세로 스크롤을 쓴다(늘어난 카드 글자가 작아지지 않게).
-  const fitScale = pc ? Math.min(1, Math.max(0.6, (vh - stageTop - 16) / clipH)) : 1;
+  const fitScale = Math.min(1, Math.max(0.6, (vh - stageTop - 16) / clipH));
 
   return (
     <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -161,7 +144,6 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
 
           {/* (2) 접수카드 종이 — 뒷면과 앞면 사이에서 상승 */}
           <div
-            ref={paperRef}
             style={{
               position: "absolute",
               left: "50%",
@@ -185,8 +167,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
               onSubmit={() => onSubmit && onSubmit(selections)}
               width={paperW}
               pc={pc}
-              cardHeight={pc ? paperH : null}
-              cardMinHeight={pc ? null : MOBILE_PAPER_MIN}
+              cardHeight={paperH}
               skip={skip}
               style={{ paddingBottom: paperPadBottom }}
             />
