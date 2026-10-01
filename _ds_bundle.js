@@ -511,6 +511,25 @@ function AssessmentPaper({
   React.useEffect(() => {
     setStep(0);
   }, [groups]);
+  // 고정 높이 카드에서 선택지가 넘칠 때: 모바일 스크롤바는 스크롤하기 전엔 숨어 있어서 선택지가
+  // 더 있다는 걸 알 수 없었다. 넘치는 동안(끝까지 내리기 전)에만 하단 페이드 + "아래로 더 있어요"를 띄운다.
+  const scrollRef = React.useRef(null);
+  const [moreBelow, setMoreBelow] = React.useState(false);
+  const checkMore = () => {
+    const el = scrollRef.current;
+    setMoreBelow(!!el && el.scrollHeight - el.clientHeight - el.scrollTop > 6);
+  };
+  React.useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+    checkMore();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(checkMore);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => ro.disconnect();
+  }, [step, groups, cardHeight]);
   const g = groups[step] || {
     number: "",
     question: "",
@@ -629,6 +648,8 @@ function AssessmentPaper({
   }, step + 1, " / ", total)), /*#__PURE__*/React.createElement(__ds_scope.Divider, {
     spacing: pc ? 14 : 16
   })), /*#__PURE__*/React.createElement("div", {
+    ref: cardHeight ? scrollRef : undefined,
+    onScroll: cardHeight ? checkMore : undefined,
     style: {
       padding: pc ? "0 56px" : "0 26px",
       ...(cardHeight ? {
@@ -724,6 +745,41 @@ function AssessmentPaper({
         padding: pc ? "4px 0" : "3px 0"
       }
     }));
+  }))), cardHeight && /*#__PURE__*/React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      position: "sticky",
+      bottom: 0,
+      height: 52,
+      marginTop: -52,
+      display: "flex",
+      alignItems: "flex-end",
+      justifyContent: "center",
+      paddingBottom: 4,
+      pointerEvents: "none",
+      background: "linear-gradient(180deg, rgba(251,248,241,0) 0%, var(--cream) 78%)",
+      opacity: moreBelow ? 1 : 0,
+      transition: "opacity 240ms ease"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4,
+      padding: "4px 11px 4px 12px",
+      borderRadius: 999,
+      background: "var(--paper-warm)",
+      boxShadow: "0 2px 8px rgba(90,74,52,0.12)",
+      fontFamily: "var(--font-body)",
+      fontSize: 11.5,
+      fontWeight: 600,
+      color: "var(--text-muted)"
+    }
+  }, "\uC544\uB798\uB85C \uB354 \uC788\uC5B4\uC694", /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "chevron-down",
+    size: 14,
+    color: "var(--text-muted)",
+    stroke: 2
   })))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: pc ? "16px 56px 26px" : "14px 26px 24px",
