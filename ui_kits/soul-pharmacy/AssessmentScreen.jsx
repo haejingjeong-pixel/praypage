@@ -18,12 +18,14 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   // 봉투 표시 폭 W (반응형). PC는 별도 레이아웃(넓은 접수 영역).
   const [W, setW] = React.useState(340);
   const [pc, setPc] = React.useState(false);
+  const [vh, setVh] = React.useState(() => (typeof window !== "undefined" ? window.innerHeight : 800));
   React.useEffect(() => {
     const pick = () => {
       const vw = window.innerWidth;
       const isPc = vw >= 900;
       setPc(isPc);
       setW(isPc ? Math.round(Math.min(760, Math.max(680, vw * 0.58)) / 0.78) : Math.max(268, Math.min(360, Math.round(vw * 0.86))));
+      setVh(window.innerHeight);
     };
     pick();
     window.addEventListener("resize", pick);
@@ -76,7 +78,20 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   // 하단이 모바일 -1~3px, PC -5~7px씩 항상 살짝 잘렸다. 봉투 이미지/트림 비율은 그대로 두고
   // 텍스트가 잘리지 않을 만큼만 클립 높이에 여유를 더한다(트림 비중 대비 미미해서 빈 꼬리
   // 가리기 의도에는 영향 없음).
-  const clipH = stageH - envImgH * 0.30 + 16;
+  // 감정명 위치는 이미지 높이가 아니라 봉투 캔버스(envW × RATIO) 기준으로 고정한다 —
+  // env-front 이미지는 감정마다 높이가 달라(900×751 캔버스 / 900×524 잘린 버전) 이미지 높이 기준
+  // top:62%로 두면 잘린 버전(책임·비교·하나님·감사)의 문구가 86/900만큼 아래로 내려가 클립에
+  // 잘리고 화면 밖으로 밀렸다. 두 버전 모두 하단 정렬하면 봉투 모양은 똑같이 겹친다.
+  const labelFont = Math.round(W * 0.046);
+  const labelCenterFromBottom = envImgH * (1 - 0.62);        // 캔버스 기준 62% 지점
+  const labelHalfH = labelFont * 1.3;                         // 2줄 감정명의 절반 높이
+  // 클립 하단은 감정명 하단 + 여유 12px보다 위로 올라가지 않게 — 텍스트가 항상 클립 안에 남는다.
+  const trim = Math.min(envImgH * 0.30 - 16, labelCenterFromBottom - labelHalfH - 12);
+  const clipH = stageH - Math.max(0, trim);
+  // 화면 높이가 무대보다 짧으면 무대 전체(봉투·접수카드·감정명)를 같은 비율로 축소해 viewport 안에
+  // 들어오게 한다. 개별 요소의 위치 관계는 그대로라 특정 해상도별 보정이 필요 없다.
+  const stageTop = pc ? 8 : 12;
+  const fitScale = Math.min(1, Math.max(0.6, (vh - stageTop - 16) / clipH));
 
   return (
     <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -107,7 +122,8 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           이유로 Fade 바깥에 둬야 함). onBack prop은 그대로 받아두되 여기서는 쓰지 않는다. */}
 
       {/* 3-레이어 무대 — 봉투 하단은 clip으로 잘라 머문구 지점에서 끝난다 */}
-      <div style={{ position: "relative", zIndex: 1, width: W, height: clipH, overflow: "hidden", margin: pc ? "8px auto 0" : "12px auto 0" }}>
+      <div style={{ position: "relative", zIndex: 1, width: W * fitScale, height: clipH * fitScale, margin: `${stageTop}px auto 0` }}>
+      <div style={{ position: "absolute", top: 0, left: 0, width: W, height: clipH, overflow: "hidden", transform: fitScale !== 1 ? `scale(${fitScale})` : "none", transformOrigin: "top left" }}>
       <div style={{ position: "relative", width: W, height: stageH }}>
         {/* envelope box (하단 정렬) — 봉투 등장 애니메이션 단위 */}
         <div style={{
@@ -164,18 +180,19 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
               left: "50%",
               bottom: frontBottom,
               width: frontW,
+              height: envImgH,
               zIndex: 3,
               transform: "translateX(-50%)",
               pointerEvents: "none",
               filter: "drop-shadow(0 6px 10px rgba(120,92,64,0.14))",
             }}
           >
-            <img src={`assets-web/env-front-${mood}.webp?v=3`} alt="" draggable="false" style={{ display: "block", width: "100%", height: "auto", userSelect: "none" }} />
+            <img src={`assets-web/env-front-${mood}.webp?v=3`} alt="" draggable="false" style={{ position: "absolute", left: 0, bottom: 0, display: "block", width: "100%", height: "auto", userSelect: "none" }} />
             <span
               style={{
-                position: "absolute", left: 0, right: 0, top: "62%", transform: "translateY(-50%)",
+                position: "absolute", left: 0, right: 0, bottom: labelCenterFromBottom, transform: "translateY(50%)",
                 textAlign: "center", fontFamily: "var(--font-title)", fontWeight: 600,
-                fontSize: Math.round(W * 0.046), lineHeight: 1.3, color: "var(--ink-900)",
+                fontSize: labelFont, lineHeight: 1.3, color: "var(--ink-900)",
                 whiteSpace: "pre-line", letterSpacing: "-0.01em",
                 textShadow: "0 1px 2px rgba(255,255,255,0.35)",
               }}
@@ -184,6 +201,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
             </span>
           </div>
         </div>
+      </div>
       </div>
       </div>
 
