@@ -502,6 +502,7 @@ function AssessmentPaper({
   width = 340,
   pc = false,
   cardHeight = null,
+  cardMinHeight = null,
   skip: skipProp = false,
   style = {}
 }) {
@@ -565,6 +566,10 @@ function AssessmentPaper({
       boxSizing: "border-box",
       ...(cardHeight ? {
         height: cardHeight,
+        display: "flex",
+        flexDirection: "column"
+      } : cardMinHeight ? {
+        minHeight: cardMinHeight,
         display: "flex",
         flexDirection: "column"
       } : {}),
@@ -635,6 +640,8 @@ function AssessmentPaper({
         flex: 1,
         minHeight: 0,
         overflowY: "auto"
+      } : cardMinHeight ? {
+        flex: 1
       } : {
         minHeight: 168
       })
