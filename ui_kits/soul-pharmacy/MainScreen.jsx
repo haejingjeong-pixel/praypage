@@ -13,6 +13,9 @@ function MainScreen({ selected, onSelect, onNext }) {
     { key: "thanks",  img: "assets-web/env-thanks.webp?v=4",  label: "감사가\n사라졌어요" },
   ];
   const ENV_W = 168; // 봉투 표시 폭 (원본 271×315 비율 유지)
+  const ENV_BASE_Y = 0;          // 8개 봉투 공통 기본 Y
+  const ENV_SELECTED_LIFT = -10; // 선택한 봉투만 추가 상승
+  const ENV_HOVER_LIFT = -4;     // PC 마우스 hover 미리보기 상승
 
   const [perRow, setPerRow] = React.useState(
     typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches ? 2 : 4
@@ -29,12 +32,17 @@ function MainScreen({ selected, onSelect, onNext }) {
   const [flyActive, setFlyActive] = React.useState(false);
   const [exiting, setExiting] = React.useState(false);
   const locked = React.useRef(false);
+  // 이 화면에서 실제로 고른 봉투만 "선택" 상태로 본다. 부모의 selected(=App의 mood)는 홈으로/다시하기로
+  // 돌아와도 이전 값이 그대로 남아 있어서, 그걸 쓰면 아무것도 고르지 않은 첫 화면에서도 그 봉투 하나만
+  // 미리 올라가 보였다. 화면에 들어올 때마다 null에서 시작하는 로컬 상태로 판단한다.
+  const [picked, setPicked] = React.useState(null);
 
   const handlePick = (e, ev) => {
     if (locked.current) return;
     locked.current = true;
     window.__sfx && window.__sfx.play("assets/start_echo.mp3"); // 마음 카드 선택 전용 사운드 — 체크/다음 버튼 효과음과는 별개
     const rect = ev.currentTarget.getBoundingClientRect();
+    setPicked(e.key);
     onSelect(e.key);
     setFly({ e, rect });
     setExiting(true);                                   // 리스트/제목 퇴장
@@ -46,23 +54,22 @@ function MainScreen({ selected, onSelect, onNext }) {
   for (let i = 0; i < ENVELOPES.length; i += perRow) rows.push(ENVELOPES.slice(i, i + perRow));
 
   const Envelope = ({ e }) => {
-    const isSel = selected === e.key;
+    const isSel = picked === e.key;
     const hidden = fly && fly.e.key === e.key; // 나는 복제본이 대신 날아가므로 원본 숨김
+    // Y 위치는 inline transform을 쓰지 않고 아래 .env-card 클래스 규칙 하나로만 결정한다.
     return (
       <button
+        className={"env-card" + (isSel ? " is-sel" : "")}
         onClick={(ev) => handlePick(e, ev)}
         style={{
           position: "relative", width: "100%", maxWidth: ENV_W, border: "none", background: "transparent",
           padding: 0, cursor: "pointer", zIndex: 1,
-          transform: isSel ? "translateY(-10px)" : "translateY(0)",
-          transition: "transform 380ms cubic-bezier(0.16,1,0.3,1)",
           opacity: hidden ? 0 : 1,
           filter: isSel ? "drop-shadow(0 16px 22px rgba(120,92,64,0.22))" : "drop-shadow(0 7px 12px rgba(120,92,64,0.16))",
         }}
-        onMouseEnter={(ev) => { if (!isSel && !locked.current) ev.currentTarget.style.transform = "translateY(-4px)"; }}
-        onMouseLeave={(ev) => { if (!isSel) ev.currentTarget.style.transform = "translateY(0)"; }}
       >
-        <img src={e.img} alt={e.label.replace("\n", " ")} draggable="false" style={{ width: "100%", height: "auto", display: "block", userSelect: "none" }} />
+        {/* 봉투 칸 비율을 271:315 하나로 고정 — env-thanks만 272px라 그대로 두면 높이가 미세하게 달라졌다. */}
+        <img src={e.img} alt={e.label.replace("\n", " ")} draggable="false" style={{ width: "100%", height: "auto", aspectRatio: "271 / 315", objectFit: "contain", display: "block", userSelect: "none" }} />
         <span
           style={{
             position: "absolute", left: 0, right: 0, top: "52%", bottom: "6%",
@@ -92,6 +99,15 @@ function MainScreen({ selected, onSelect, onNext }) {
   return (
     <div style={{ position: "relative", minHeight: "100vh", ...(perRow === 4 ? { maxHeight: "100vh", overflow: "hidden" } : {}), boxSizing: "border-box", background: "url('assets-web/leaf-tl-soft.png') top left / min(52vw,460px) auto no-repeat, url('assets-web/leaf-br-soft.png') bottom right / min(52vw,460px) auto no-repeat, #F2EBE6", padding: "clamp(20px,3vh,44px) 32px clamp(24px,3.4vh,56px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: perRow === 4 ? "center" : "flex-start" }}>
 
+      {/* 봉투 Y 위치 규칙 — 8개 공통 기본값 0, 선택한 봉투만 -10px. 마우스 올림(-4px)은 실제 hover가
+          가능한 기기(PC 마우스)에서만, 그리고 아직 아무것도 고르지 않았을 때만 적용한다. 터치 기기에서
+          탭 후 hover가 남아 일부 봉투만 들떠 보이는 문제를 막기 위해 JS로 style을 직접 바꾸지 않는다. */}
+      <style>{`
+        .env-card{transform:translateY(${ENV_BASE_Y}px);transition:transform 380ms cubic-bezier(0.16,1,0.3,1)}
+        .env-card.is-sel{transform:translateY(${ENV_BASE_Y + ENV_SELECTED_LIFT}px)}
+        @media (hover:hover) and (pointer:fine){.env-list:not(.is-locked) .env-card:not(.is-sel):hover{transform:translateY(${ENV_BASE_Y + ENV_HOVER_LIFT}px)}}
+      `}</style>
+
       {/* 퇴장 그룹: 제목 + 봉투 리스트 + 안내문 (list-exit 시 아래로 내려가며 fade out) */}
       <div style={{
         width: "100%", display: "flex", flexDirection: "column", alignItems: "center",
@@ -113,7 +129,7 @@ function MainScreen({ selected, onSelect, onNext }) {
         </div>
 
         {/* 나무 바 2줄, 각 줄에 봉투 4개 */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(14px,2.4vh,30px)", width: "100%", position: "relative", zIndex: 1, maxWidth: perRow === 2 ? ENV_W * 2 + 14 + 100 : ENV_W * 4 + 3 * 16 + 100 }}>
+        <div className={"env-list" + (picked ? " is-locked" : "")} style={{ display: "flex", flexDirection: "column", gap: "clamp(14px,2.4vh,30px)", width: "100%", position: "relative", zIndex: 1, maxWidth: perRow === 2 ? ENV_W * 2 + 14 + 100 : ENV_W * 4 + 3 * 16 + 100 }}>
           {rows.map((row, i) => (
             <div key={i} style={{ position: "relative", paddingTop: 22 }}>
               <img src="assets-web/wood-bar.webp" alt="" draggable="false" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "auto", zIndex: 0, userSelect: "none", filter: "drop-shadow(0 10px 12px rgba(120,92,64,0.22))" }} />
