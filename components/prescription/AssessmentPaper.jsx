@@ -125,13 +125,19 @@ export function AssessmentPaper({
   const [step, setStep] = React.useState(0);
   const total = groups.length || 1;
   React.useEffect(() => { setStep(0); }, [groups]);
-  // 고정 높이 카드에서 선택지가 넘칠 때: 모바일 스크롤바는 스크롤하기 전엔 숨어 있어서 선택지가
-  // 더 있다는 걸 알 수 없었다. 넘치는 동안(끝까지 내리기 전)에만 하단 페이드 + "아래로 더 있어요"를 띄운다.
+  // 고정 높이 카드에서 선택지가 넘칠 때: 모바일 기본 스크롤바는 스크롤하기 전엔 숨어 있어서 넘친다는
+  // 걸 알 수 없었다. 기본 스크롤바는 숨기고, 넘칠 때만 처음부터 보이는 커스텀 세로 스크롤바를 그린다
+  // (실제 scrollTop과 연동). 내용이 다 들어오면 그리지 않는다.
   const scrollRef = React.useRef(null);
-  const [moreBelow, setMoreBelow] = React.useState(false);
+  const [bar, setBar] = React.useState(null); // null = 넘치지 않음 | { top, h, trackH }
   const checkMore = () => {
     const el = scrollRef.current;
-    setMoreBelow(!!el && el.scrollHeight - el.clientHeight - el.scrollTop > 6);
+    if (!el) return setBar(null);
+    const sh = el.scrollHeight, ch = el.clientHeight;
+    if (sh - ch <= 1) return setBar(null);
+    const h = Math.max(28, Math.round(ch * ch / sh));
+    const top = Math.round((el.scrollTop / (sh - ch)) * (ch - h));
+    setBar({ top, h, trackH: ch });
   };
   React.useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -217,7 +223,15 @@ export function AssessmentPaper({
       </div>
 
       {/* one question at a time */}
-      <div ref={cardHeight ? scrollRef : undefined} onScroll={cardHeight ? checkMore : undefined} style={{ padding: pc ? "0 56px" : "0 26px", ...(cardHeight ? { flex: 1, minHeight: 0, overflowY: "auto" } : { minHeight: 168 }) }}>
+      <div ref={cardHeight ? scrollRef : undefined} onScroll={cardHeight ? checkMore : undefined} className={cardHeight ? "ap-scroll" : undefined} style={{ padding: pc ? "0 56px" : "0 26px", ...(cardHeight ? { flex: 1, minHeight: 0, overflowY: "auto" } : { minHeight: 168 }) }}>
+        {cardHeight && <style>{".ap-scroll{scrollbar-width:none;-ms-overflow-style:none}.ap-scroll::-webkit-scrollbar{display:none}"}</style>}
+        {cardHeight && bar && (
+          <div aria-hidden="true" style={{ position: "sticky", top: 0, height: 0, zIndex: 2, pointerEvents: "none" }}>
+            <div style={{ position: "absolute", top: 0, right: pc ? -36 : -16, width: 4, height: bar.trackH, borderRadius: 999, background: "rgba(120,104,78,0.12)" }}>
+              <div style={{ position: "absolute", left: 0, top: bar.top, width: 4, height: bar.h, borderRadius: 999, background: "rgba(120,104,78,0.45)" }} />
+            </div>
+          </div>
+        )}
         <div key={step} style={{ animation: skipAll ? "none" : "rxstep 700ms cubic-bezier(0.22,1,0.32,1)" }}>
           <div style={{ marginBottom: pc ? 16 : 16 }}>
             <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12 : 11, letterSpacing: "0.16em", color: iconColor, marginBottom: 8, animation: skipAll ? "none" : "rxopt 1200ms cubic-bezier(0.22,1,0.32,1) both", animationDelay: skipAll ? undefined : `${o}ms` }}>Q{g.number}</div>
@@ -242,13 +256,6 @@ export function AssessmentPaper({
             })}
           </div>
         </div>
-        {cardHeight && (
-          <div aria-hidden="true" style={{ position: "sticky", bottom: 0, height: 52, marginTop: -52, display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 4, pointerEvents: "none", background: "linear-gradient(180deg, rgba(251,248,241,0) 0%, var(--cream) 78%)", opacity: moreBelow ? 1 : 0, transition: "opacity 240ms ease" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 11px 4px 12px", borderRadius: 999, background: "var(--paper-warm)", boxShadow: "0 2px 8px rgba(90,74,52,0.12)", fontFamily: "var(--font-body)", fontSize: 11.5, fontWeight: 600, color: "var(--text-muted)" }}>
-              아래로 더 있어요<Icon name="chevron-down" size={14} color="var(--text-muted)" stroke={2} />
-            </span>
-          </div>
-        )}
       </div>
 
       {/* footer nav — 중앙 정렬 화살표 (봉투에 가리지 않도록 컴팩트하게) */}
