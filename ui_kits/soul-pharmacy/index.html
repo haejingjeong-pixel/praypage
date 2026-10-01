@@ -53,7 +53,7 @@
 <script type="text/babel" src="IntroSequence.jsx?v=env5"></script>
 <script type="text/babel" src="MainScreen.jsx?v=envY1"></script>
 <script type="text/babel" src="AssessmentScreen.jsx?v=revert1"></script>
-<script type="text/babel" src="ResultScreen.jsx?v=scene2"></script>
+<script type="text/babel" src="ResultScreen.jsx?v=scene3"></script>
 <script type="text/babel" src="StickerScreen.jsx?v=guide1"></script>
 <script type="text/babel">
   // 링크 공유 상태: URL에는 Supabase의 짧은 공유 ID(?id=)만 있고, 실제 처방전/스티커
@@ -113,7 +113,7 @@
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
         <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png?v=2" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
+          <img src="assets-web/envelope-scene.png?v=3" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "17%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
             <div style={{ position: "relative", top: "-10px", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
             <div style={{ marginTop: "0.5em", opacity: pageVisible ? 1 : 0, transition: "opacity 550ms ease" }}>
