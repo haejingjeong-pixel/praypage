@@ -118,13 +118,13 @@ function MainScreen({ selected, onSelect, onNext }) {
         {/* 제목 영역 */}
         <div style={{ textAlign: "center", marginBottom: "clamp(16px,2.8vh,40px)", position: "relative", zIndex: 1 }}>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 13, letterSpacing: "0.24em", color: "var(--mood-broken-ink)", marginBottom: "clamp(6px,1.3vh,16px)" }}>
-            말씀 처방전
+            마음 안내소
           </div>
           <h1 style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 34, lineHeight: 1.3, color: "var(--ink-900)", margin: "0 0 clamp(7px,1.1vh,14px)", letterSpacing: "-0.01em" }}>
             오늘 마음은 어떤가요?
           </h1>
           <p style={{ fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65, color: "var(--text-muted)", margin: 0 }}>
-            내 마음 카드를 하나 고르면, 그 마음에 맞는 말씀 약봉투가 발급됩니다.
+            지금 내 마음에 가까운 카드를 한 가지 골라주세요.
           </p>
         </div>
 
@@ -146,7 +146,11 @@ function MainScreen({ selected, onSelect, onNext }) {
             마음 카드를 하나 골라주세요
           </div>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--text-muted)" }}>
-            선택하면 카드가 살짝 올라오고, 말씀 처방전이 발급돼요.
+            카드를 선택하면, 지금 내 마음에 어울리는 말씀과 안내를 만나볼 수 있어요.
+          </div>
+          {/* 의료 서비스 아님 안내 — 하단 안내문 아래 흐름 안에 두어 카드·버튼과 겹치지 않게 한다. */}
+          <div style={{ fontFamily: "var(--font-body)", fontSize: 11.5, lineHeight: 1.5, color: "var(--text-muted)", opacity: 0.85, marginTop: "clamp(8px,1.4vh,14px)", wordBreak: "keep-all" }}>
+            ※ 본 콘텐츠는 의학적 진단·치료·처방을 제공하지 않습니다.
           </div>
         </div>
       </div>

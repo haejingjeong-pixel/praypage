@@ -155,7 +155,7 @@ const STICKER_TUTORIAL_STEPS = [
   { Stage: TutorialStepExpand, text: "스티커를 붙일 공간이 부족하다면 '공간 늘리기' 버튼을, 다시 줄이고 싶다면 '공간 줄이기' 버튼을 눌러보세요." },
   { Stage: TutorialStep1, text: "마음에 드는 스티커를 골라보세요." },
   { Stage: TutorialStepMove, text: "추가된 스티커를 원하는 위치로 옮겨 꾸며보세요." },
-  { Stage: TutorialStepShare, text: "꾸민 처방전을 소중한 사람에게 공유해보세요." },
+  { Stage: TutorialStepShare, text: "꾸민 마음 안내서를 소중한 사람에게 공유해보세요." },
 ];
 
 function StickerTutorial({ onDone }) {
@@ -457,7 +457,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "마음약국-처방전.png";
+      a.download = "마음안내소-마음안내서.png";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) { /* noop */ }
@@ -513,7 +513,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   };
   // "링크 다시 복사하기" — 새 공유 링크를 만들지 않고, share()에서 이미 만들어져 shareUrl에
   // 남아있는 같은 링크를 다시 클립보드에 복사만 한다. 성공 안내는 최초 복사 때와 동일한
-  // copyBanner("처방전의 공유 링크가 복사되었어요.")를 재사용.
+  // copyBanner("마음 안내서의 공유 링크가 복사되었어요.")를 재사용.
   const recopyShareLink = async () => {
     playCta();
     if (!shareUrl) return;
@@ -853,7 +853,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
             </button>
           ))}
         </div>
-        <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", textAlign: "center", margin: "14px 0 0" }}>고른 스티커는 처방전에 붙고, 드래그·회전·크기 조절할 수 있어요.</p>
+        <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", textAlign: "center", margin: "14px 0 0" }}>고른 스티커는 마음 안내서에 붙고, 드래그·회전·크기 조절할 수 있어요.</p>
       </div>
     </div>
   );
@@ -886,14 +886,14 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
         <div style={{ position: "relative", padding: `${cardPc ? 42 : 28}px ${cardPc ? 52 : 24}px ${cardPc ? 30 : 22}px`, minHeight: cardPc ? 560 : 560, display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* 마스트헤드 — 발급 화면과 동일. 성구 본문 텍스트만 스티커 금지, 이 영역은 부착 가능 */}
           <div style={{ width: "100%", textAlign: "center", marginBottom: cardPc ? 14 : 11 }}>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: cardPc ? 8 : 6 }}>오늘의 말씀 처방전</div>
-            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: cardPc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: cardPc ? 8 : 6 }}>마음 안내소</div>
+            <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: cardPc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음 안내서</div>
             <div style={{ borderTop: `1px solid ${LINE}`, width: "100%", marginTop: cardPc ? 16 : 12 }} />
           </div>
 
           {/* 개인 처방 정보 — 발급 화면과 동일한 테두리 표. 스티커 부착 가능 */}
           <div style={{ width: "100%" }}>
-            {[["처방일", rxDate, "증상", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "처방 단어", rx.word]].map((row, ri) => (
+            {[["오늘의 날짜", rxDate, "지금의 마음", rx.symptom || moodLabel], ["마음 강도", rx.intensity || "마음에 오래 머무는 중", "마음 키워드", rx.word]].map((row, ri) => (
               <div key={ri} style={{ display: "grid", gridTemplateColumns: cardPc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: cardPc ? 14 : 12, rowGap: cardPc ? 0 : 7, alignItems: "baseline", padding: `${cardPc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${LINE}` : "none" }}>
                 <TLabel>{row[0]}</TLabel><TVal>{row[1]}</TVal>
                 <TLabel>{row[2]}</TLabel><TVal accent={ri === 1}>{row[3]}</TVal>
@@ -903,7 +903,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
 
           {/* 처방 말씀 — 발급 화면과 동일. */}
           <div style={{ width: "100%", marginTop: cardPc ? 30 : 22 }}>
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: cardPc ? 12 : 9 }}>처방 말씀</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: cardPc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: cardPc ? 12 : 9 }}>오늘의 말씀</div>
             <div style={{ position: "relative", padding: `${cardPc ? 8 : 6}px ${cardPc ? 30 : 20}px ${cardPc ? 6 : 4}px`, textAlign: "center" }}>
               <p style={{ fontFamily: "var(--font-verse)", fontSize: cardPc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: cardPc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
               <div style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13 : 12, color: "#5a7099", letterSpacing: "0.04em", marginTop: cardPc ? 14 : 10 }}>{rx.reference}</div>
@@ -925,14 +925,14 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
             {!finalizing && stickers.length === 0 && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.7, pointerEvents: "none" }}>
                 <Icon name="hand-heart" size={cardPc ? 30 : 26} color="var(--text-faint)" stroke={1.5} />
-                <span style={{ fontFamily: "var(--font-label)", fontSize: cardPc ? 14 : 13, color: "var(--text-muted)" }}>빈 공간에 스티커를 붙여 처방전을 꾸며보세요.</span>
+                <span style={{ fontFamily: "var(--font-label)", fontSize: cardPc ? 14 : 13, color: "var(--text-muted)" }}>빈 공간에 스티커를 붙여 마음 안내서를 꾸며보세요.</span>
               </div>
             )}
           </div>
 
           {/* 복용 안내 — 스티커 부착 가능 */}
           <div style={{ width: "100%", borderTop: `1px solid ${LINE}` }} />
-          <div style={{ width: "100%", marginTop: cardPc ? 14 : 11 }}><SecTitle>복용 안내</SecTitle>
+          <div style={{ width: "100%", marginTop: cardPc ? 14 : 11 }}><SecTitle>오늘의 적용</SecTitle>
           <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: `${cardPc ? 11 : 9}px 2px ${cardPc ? 16 : 12}px`, textAlign: "left" }}>
             <Icon name="clipboard-list" size={cardPc ? 19 : 17} color={INK} stroke={1.6} />
             <p style={{ fontFamily: "var(--font-body)", fontSize: cardPc ? 13.5 : 12.5, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, flex: 1 }}>{oneLine}</p>
@@ -943,7 +943,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
               html-to-image가 이 노드를 통째로 잘라내면서(일반 문서 흐름) 저장된 카드 높이가
               편집 화면보다 짧아지는 버그가 있었다. */}
           <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#8a6f4a", opacity: 0.55, textAlign: "center", margin: `${cardPc ? 16 : 12}px 0 0` }}>
-            마음약국 처방전은 당신의 마음을 위한 맞춤 처방입니다.
+            마음 안내서는 당신의 마음을 위한 맞춤 안내입니다.
           </p>
         </div>
 
@@ -1042,7 +1042,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
         <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
           <Icon name="chevron-left" size={22} color="var(--text-muted)" />
         </button>
-        <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 18 : 16, color: "var(--text-strong)" }}>처방전 꾸미기</span>
+        <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 18 : 16, color: "var(--text-strong)" }}>마음 안내서 꾸미기</span>
         <span style={{ width: 22 }} />
       </div>
       {/* 본인(처방 발급자, shareId 없음)과 공유 링크로 들어온 사람(shareId 있음)은 스티커를
@@ -1072,7 +1072,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
               <p style={{ margin: 0, textAlign: "left", fontFamily: "var(--font-body)", fontSize: 13.5, lineHeight: 1.55, color: "var(--text-body)" }}>
                 {shareId ? (
                   <React.Fragment>
-                    소중한 사람이 받은 처방전이에요.<br />
+                    소중한 사람이 받은 마음 안내서예요.<br />
                     <span style={{ fontWeight: 700, color: "#6B5FCF" }}>마음을 담아 응원 스티커를 붙여보세요!</span>
                   </React.Fragment>
                 ) : (
@@ -1088,7 +1088,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       )}
       {shareId && (
         <p style={{ width: GUIDE_W, maxWidth: "100%", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)", margin: "-8px 0 16px" }}>
-          이 처방전은 공유된 날로부터 7일 동안 열어볼 수 있어요.
+          이 마음 안내서는 공유된 날로부터 7일 동안 열어볼 수 있어요.
         </p>
       )}
       <div style={{ display: "flex", flexDirection: pc ? "row" : "column", alignItems: pc ? "flex-start" : "center", justifyContent: "center", gap: pc ? 22 : 16, maxWidth: "100%" }}>
@@ -1159,7 +1159,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
                         <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 16 : 14.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 30px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 0ms forwards" }}>
                           {shareCopyFailed
                             ? <React.Fragment>링크를 복사하지 못했습니다.<br />아래 링크를 직접 복사해주세요.</React.Fragment>
-                            : <React.Fragment>당신이 꾸민 처방전이<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
+                            : <React.Fragment>당신이 꾸민 마음 안내서가<br />응원의 마음과 함께 잘 전달되었어요.</React.Fragment>}
                         </p>
                         {shareCopyFailed && shareUrl && (
                           <input
@@ -1185,7 +1185,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
                       오늘의 마음을<br />조용히 담아두었어요
                     </h2>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 16 : 14.5, lineHeight: 1.8, color: "var(--text-muted)", margin: "0 0 30px", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 500ms forwards" }}>
-                      꾸며진 처방전이 내 기기에<br />안전하게 저장되었어요.<br />마음이 필요한 날 다시 만나보세요.
+                      꾸며진 마음 안내서가 내 기기에<br />안전하게 저장되었어요.<br />마음이 필요한 날 다시 만나보세요.
                     </p>
                     <button onClick={finishCompletion} style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 750ms forwards" }}>메인으로 돌아가기</button>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-faint)", margin: "18px 0 0", opacity: 0, transform: "translateY(12px)", animation: "revealUp 480ms ease-out 900ms forwards" }}>잠시 후 메인으로 돌아갑니다</p>
@@ -1208,7 +1208,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
           <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Icon name="check" size={17} color="#fff" />
           </div>
-          <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 18 : 16, lineHeight: 1.4, color: "var(--ink-900)", textAlign: "left" }}>처방전의 공유 링크가 복사되었어요.</span>
+          <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 18 : 16, lineHeight: 1.4, color: "var(--ink-900)", textAlign: "left" }}>마음 안내서의 공유 링크가 복사되었어요.</span>
         </div>
       )}
       {showTutorial && <StickerTutorial onDone={dismissTutorial} />}

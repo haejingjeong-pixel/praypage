@@ -46,7 +46,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
       if (blob) {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "마음약국-상세처방전.png";
+        a.download = "마음안내소-상세마음안내서.png";
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       }
@@ -86,7 +86,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
   // 말씀 처방전이 등장하는 시점부터 3번 배경음악으로 크로스페이드
   React.useEffect(() => { if (window.__bgm && (phase === "envelope" || phase === "shareGuide" || phase === "reveal")) window.__bgm.play(3); }, [phase]);
 
-  const messages = ["말씀 처방전을 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
+  const messages = ["마음 안내서를 준비하고 있습니다", "당신에게 필요한 말씀을 정리하고 있습니다"];
 
   // ── 로딩 화면 ── 클릭으로 건너뛸 수 없다(의도적으로 기다리게 하는 구간).
   if (phase === "loading" || phase === "loadingExit") {
@@ -126,16 +126,16 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
         {/* 완성 이미지 1장(봉투+편지지, 브랜딩 텍스트는 이미지에 포함). 이미지는 딱 한 번 페이드인 →
             봉투 문구가 순차 등장 → (배경 그대로) 봉투 문구 페이드아웃 + 공유 안내 문구 페이드인. */}
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png?v=3" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
+          <img src="assets-web/envelope-scene.png?v=4" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1900ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "9%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
             {/* 라벨 — 배경처럼 이 네 phase 내내 한 번만 마운트되어 고정. envelope/shareGuide가
                 똑같이 "말씀 처방전"을 쓰길래 따로 두면 여기도 같이 깜빡였다. */}
-            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>마음 안내서</div>
             {/* 라벨 아래 콘텐츠 영역 — 봉투 본문(제목/부제/성구)이 실제 높이를 만들고,
                 공유 안내 문구는 그 위에 absolute로 겹쳐서 같은 자리에서 크로스페이드한다. */}
             <div style={{ position: "relative" }}>
               <div style={{ opacity: showEnvText ? 1 : 0, transition: "opacity 900ms ease" }}>
-                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 800ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 처방전이 준비되었어요</div>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(26px,3.1vw,42px)", color: "#5B4A3C", letterSpacing: "0.02em", marginTop: "0.5em", opacity: 0, animation: "rxup 800ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신을 위한 마음 안내서가 준비되었어요</div>
                 <div style={{ fontFamily: "var(--font-body)", fontWeight: 400, fontSize: "clamp(14px,1.5vw,20px)", lineHeight: 1.7, color: "#8C7565", marginTop: "0.55em", opacity: 0, animation: "rxup 800ms 600ms cubic-bezier(0.22,1,0.32,1) both" }}>지금 하나님께서 당신의 마음에 맞는 말씀을 꺼내고 있어요.</div>
                 <div style={{ marginTop: "1.7em", opacity: 0, animation: "rxup 800ms 850ms cubic-bezier(0.22,1,0.32,1) both" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.7em" }}>
@@ -148,7 +148,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
               </div>
               <div style={{ position: "absolute", inset: 0, opacity: showGuideText ? 1 : 0, transition: "opacity 900ms ease" }}>
                 <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(20px,2.6vw,30px)", lineHeight: 1.55, letterSpacing: "-0.01em", color: "#5B4A3C", marginTop: "0.5em", textWrap: "balance" }}>
-                  처방전의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
+                  마음 안내서의 <span style={shine}>링크를 공유하면</span><br /><span style={shine}>스티커로 응원의 메시지를</span><br />받을 수 있어요.
                 </div>
               </div>
             </div>
@@ -209,14 +209,14 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
       <div style={{ position: "relative", padding: `${pc ? 42 : 28}px ${padX}px ${pc ? 34 : 26}px` }}>
         {/* 마스트헤드 — 차분한 문서 헤더 */}
         <Reveal><div style={{ textAlign: "center", marginBottom: pc ? 14 : 11 }}>
-          <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>오늘의 말씀 처방전</div>
-          <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음약국 처방전</div>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13 : 12, color: "var(--text-muted)", letterSpacing: "0.14em", marginBottom: pc ? 8 : 6 }}>마음 안내소</div>
+          <div style={{ fontFamily: "var(--font-title)", fontWeight: 500, fontSize: pc ? 27 : 22, color: "#3f5a86", letterSpacing: "0.12em", paddingLeft: "0.12em" }}>마음 안내서</div>
           <div style={{ borderTop: `1px solid ${BORD}`, width: "100%", marginTop: pc ? 16 : 12 }} />
         </div></Reveal>
 
         {/* 접수 정보 표 */}
         <Reveal><div style={{ margin: `${pc ? 4 : 2}px 0 0` }}>
-          {[["처방일", rxDate, "증상", rx.symptom], ["마음 강도", rx.intensity, "처방 단어", rx.word]].map((row, ri) => (
+          {[["오늘의 날짜", rxDate, "지금의 마음", rx.symptom], ["마음 강도", rx.intensity, "마음 키워드", rx.word]].map((row, ri) => (
             <div key={ri} style={{ display: "grid", gridTemplateColumns: pc ? "auto 1fr auto 1fr" : "auto 1fr", columnGap: pc ? 14 : 12, rowGap: pc ? 0 : 7, alignItems: "baseline", padding: `${pc ? 11 : 9}px 2px`, borderTop: ri ? `1px solid ${BORD}` : "none" }}>
               <TL>{row[0]}</TL><TV>{row[1]}</TV>
               <TL>{row[2]}</TL><TV accent={ri === 1}>{row[3]}</TV>
@@ -226,7 +226,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
 
         {/* 처방 말씀 */}
         <Reveal><div style={{ marginTop: pc ? 26 : 20 }}>
-          <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>처방 말씀</div>
+          <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 12.5 : 11.5, color: "#5a7099", letterSpacing: "0.14em", textAlign: "center", marginBottom: pc ? 12 : 9 }}>오늘의 말씀</div>
           <div style={{ position: "relative", padding: `${pc ? 8 : 6}px ${pc ? 30 : 20}px ${pc ? 6 : 4}px`, textAlign: "center" }}>
             <span style={{ position: "absolute", left: 0, top: 2, fontFamily: "var(--font-verse)", fontSize: pc ? 24 : 19, color: "rgba(120,104,78,0.28)", lineHeight: 1 }}>“</span>
             <p style={{ fontFamily: "var(--font-verse)", fontSize: pc ? 20 : 16, lineHeight: 1.75, color: "var(--ink-900)", margin: "0 auto", maxWidth: pc ? 640 : 440, textWrap: "balance" }}>{rx.verse}</p>
@@ -240,7 +240,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
         <Reveal><div style={{ marginTop: pc ? 22 : 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
             <Icon name="clipboard-list" size={pc ? 19 : 17} color={RX} stroke={1.7} />
-            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15.5 : 14, color: RX }}>마음 소견</span>
+            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15.5 : 14, color: RX }}>마음 이야기</span>
           </div>
           {rx.state && <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: pc ? 15 : 14, lineHeight: 1.65, color: RX, margin: "0 0 12px" }}>{rx.state}</p>}
           <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 15 : 14, lineHeight: pc ? 1.95 : 1.85, color: "var(--text-body)", margin: 0, textWrap: "pretty" }}>{rx.opinion}</p>
@@ -248,7 +248,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
         </div></Reveal>
 
         {/* 복용법 · 주의사항 · 작은 실천 — 기존 80종 데이터 바인딩 유지 */}
-        {[["pill", "복용법", rx.dose], ["triangle-alert", "주의사항", rx.caution], ["sprout", "작은 실천", rx.practice]].map((sec, si) => (sec[2] || (si === 1 && rx.cognitive)) ? (
+        {[["pill", "오늘의 적용", rx.dose], ["triangle-alert", "주의사항", rx.caution], ["sprout", "작은 실천", rx.practice]].map((sec, si) => (sec[2] || (si === 1 && rx.cognitive)) ? (
           <Reveal key={sec[1]}><div style={{ marginTop: pc ? 20 : 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
               <Icon name={sec[0]} size={pc ? 18 : 16} color={RX} stroke={1.7} />
@@ -303,7 +303,7 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
   const actions = (
     <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
       {paperBtn("rotate-cw", "다시하기", onAgain, 140)}
-      {paperBtn("download", savingRx ? "저장 중…" : "처방전 저장하기", saveDetailedPrescription, 172)}
+      {paperBtn("download", savingRx ? "저장 중…" : "마음 안내서 저장하기", saveDetailedPrescription, 214)}
       {paperBtn("share-2", "내 결과 공유하기", onDecorate, 180, true)}
     </div>
   );

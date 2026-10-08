@@ -28,7 +28,7 @@ function IntroSequence({ onDone }) {
   const SCREENS = [
     {
       logo: true,
-      title: ["안녕하세요.", "오늘의 마음을 위한", "마음약국입니다."],
+      title: ["안녕하세요.", "오늘의 마음을 위한", "마음 안내소입니다."],
       sub: ["이곳은 현재의 마음을 살펴보고", "그 마음에 필요한 말씀을 만나보는 공간입니다."],
     },
     {
@@ -74,7 +74,7 @@ function IntroSequence({ onDone }) {
       }}>
         <div style={{ marginBottom: 26, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
           {s.logo
-            ? <img src="assets-web/logo-mark.webp" alt="마음약국" style={{ width: 54, height: "auto", display: "block" }} />
+            ? <img src="assets-web/logo-mark.webp" alt="마음 안내소" style={{ width: 54, height: "auto", display: "block" }} />
             : <Icon name={s.icon} size={40} color="var(--mood-compare-ink)" stroke={1.4} />}
         </div>
         <h1 style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 27, lineHeight: 1.55, color: "var(--ink-900)", margin: 0, letterSpacing: "-0.01em" }}>

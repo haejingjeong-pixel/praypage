@@ -337,7 +337,7 @@ const ASSESSMENT_DATA = {
       },
       {
         "number": "03",
-        "question": "오늘 받고 싶은 처방은 무엇인가요?",
+        "question": "오늘 받고 싶은 안내는 무엇인가요?",
         "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
         "options": [
           "내 마음을 알아주는 위로",
@@ -387,7 +387,7 @@ const ASSESSMENT_DATA = {
       },
       {
         "number": "03",
-        "question": "오늘 받고 싶은 처방은 무엇인가요?",
+        "question": "오늘 받고 싶은 안내는 무엇인가요?",
         "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요.",
         "options": [
           "마음을 가라앉히는 평안",
@@ -437,7 +437,7 @@ const ASSESSMENT_DATA = {
       },
       {
         "number": "03",
-        "question": "오늘 어떤 말씀을 처방받고 싶으세요?",
+        "question": "오늘 어떤 말씀을 받고 싶으세요?",
         "hint": "지금 내 마음에 가장 필요한 한 가지를 골라주세요. 그 마음에 맞춰 말씀을 담아드릴게요.",
         "options": [
           "평안",

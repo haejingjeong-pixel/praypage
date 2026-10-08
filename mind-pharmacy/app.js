@@ -48,10 +48,10 @@ const renderIntro = () => {
   appEl.innerHTML =
     leafMarkup() +
     '<section class="screen intro">' +
-      '<img class="intro-logo" src="' + ASSET + 'logo-mark.webp" alt="마음약국">' +
-      '<p class="intro-line show">괜찮은 척하지 않아도 괜찮아요.<br>지금 마음에 가까운 증상을 하나 골라주세요.</p>' +
-      '<p class="intro-sub show">오늘의 마음에 맞는 말씀 한 알을 처방해 드릴게요.</p>' +
-      '<button class="btn btn-primary intro-start" id="introStart">말씀 처방받기</button>' +
+      '<img class="intro-logo" src="' + ASSET + 'logo-mark.webp" alt="마음 안내소">' +
+      '<p class="intro-line show">괜찮은 척하지 않아도 괜찮아요.<br>지금 내 마음에 가까운 카드를 한 가지 골라주세요.</p>' +
+      '<p class="intro-sub show">오늘의 마음에 맞는 말씀과 안내를 전해 드릴게요.</p>' +
+      '<button class="btn btn-primary intro-start" id="introStart">마음 안내서 받기</button>' +
     '</section>';
   const start = document.getElementById("introStart");
   start.addEventListener("click", goEmotion);
@@ -77,11 +77,12 @@ const renderEmotion = () => {
   appEl.innerHTML =
     leafMarkup() +
     '<section class="screen emotion fade-in">' +
-      '<p class="eyebrow">말씀 처방전</p>' +
+      '<p class="eyebrow">마음 안내소</p>' +
       '<h1 class="screen-title">오늘 마음이 어디가 아픈가요?</h1>' +
-      '<p class="screen-desc">내 마음에 가까운 증상을 하나 골라주세요.</p>' +
+      '<p class="screen-desc">지금 내 마음에 가까운 카드를 한 가지 골라주세요.</p>' +
       '<div class="emotion-grid">' + cards + '</div>' +
-      '<p class="emotion-foot">마음 카드를 하나 골라주세요.</p>' +
+      '<p class="emotion-foot">카드를 선택하면, 지금 내 마음에 어울리는 말씀과 안내를 만나볼 수 있어요.</p>' +
+      '<p class="emotion-notice">※ 본 콘텐츠는 의학적 진단·치료·처방을 제공하지 않습니다.</p>' +
     '</section>';
   const grid = appEl.querySelector(".emotion-grid");
   grid.addEventListener("click", onEmotionClick);
@@ -195,14 +196,14 @@ const rxCardMarkup = (rx) => {
       '</div>';
   }
   return '<article class="rx" id="rxCard"><div class="rx-inner">' +
-    '<header class="rx-head"><p class="rx-brand">마음약국</p><h3 class="rx-title">말씀 처방전</h3></header>' +
+    '<header class="rx-head"><p class="rx-brand">마음 안내소</p><h3 class="rx-title">마음 안내서</h3></header>' +
     '<div class="rx-grid">' +
-      cell("처방일", todayText()) + cell("증상", rx.symptom) +
-      cell("마음 강도", rx.intensity) + cell("처방 단어", rx.word) +
+      cell("오늘의 날짜", todayText()) + cell("지금의 마음", rx.symptom) +
+      cell("마음 강도", rx.intensity) + cell("마음 키워드", rx.word) +
     '</div>' +
-    sec("마음 소견", rx.opinion) + verseBlock + sec("복용법", rx.dose) +
+    sec("마음 이야기", rx.opinion) + verseBlock + sec("오늘의 적용", rx.dose) +
     sec("주의사항", rx.caution) + sec("작은 실천", rx.practice) +
-    '<div class="rx-word"><span class="lab">오늘의 처방 단어</span><p class="w">' + escapeText(rx.word) + '</p></div>' +
+    '<div class="rx-word"><span class="lab">오늘의 마음 키워드</span><p class="w">' + escapeText(rx.word) + '</p></div>' +
   '</div></article>';
 };
 
@@ -213,11 +214,11 @@ const renderResult = () => {
   appEl.innerHTML =
     leafMarkup() +
     '<section class="screen result fade-in">' +
-      '<p class="result-eyebrow">오늘의 말씀 처방전</p>' +
+      '<p class="result-eyebrow">오늘의 마음 안내서</p>' +
       rxCardMarkup(rx) +
       '<div class="result-actions">' +
-        '<button class="btn btn-primary" id="rxDecorate">처방전 꾸미기</button>' +
-        '<button class="btn btn-ghost" id="rxAgain">다시 처방받기</button>' +
+        '<button class="btn btn-primary" id="rxDecorate">마음 안내서 꾸미기</button>' +
+        '<button class="btn btn-ghost" id="rxAgain">다시 받아보기</button>' +
       '</div>' +
     '</section>';
   document.getElementById("rxAgain").addEventListener("click", goEmotion);
@@ -228,8 +229,8 @@ const renderPending = () => {
   appEl.innerHTML =
     leafMarkup() +
     '<section class="screen result fade-in"><div class="pending">' +
-      '<h3>이 감정의 처방전은 준비 중이에요</h3>' +
-      '<p>선택하신 마음의 말씀 처방전을 곧 담아드릴게요.<br>다른 마음으로 먼저 처방받아 보실 수 있어요.</p>' +
+      '<h3>이 감정의 마음 안내서는 준비 중이에요</h3>' +
+      '<p>선택하신 마음의 마음 안내서를 곧 담아드릴게요.<br>다른 마음으로 먼저 받아보실 수 있어요.</p>' +
       '<button class="btn btn-primary" id="pendBack">다른 마음 고르기</button>' +
     '</div></section>';
   document.getElementById("pendBack").addEventListener("click", goEmotion);
@@ -271,8 +272,8 @@ const renderDecorate = () => {
   appEl.innerHTML =
     leafMarkup() +
     '<section class="screen decorate fade-in">' +
-      '<p class="result-eyebrow">처방전 꾸미기</p>' +
-      '<p class="decorate-hint">응원 스티커를 골라 처방전에 붙여보세요.</p>' +
+      '<p class="result-eyebrow">마음 안내서 꾸미기</p>' +
+      '<p class="decorate-hint">응원 스티커를 골라 마음 안내서에 붙여보세요.</p>' +
       '<div class="decorate-stage">' +
         '<div class="rx-canvas" id="rxCanvas">' +
           rxCardMarkup(rx) +
@@ -286,7 +287,7 @@ const renderDecorate = () => {
         '<button class="btn btn-ghost" id="stkSave">이미지로 저장하기</button>' +
         '<button class="btn btn-primary" id="stkShare">소중한 사람에게 공유하기</button>' +
       '</div>' +
-      '<div class="result-actions"><button class="btn btn-ghost" id="stkBack">처방전으로 돌아가기</button></div>' +
+      '<div class="result-actions"><button class="btn btn-ghost" id="stkBack">마음 안내서로 돌아가기</button></div>' +
       (decorateState.pickerOpen ? stickerPickerMarkup() : "") +
     '</section>';
   positionStickers();
@@ -459,7 +460,7 @@ const onSave = async () => {
   const url = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = url;
-  a.download = "마음약국-말씀처방전.png";
+  a.download = "마음안내소-마음안내서.png";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -471,15 +472,15 @@ const onShare = async () => {
   if (navigator.share) {
     const res = await fetch(url);
     const blob = await res.blob();
-    const file = new File([blob], "마음약국-말씀처방전.png", { type: "image/png" });
+    const file = new File([blob], "마음안내소-마음안내서.png", { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "마음약국 말씀 처방전" });
+      await navigator.share({ files: [file], title: "마음 안내소 마음 안내서" });
       return;
     }
   }
   const a = document.createElement("a");
   a.href = url;
-  a.download = "마음약국-말씀처방전.png";
+  a.download = "마음안내소-마음안내서.png";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

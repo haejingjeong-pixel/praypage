@@ -1,4 +1,4 @@
-<!-- @dsCard group="Soul Pharmacy" viewport="1000x860" name="마음약국 · 메인 화면" subtitle="마음 증상 선택 (PC 4×2) → 자가문진" -->
+<!-- @dsCard group="Soul Pharmacy" viewport="1000x860" name="마음 안내소 · 메인 화면" subtitle="지금의 마음 선택 (PC 4×2) → 자가문진" -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -19,7 +19,7 @@
     <path d="M360 320 h200 v40 l-100 46 -100 -46 z" fill="#A6C6B1"/>
     <rect x="640" y="320" width="200" height="250" rx="16" fill="#EFB19A"/>
     <path d="M640 320 h200 v40 l-100 46 -100 -46 z" fill="#E59E85"/>
-    <text x="600" y="680" font-family="serif" font-size="60" fill="#3E3730" text-anchor="middle">마음약국</text>
+    <text x="600" y="680" font-family="serif" font-size="60" fill="#3E3730" text-anchor="middle">마음 안내소</text>
   </svg>
 </template>
 <style>
@@ -35,7 +35,7 @@
 <script src="audio-manager.js?v=soundctl2"></script>
 <script type="text/babel" src="ios-frame.jsx"></script>
 <script src="image-slot.js"></script>
-<script src="assessment-data.js"></script>
+<script src="assessment-data.js?v=guide2"></script>
 <script src="rx-data.js"></script>
 <script src="stickers-data.js?v=normal6e"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
@@ -49,12 +49,12 @@
     "sb_publishable_LaF9N4HQLzwqiWT3sqsaYg_WhYU8daj"
   );
 </script>
-<script type="text/babel" src="LogoMark.jsx"></script>
-<script type="text/babel" src="IntroSequence.jsx?v=env5"></script>
-<script type="text/babel" src="MainScreen.jsx?v=envY1"></script>
-<script type="text/babel" src="AssessmentScreen.jsx?v=revert1"></script>
-<script type="text/babel" src="ResultScreen.jsx?v=scene3"></script>
-<script type="text/babel" src="StickerScreen.jsx?v=guide1"></script>
+<script type="text/babel" src="LogoMark.jsx?v=guide2"></script>
+<script type="text/babel" src="IntroSequence.jsx?v=guide2"></script>
+<script type="text/babel" src="MainScreen.jsx?v=guide2"></script>
+<script type="text/babel" src="AssessmentScreen.jsx?v=guide2"></script>
+<script type="text/babel" src="ResultScreen.jsx?v=guide2"></script>
+<script type="text/babel" src="StickerScreen.jsx?v=guide2"></script>
 <script type="text/babel">
   // 링크 공유 상태: URL에는 Supabase의 짧은 공유 ID(?id=)만 있고, 실제 처방전/스티커
   // 상태는 Supabase에서 조회해 복원한다. 처방전 본문(성구·복용법 등)은 저장하지 않고
@@ -113,14 +113,14 @@
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", background: "#F3E7D6", display: "flex", alignItems: "center", justifyContent: "center", animation: "rxfade 900ms ease-out" }}>
         <style>{`@keyframes rxfade{from{opacity:0}to{opacity:1}}@keyframes rximg{from{opacity:0}to{opacity:1}}@keyframes rxup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
         <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
-          <img src="assets-web/envelope-scene.png?v=3" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
+          <img src="assets-web/envelope-scene.png?v=4" alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", opacity: 0, animation: "rximg 1600ms ease-out both" }} />
           <div style={{ position: "absolute", left: "50%", top: "17%", transform: "translateX(-50%)", width: "86%", maxWidth: 720, textAlign: "center", pointerEvents: "none" }}>
-            <div style={{ position: "relative", top: "-10px", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>말씀 처방전</div>
+            <div style={{ position: "relative", top: "-10px", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "clamp(14px,1.35vw,18px)", color: "#9B7B5E", letterSpacing: "0.2em", opacity: 0, animation: "rxup 700ms 100ms cubic-bezier(0.22,1,0.32,1) both" }}>마음 안내서</div>
             <div style={{ marginTop: "0.5em", opacity: pageVisible ? 1 : 0, transition: "opacity 550ms ease" }}>
               {page === 0 ? (
-                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(17px,2.2vw,26px)", color: "#5B4A3C", letterSpacing: "0.02em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음처방전이 도착했어요.</div>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(17px,2.2vw,26px)", color: "#5B4A3C", letterSpacing: "0.02em", opacity: 0, animation: "rxup 750ms 350ms cubic-bezier(0.22,1,0.32,1) both" }}>당신에게<br />마음 안내서가 도착했어요.</div>
               ) : page === 1 ? (
-                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(17px,2.2vw,26px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>누군가 당신의 응원을 받고 싶어<br />이 마음처방전을 보냈어요.</div>
+                <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(17px,2.2vw,26px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>누군가 당신의 응원을 받고 싶어<br />이 마음 안내서를 보냈어요.</div>
               ) : (
                 <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: "clamp(17px,2.2vw,26px)", color: "#5B4A3C", letterSpacing: "0.02em" }}>응원의 마음을<br />스티커로 붙여 전해주세요.</div>
               )}
@@ -137,13 +137,13 @@
       <div style={{ minHeight: "100vh", width: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", backgroundColor: "#F3E8DA", backgroundImage: "url(assets-web/decorate-bg.png)", backgroundSize: "cover", backgroundPosition: "center center", backgroundRepeat: "no-repeat" }}>
         <div style={{ maxWidth: 420, width: "100%", textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: 22, lineHeight: 1.5, color: "var(--ink-900)", margin: "0 0 14px" }}>
-            이 처방전의 공유 기간이 끝났어요.
+            이 마음 안내서의 공유 기간이 끝났어요.
           </p>
           <p style={{ fontFamily: "var(--font-body)", fontSize: 14.5, lineHeight: 1.7, color: "var(--text-muted)", margin: "0 0 30px" }}>
             공유 링크는 7일 동안만 열어볼 수 있어요.
           </p>
           <button onClick={onGoMain} style={{ display: "block", width: "100%", padding: "16px", borderRadius: 999, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ABA2ED,#8E86DE)", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 16, boxShadow: "0 10px 24px rgba(107,95,207,0.28)" }}>
-            새로운 마음 처방전을 받아보세요
+            새로운 마음 안내서를 받아보세요
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@
         <div style={{ maxWidth: 520, textAlign: "center", opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(10px)", transition: "opacity 900ms cubic-bezier(0.22,0.61,0.36,1), transform 900ms cubic-bezier(0.22,0.61,0.36,1)" }}>
           {m && <div style={{ width: 72, height: 72, borderRadius: "50%", background: m.fill, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(120,92,64,0.16)", margin: "0 auto 26px" }}><Icon name={m.icon} size={32} color={m.ink} stroke={1.5} /></div>}
           {phase === 0
-            ? <p style={tStyle}>응원받고 싶은 사람에게<br/>마음처방전 링크를 보내보세요.</p>
+            ? <p style={tStyle}>응원받고 싶은 사람에게<br/>마음 안내서 링크를 보내보세요.</p>
             : <p style={tStyle}>링크를 받은 사람이<br/>응원의 마음을 스티커로 남겨줄 수 있어요.</p>}
         </div>
       </div>

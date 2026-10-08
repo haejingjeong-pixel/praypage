@@ -251,7 +251,7 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
           <Icon name={m.icon} size={26} color={m.ink} stroke={1.5} />
         </div>
         <div style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: 18, color: "var(--ink-900)" }}>
-          말씀 처방전을 준비하고 있어요
+          마음 안내서를 준비하고 있어요
         </div>
         <div style={{ display: "flex", gap: 7 }}>
           {phase === "loading" && [0, 1, 2].map((i) => (
