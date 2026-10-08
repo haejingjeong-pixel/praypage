@@ -5,8 +5,19 @@ import React from "react";
  * 오늘의 마음 접수카드 (intake form). Warm ink, soft rounding.
  */
 export function Checkbox({ label, checked = false, onChange, disabled = false, style = {}, ...rest }) {
+  // 네모 칸만이 아니라 줄 전체(네모 + 글자)가 클릭 영역. 키보드(Space/Enter)로도 토글된다.
+  const toggle = () => !disabled && onChange && onChange(!checked);
+  const onKeyDown = (e) => {
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(); }
+  };
   return (
     <label
+      role="checkbox"
+      aria-checked={checked}
+      aria-disabled={disabled || undefined}
+      tabIndex={disabled ? -1 : 0}
+      onClick={toggle}
+      onKeyDown={onKeyDown}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -16,12 +27,14 @@ export function Checkbox({ label, checked = false, onChange, disabled = false, s
         color: "var(--text-body)",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
+        userSelect: "none",
+        WebkitTapHighlightColor: "transparent",
         ...style,
       }}
       {...rest}
     >
       <span
-        onClick={() => !disabled && onChange && onChange(!checked)}
+        aria-hidden="true"
         style={{
           width: 18,
           height: 18,

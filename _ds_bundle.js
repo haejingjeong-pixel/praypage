@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"DesignSystem_d4e5a3","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"StepIndicator","sourcePath":"components/forms/StepIndicator.jsx"},{"name":"AssessmentPaper","sourcePath":"components/prescription/AssessmentPaper.jsx"},{"name":"Divider","sourcePath":"components/prescription/Divider.jsx"},{"name":"IntakeSheet","sourcePath":"components/prescription/IntakeSheet.jsx"},{"name":"MOODS","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"MoodEnvelope","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"PrescriptionCard","sourcePath":"components/prescription/PrescriptionCard.jsx"},{"name":"PrescriptionWord","sourcePath":"components/prescription/PrescriptionWord.jsx"},{"name":"RxField","sourcePath":"components/prescription/RxField.jsx"},{"name":"WoodShelf","sourcePath":"components/prescription/WoodShelf.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f1c1a01bcfcc","components/brand/Wordmark.jsx":"ffac84e8995f","components/core/Icon.jsx":"810e3556184d","components/forms/Checkbox.jsx":"9d7345e82d79","components/forms/StepIndicator.jsx":"f0e100d788cf","components/prescription/AssessmentPaper.jsx":"a8da5fd58766","components/prescription/Divider.jsx":"3254f53877e4","components/prescription/IntakeSheet.jsx":"25c90730a4bb","components/prescription/MoodEnvelope.jsx":"15133bc19d38","components/prescription/PrescriptionCard.jsx":"bcaaf72df6b4","components/prescription/PrescriptionWord.jsx":"466a85af6e0f","components/prescription/RxField.jsx":"f0a1ebe4ad70","components/prescription/WoodShelf.jsx":"d79b56492176","doc-page.js":"371bab66f42d","mind-pharmacy/app.js":"0fcf9f28fef2","mind-pharmacy/audio.js":"e5d95a24d1ac","mind-pharmacy/data/assessment-data.js":"9df5807165d2","mind-pharmacy/data/rx-data.js":"042643421459","mind-pharmacy/data/rx-prescriptions.js":"e6ac5013ffc1","mind-pharmacy/data/stickers-data.js":"ae28fcc9bda3","ui_kits/soul-pharmacy/AssessmentScreen.jsx":"6b2e0c620cf2","ui_kits/soul-pharmacy/AssessmentScreen.standalone.jsx":"0cceea7d7fd8","ui_kits/soul-pharmacy/IntroScreen.jsx":"2c932eb1017c","ui_kits/soul-pharmacy/IntroSequence.jsx":"06123de2c6e8","ui_kits/soul-pharmacy/LogoMark.jsx":"84d231d44b7c","ui_kits/soul-pharmacy/MainScreen.jsx":"6cda3c5f783d","ui_kits/soul-pharmacy/MainScreen.standalone.jsx":"b7e4006dcdc5","ui_kits/soul-pharmacy/MainWide.jsx":"79999ebb08be","ui_kits/soul-pharmacy/MoodWallScreen.jsx":"6df1315b6ff8","ui_kits/soul-pharmacy/ResultScreen.jsx":"3b7f0dca4131","ui_kits/soul-pharmacy/StickerScreen.jsx":"8102f2243fc1","ui_kits/soul-pharmacy/animation/animations-v2.jsx":"33e9200b93f5","ui_kits/soul-pharmacy/animation/scenes.jsx":"06cfa3628e8d","ui_kits/soul-pharmacy/animation/tweaks-panel.jsx":"d259e3a86f73","ui_kits/soul-pharmacy/assessment-data.js":"64a1b8e09032","ui_kits/soul-pharmacy/audio-manager.js":"ab64dc7a0e92","ui_kits/soul-pharmacy/deck-stage.js":"f3d3d0a662c0","ui_kits/soul-pharmacy/image-slot.js":"0394ad34f685","ui_kits/soul-pharmacy/ios-frame.jsx":"d20b42e0fa28","ui_kits/soul-pharmacy/rx-data.js":"fe8015a60938","ui_kits/soul-pharmacy/rx-prescriptions.js":"6e074c387633","ui_kits/soul-pharmacy/stickers-data.js":"559799cbbe22"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"DesignSystem_d4e5a3","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Wordmark","sourcePath":"components/brand/Wordmark.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"StepIndicator","sourcePath":"components/forms/StepIndicator.jsx"},{"name":"AssessmentPaper","sourcePath":"components/prescription/AssessmentPaper.jsx"},{"name":"Divider","sourcePath":"components/prescription/Divider.jsx"},{"name":"IntakeSheet","sourcePath":"components/prescription/IntakeSheet.jsx"},{"name":"MOODS","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"MoodEnvelope","sourcePath":"components/prescription/MoodEnvelope.jsx"},{"name":"PrescriptionCard","sourcePath":"components/prescription/PrescriptionCard.jsx"},{"name":"PrescriptionWord","sourcePath":"components/prescription/PrescriptionWord.jsx"},{"name":"RxField","sourcePath":"components/prescription/RxField.jsx"},{"name":"WoodShelf","sourcePath":"components/prescription/WoodShelf.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f1c1a01bcfcc","components/brand/Wordmark.jsx":"ffac84e8995f","components/core/Icon.jsx":"810e3556184d","components/forms/Checkbox.jsx":"4ecebcb417a0","components/forms/StepIndicator.jsx":"f0e100d788cf","components/prescription/AssessmentPaper.jsx":"a8da5fd58766","components/prescription/Divider.jsx":"3254f53877e4","components/prescription/IntakeSheet.jsx":"25c90730a4bb","components/prescription/MoodEnvelope.jsx":"15133bc19d38","components/prescription/PrescriptionCard.jsx":"bcaaf72df6b4","components/prescription/PrescriptionWord.jsx":"466a85af6e0f","components/prescription/RxField.jsx":"f0a1ebe4ad70","components/prescription/WoodShelf.jsx":"d79b56492176","doc-page.js":"371bab66f42d","mind-pharmacy/app.js":"0fcf9f28fef2","mind-pharmacy/audio.js":"e5d95a24d1ac","mind-pharmacy/data/assessment-data.js":"9df5807165d2","mind-pharmacy/data/rx-data.js":"042643421459","mind-pharmacy/data/rx-prescriptions.js":"e6ac5013ffc1","mind-pharmacy/data/stickers-data.js":"ae28fcc9bda3","ui_kits/soul-pharmacy/AssessmentScreen.jsx":"6b2e0c620cf2","ui_kits/soul-pharmacy/AssessmentScreen.standalone.jsx":"0cceea7d7fd8","ui_kits/soul-pharmacy/IntroScreen.jsx":"2c932eb1017c","ui_kits/soul-pharmacy/IntroSequence.jsx":"06123de2c6e8","ui_kits/soul-pharmacy/LogoMark.jsx":"84d231d44b7c","ui_kits/soul-pharmacy/MainScreen.jsx":"6cda3c5f783d","ui_kits/soul-pharmacy/MainScreen.standalone.jsx":"b7e4006dcdc5","ui_kits/soul-pharmacy/MainWide.jsx":"79999ebb08be","ui_kits/soul-pharmacy/MoodWallScreen.jsx":"6df1315b6ff8","ui_kits/soul-pharmacy/ResultScreen.jsx":"3b7f0dca4131","ui_kits/soul-pharmacy/StickerScreen.jsx":"8102f2243fc1","ui_kits/soul-pharmacy/animation/animations-v2.jsx":"33e9200b93f5","ui_kits/soul-pharmacy/animation/scenes.jsx":"06cfa3628e8d","ui_kits/soul-pharmacy/animation/tweaks-panel.jsx":"d259e3a86f73","ui_kits/soul-pharmacy/assessment-data.js":"64a1b8e09032","ui_kits/soul-pharmacy/audio-manager.js":"ab64dc7a0e92","ui_kits/soul-pharmacy/deck-stage.js":"f3d3d0a662c0","ui_kits/soul-pharmacy/image-slot.js":"0394ad34f685","ui_kits/soul-pharmacy/ios-frame.jsx":"d20b42e0fa28","ui_kits/soul-pharmacy/rx-data.js":"fe8015a60938","ui_kits/soul-pharmacy/rx-prescriptions.js":"6e074c387633","ui_kits/soul-pharmacy/stickers-data.js":"559799cbbe22"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -265,7 +265,21 @@ function Checkbox({
   style = {},
   ...rest
 }) {
+  // 네모 칸만이 아니라 줄 전체(네모 + 글자)가 클릭 영역. 키보드(Space/Enter)로도 토글된다.
+  const toggle = () => !disabled && onChange && onChange(!checked);
+  const onKeyDown = e => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      toggle();
+    }
+  };
   return /*#__PURE__*/React.createElement("label", _extends({
+    role: "checkbox",
+    "aria-checked": checked,
+    "aria-disabled": disabled || undefined,
+    tabIndex: disabled ? -1 : 0,
+    onClick: toggle,
+    onKeyDown: onKeyDown,
     style: {
       display: "inline-flex",
       alignItems: "center",
@@ -275,10 +289,12 @@ function Checkbox({
       color: "var(--text-body)",
       cursor: disabled ? "not-allowed" : "pointer",
       opacity: disabled ? 0.5 : 1,
+      userSelect: "none",
+      WebkitTapHighlightColor: "transparent",
       ...style
     }
   }, rest), /*#__PURE__*/React.createElement("span", {
-    onClick: () => !disabled && onChange && onChange(!checked),
+    "aria-hidden": "true",
     style: {
       width: 18,
       height: 18,

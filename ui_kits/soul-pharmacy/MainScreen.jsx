@@ -97,8 +97,10 @@ function MainScreen({ selected, onSelect, onNext }) {
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", ...(perRow === 4 ? { maxHeight: "100vh", overflow: "hidden" } : {}), boxSizing: "border-box", background: "url('assets-web/leaf-tl-soft.png') top left / min(52vw,460px) auto no-repeat, url('assets-web/leaf-br-soft.png') bottom right / min(52vw,460px) auto no-repeat, #F2EBE6", padding: "clamp(20px,3vh,44px) 32px clamp(24px,3.4vh,56px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: perRow === 4 ? "center" : "flex-start" }}>
+    <div style={{ position: "relative", minHeight: "100vh", ...(perRow === 4 ? { maxHeight: "100vh", overflow: "hidden" } : {}), boxSizing: "border-box", background: "url('assets-web/leaf-tl-soft.png') top left / min(52vw,460px) auto no-repeat, url('assets-web/leaf-br-soft.png') bottom right / min(52vw,460px) auto no-repeat, #F2EBE6", padding: perRow === 2 ? "calc(max(20px, env(safe-area-inset-top)) + 46px) 32px clamp(24px,3.4vh,56px)" : "clamp(20px,3vh,44px) 32px clamp(24px,3.4vh,56px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: perRow === 4 ? "center" : "flex-start" }}>
 
+      {/* 모바일(2열)은 우측 상단 고정 BGM/효과음 버튼(top 20px·높이 32px, safe-area 반영)과 제목이 겹치지
+          않도록 상단 여백을 버튼 아래(+46px)까지 내린다. PC(4열)는 기존 여백 그대로. */}
       {/* 봉투 Y 위치 규칙 — 8개 공통 기본값 0, 선택한 봉투만 -10px. 마우스 올림(-4px)은 실제 hover가
           가능한 기기(PC 마우스)에서만, 그리고 아직 아무것도 고르지 않았을 때만 적용한다. 터치 기기에서
           탭 후 hover가 남아 일부 봉투만 들떠 보이는 문제를 막기 위해 JS로 style을 직접 바꾸지 않는다. */}

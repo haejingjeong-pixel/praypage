@@ -290,18 +290,20 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
       <span style={{ fontFamily: "var(--font-title)", fontWeight: 600, fontSize: pc ? 15.5 : 14.5, color: "var(--rx-ink)" }}>{title}</span>
     </button>
   );
+  // 모바일은 그리드 칸 폭을 그대로 쓰고(width 100%), 글자가 줄바꿈되지 않도록 nowrap + 살짝 좁힌 여백·글자 크기.
   const paperBtn = (icon, label, onClick, w, accent) => (
-    <button onClick={() => { window.__sfx && window.__sfx.play("assets/click_tight.mp3", 1.3); onClick && onClick(); }} style={{ width: pc ? w : "auto", flex: pc ? "0 0 auto" : 1, height: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "0 16px", borderRadius: 14, border: accent ? "1px solid rgba(126,116,190,0.55)" : "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: accent ? "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)" : "#F7EBDD", boxShadow: accent ? "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)" : "0 5px 14px rgba(97,68,42,0.09)", color: accent ? "#fff" : "#6A533F", animation: accent ? "rxGlow 2.6s ease-in-out infinite" : undefined }}>
+    <button onClick={() => { window.__sfx && window.__sfx.play("assets/click_tight.mp3", 1.3); onClick && onClick(); }} style={{ width: pc ? w : "100%", flex: pc ? "0 0 auto" : undefined, gridColumn: !pc && accent ? "1 / -1" : undefined, minWidth: 0, boxSizing: "border-box", height: 48, display: "flex", alignItems: "center", justifyContent: "center", gap: pc ? 8 : 6, padding: pc ? "0 16px" : "0 14px", borderRadius: 14, border: accent ? "1px solid rgba(126,116,190,0.55)" : "1px solid rgba(171,136,96,0.22)", cursor: "pointer", background: accent ? "linear-gradient(160deg,#b3aaea 0%,#8f86c9 60%,#847ac2 100%)" : "#F7EBDD", boxShadow: accent ? "0 3px 10px rgba(120,108,200,0.22), inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -3px 8px rgba(90,78,150,0.28)" : "0 5px 14px rgba(97,68,42,0.09)", color: accent ? "#fff" : "#6A533F", animation: accent ? "rxGlow 2.6s ease-in-out infinite" : undefined }}>
       <Icon name={icon} size={18} color={accent ? "#fff" : "#6A533F"} stroke={1.7} />
-      <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: accent ? 600 : 500, fontSize: 16, color: accent ? "#fff" : "#6A533F", letterSpacing: "0.01em" }}>{label}</span>
+      <span style={{ fontFamily: "Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontWeight: accent ? 600 : 500, fontSize: pc ? 16 : 15, color: accent ? "#fff" : "#6A533F", letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{label}</span>
     </button>
   );
   // 다시하기 / 처방전 저장하기 / 내 결과 공유하기 — 하나의 액션 버튼 그룹. 세 버튼 모두
   // paperBtn(같은 높이·모서리·패딩·아이콘 크기·폰트 크기)을 쓰고, 위계는 색으로만 표현한다
   // (다시하기·처방전 저장하기 = 아이보리 서브 톤, 내 결과 공유하기만 보라 메인 CTA).
-  // 아주 좁은 화면에서 셋 다 한 줄에 안 들어가면 자연스럽게 2줄로 줄바꿈되도록 flexWrap 처리.
+  // PC: 세 버튼을 한 줄(flex)로. 모바일: 1줄 [다시하기 | 저장하기](다시하기는 글자 폭만큼, 저장하기가 나머지),
+  // 2줄 [내 결과 공유하기] 전체 폭 — 한 줄에 셋을 넣으면 버튼당 글자 자리가 모자라 2~3줄로 접혔다.
   const actions = (
-    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", animation: "rxstep 1050ms ease-out 260ms both" }}>
+    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", ...(pc ? { display: "flex", flexWrap: "wrap", justifyContent: "center" } : { display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)" }), gap: 10, animation: "rxstep 1050ms ease-out 260ms both" }}>
       {paperBtn("rotate-cw", "다시하기", onAgain, 140)}
       {paperBtn("download", savingRx ? "저장 중…" : "마음 안내서 저장하기", saveDetailedPrescription, 214)}
       {paperBtn("share-2", "내 결과 공유하기", onDecorate, 180, true)}
