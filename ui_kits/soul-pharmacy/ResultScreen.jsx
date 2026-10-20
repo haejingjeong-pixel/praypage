@@ -170,18 +170,11 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
     </div>
   );
 
-  // 본문 섹션 (아이콘 + 청색 라벨 + 내용). 흰 박스 없이 얇은 선으로 구분.
-  const Section = ({ icon, label, note, children, tight }) => (
-    <div style={{ padding: tight ? "16px 0" : "18px 0" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
-        <Icon name={icon} size={17} color={RX} stroke={1.7} />
-        <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 14, letterSpacing: "0.04em", color: RX }}>{label}</span>
-        {note && <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: 11.5, color: "var(--text-muted)", letterSpacing: "0.06em" }}>{note}</span>}
-      </div>
-      {children}
-    </div>
+  // 본문 섹션(마음 이야기 · 오늘의 적용 · 주의사항 · 작은 실천)은 rx-sections.css의 공통 클래스로
+  // 같은 콘텐츠 영역·머리글 구조를 쓴다. 아이콘 크기는 네 섹션 모두 동일.
+  const secHead = (icon, label) => (
+    <h3 className="rx-sec__head"><Icon name={icon} size={pc ? 18 : 16} color={RX} stroke={1.7} />{label}</h3>
   );
-
   const hr = <div style={{ borderTop: "1px solid rgba(120,104,78,0.18)" }} />;
   const BORD = "rgba(120,104,78,0.18)";  // 웜 종이 해어라인
   const LBL = "transparent";
@@ -201,6 +194,22 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
   const typeStart = () => 0;
   // 타이핑 제거 — 텍스트는 섹션(Reveal)과 함께 통째로 페이드인.
   const Typewriter = ({ text = "", style }) => <span style={style}>{text}</span>;
+
+  const careItems = [["pill", "오늘의 적용", rx.dose], ["triangle-alert", "주의사항", rx.caution], ["sprout", "작은 실천", rx.practice]];
+  const careSections = [];
+  for (let si = 0; si < careItems.length; si++) {
+    const [icon, label, body] = careItems[si];
+    const cognitive = si === 1 ? rx.cognitive : null;
+    if (!body && !cognitive) continue;
+    careSections.push(
+      <Reveal key={label}><section className="rx-sec">
+        {secHead(icon, label)}
+        {body && <p className="rx-sec__text">{body}</p>}
+        {cognitive && <p className="rx-sec__text rx-sec__text--note"><span className="rx-sec__note-label">이런 생각에 주의 · </span>{cognitive}</p>}
+        <hr className="rx-sec__rule" />
+      </section></Reveal>
+    );
+  }
 
   const sheet = (
     <div ref={exportRef} style={{ position: "relative", width: sheetW, maxWidth: "100%", background: "linear-gradient(174deg,#FDFBF5 0%,#FAF6EC 100%)", border: "1px solid rgba(120,104,78,0.16)", borderRadius: 8, boxShadow: "0 1px 2px rgba(90,74,52,0.06), 0 18px 44px rgba(90,74,52,0.14)", boxSizing: "border-box", animation: "rxstep 950ms ease-out" }}>
@@ -237,28 +246,15 @@ function ResultScreen({ mood, rx: rxProp, rxDate: rxDateProp, onAgain, onDecorat
         </div></Reveal>
 
         {/* 마음 소견 */}
-        <Reveal><div style={{ marginTop: pc ? 22 : 18 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
-            <Icon name="clipboard-list" size={pc ? 19 : 17} color={RX} stroke={1.7} />
-            <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15.5 : 14, color: RX }}>마음 이야기</span>
-          </div>
-          {rx.state && <p style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: pc ? 15 : 14, lineHeight: 1.65, color: RX, margin: "0 0 12px" }}>{rx.state}</p>}
-          <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 15 : 14, lineHeight: pc ? 1.95 : 1.85, color: "var(--text-body)", margin: 0, textWrap: "pretty" }}>{rx.opinion}</p>
-          <div style={{ borderTop: `1px dotted ${BORD}`, margin: `${pc ? 24 : 18}px 0 0` }} />
-        </div></Reveal>
+        <Reveal><section className="rx-sec rx-sec--story">
+          {secHead("clipboard-list", "마음 이야기")}
+          {rx.state && <p className="rx-sec__text rx-sec__text--state">{rx.state}</p>}
+          <p className="rx-sec__text">{rx.opinion}</p>
+          <hr className="rx-sec__rule" />
+        </section></Reveal>
 
         {/* 복용법 · 주의사항 · 작은 실천 — 기존 80종 데이터 바인딩 유지 */}
-        {[["pill", "오늘의 적용", rx.dose], ["triangle-alert", "주의사항", rx.caution], ["sprout", "작은 실천", rx.practice]].map((sec, si) => (sec[2] || (si === 1 && rx.cognitive)) ? (
-          <Reveal key={sec[1]}><div style={{ marginTop: pc ? 20 : 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
-              <Icon name={sec[0]} size={pc ? 18 : 16} color={RX} stroke={1.7} />
-              <span style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: pc ? 15 : 13.5, color: RX }}>{sec[1]}</span>
-            </div>
-            {sec[2] && <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 14.5 : 13.5, lineHeight: 1.85, color: "var(--text-body)", margin: 0, textWrap: "pretty" }}>{sec[2]}</p>}
-            {si === 1 && rx.cognitive && <p style={{ fontFamily: "var(--font-body)", fontSize: pc ? 13.5 : 13, lineHeight: 1.75, color: "var(--text-muted)", margin: "8px 0 0" }}><span style={{ color: RX, fontWeight: 600 }}>이런 생각에 주의 · </span>{rx.cognitive}</p>}
-            <div style={{ borderTop: `1px dotted ${BORD}`, margin: `${pc ? 20 : 16}px 0 0` }} />
-          </div></Reveal>
-        ) : null)}
+        {careSections}
 
         {/* 마무리 */}
         <Reveal><div style={{ textAlign: "center", padding: `${pc ? 22 : 16}px 0 2px` }}>
