@@ -362,6 +362,11 @@
       // 트랙 시작 시점은 화면 내부에서 정밀 제어: 2번은 AssessmentScreen Q1 종이 등장,
       // 3번은 ResultScreen 처방전 등장. 여기서는 1번(인트로·감정선택)만 담당.
       if (step === "intro" || step === "loading" || step === "main") window.__bgm.play(1);
+      // 공유 링크 진입(shareLoading→shareIntro→sticker)은 1·2·3번 호출 지점을 하나도 거치지
+      // 않아 BGM이 아예 시작되지 않았다 — 여기서 3번을 요청한다. sticker로 넘어가도 같은
+      // 트랙이라 처음부터 다시 시작되지 않고, 제스처 전이면 첫 클릭/터치에 재생, OFF 설정은
+      // setMuted가 그대로 유지한다(일반 진입은 이 두 step을 거치지 않으므로 영향 없음).
+      if (sharedId && (step === "shareLoading" || step === "shareIntro")) window.__bgm.play(3);
     }, [step]);
 
     let screen = null;
