@@ -139,7 +139,12 @@
 // 이 모듈이 그 위에서 음소거 상태만 적용/구독시킨다.
 (function () {
   if (window.__soundSettings) return;
-  var KEY = "soulpharmacy-sound-settings-v1";
+  // 공유 링크(?id=)로 들어온 방문은 별도 키를 쓴다 — 같은 브라우저에서 공유자가 꺼둔 BGM이
+  // 링크를 연 수신자 화면까지 꺼진 채로 이어지지 않게 하고, 수신자가 링크에서 바꾼 설정은
+  // 다음 링크 방문에 그대로 유지된다.
+  var isShareVisit = false;
+  try { isShareVisit = !!new URLSearchParams(window.location.search).get("id"); } catch (e) {}
+  var KEY = isShareVisit ? "soulpharmacy-sound-settings-v1-guest" : "soulpharmacy-sound-settings-v1";
   var settings = { bgm: true, sfx: true };
   try {
     var raw = localStorage.getItem(KEY);
