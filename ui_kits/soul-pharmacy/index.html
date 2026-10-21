@@ -270,28 +270,62 @@
   // position:fixed의 containing block을 바꿔버려서 AssessmentScreen 안에서 fixed를
   // 써도 실제 뷰포트가 아니라 그 화면 콘텐츠(=봉투) 기준으로 고정돼버린다. 우측 상단
   // SoundControl과 똑같은 이유로 Fade 밖에 둬서 진짜 화면 기준 고정을 보장한다.
+  // 좌상단 고정 위치는 TopLeftNav 컨테이너가 잡고, 버튼은 그 첫 번째 항목으로 놓인다.
+  // 큰 CTA처럼 보이지 않게 — 내용 길이만큼만, 작고 가벼운 보조 네비게이션 버튼.
+  // "말씀광장으로 가기" 버튼도 같은 모양을 쓰도록 스타일을 공유한다.
+  const NAV_PILL_STYLE = {
+    width: "auto", minWidth: 0, maxWidth: "none", flex: "0 0 auto", alignSelf: "flex-start",
+    whiteSpace: "nowrap", boxSizing: "border-box",
+    background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999,
+    padding: "6px 10px", cursor: "pointer", color: "var(--text-muted)",
+    display: "inline-flex", alignItems: "center", gap: 4,
+    fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, lineHeight: 1,
+    boxShadow: "0 2px 8px rgba(70,58,45,0.10)", backdropFilter: "blur(4px)",
+    textDecoration: "none", pointerEvents: "auto",
+  };
   function HomeControl({ onClick }) {
     const { Icon } = window.DesignSystem_d4e5a3 || {};
     return (
-      <button
-        onClick={onClick}
-        style={{
-          position: "fixed",
-          top: "max(20px, env(safe-area-inset-top))",
-          left: "max(20px, env(safe-area-inset-left))",
-          zIndex: 999999,
-          // 큰 CTA처럼 보이지 않게 — 내용 길이만큼만, 작고 가벼운 보조 네비게이션 버튼.
-          width: "auto", minWidth: 0, maxWidth: "none", flex: "0 0 auto", alignSelf: "flex-start",
-          whiteSpace: "nowrap", boxSizing: "border-box",
-          background: "rgba(255,255,255,0.78)", border: "1px solid var(--line-soft)", borderRadius: 999,
-          padding: "6px 10px", cursor: "pointer", color: "var(--text-muted)",
-          display: "inline-flex", alignItems: "center", gap: 4,
-          fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, lineHeight: 1,
-          boxShadow: "0 2px 8px rgba(70,58,45,0.10)", backdropFilter: "blur(4px)",
-        }}
-      >
+      <button onClick={onClick} style={NAV_PILL_STYLE}>
         {Icon && <Icon name="home" size={13} color="var(--text-muted)" stroke={1.7} />}홈으로
       </button>
+    );
+  }
+
+  // "말씀광장으로 가기" — 외부 성경사전 사이트(StickerScreen의 "말씀광장 가기"와 같은 주소).
+  // 새 탭으로 열어 마음안내소 화면과 작성 중인 문진 상태를 그대로 유지한다.
+  const WORD_PLAZA_URL = "https://www.wordsquare.org/";
+  function WordPlazaControl() {
+    const { Icon } = window.DesignSystem_d4e5a3 || {};
+    return (
+      <a className="word-plaza-pill" href={WORD_PLAZA_URL} target="_blank" rel="noopener noreferrer" aria-label="말씀광장으로 가기 (새 탭에서 열림)" style={NAV_PILL_STYLE}>
+        {Icon && <Icon name="external-link" size={13} color="var(--text-muted)" stroke={1.7} />}말씀광장으로 가기
+      </a>
+    );
+  }
+
+  // 좌상단 고정 네비게이션 — 메인(감정카드)에는 말씀광장 버튼만, 문진에는 홈으로 + 말씀광장.
+  // 위치(top/left)는 예전 HomeControl의 fixed 위치 그대로라 "홈으로"는 제자리에 있다.
+  // 우측 상단 SoundControl(버튼 두 개 ≈ 152px + right 24px)과 겹치지 않도록 그만큼 뺀
+  // 폭을 maxWidth로 걸어, 좁은 모바일(예: 390px 문진 화면)에서는 말씀광장 버튼이
+  // 홈으로 아래 줄로 내려간다. 컨테이너는 pointerEvents:none, 버튼만 auto.
+  function TopLeftNav({ onHome }) {
+    return (
+      <div style={{
+        position: "fixed",
+        top: "max(20px, env(safe-area-inset-top))",
+        left: "max(20px, env(safe-area-inset-left))",
+        maxWidth: "calc(100vw - max(20px, env(safe-area-inset-left)) - max(24px, env(safe-area-inset-right)) - 160px)",
+        zIndex: 999999,
+        display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "6px 8px",
+        pointerEvents: "none",
+      }}>
+        {/* 340px 이하 초소형 화면에서는 메인 화면 한 줄(말씀광장 + 우측 BGM/효과음)도 빠듯해
+            BGM 버튼과 맞닿으므로, 말씀광장 버튼만 여백·글자를 살짝 줄인다. */}
+        <style>{`@media (max-width:340px){.word-plaza-pill{padding:6px 8px !important;gap:3px !important;font-size:11px !important}}`}</style>
+        {onHome && <HomeControl onClick={onHome} />}
+        <WordPlazaControl />
+      </div>
     );
   }
 
@@ -404,7 +438,8 @@
     return (
       <React.Fragment>
         <SoundControl />
-        {step === "assessment" && <HomeControl onClick={() => setStep("main")} />}
+        {step === "main" && <TopLeftNav />}
+        {step === "assessment" && <TopLeftNav onHome={() => setStep("main")} />}
         <Fade step={step}>{screen}</Fade>
       </React.Fragment>
     );
