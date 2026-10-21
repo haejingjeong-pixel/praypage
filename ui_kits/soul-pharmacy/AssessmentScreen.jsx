@@ -93,8 +93,12 @@ function AssessmentScreen({ mood, onBack, onSubmit }) {
   const stageTop = pc ? 8 : 12;
   const fitScale = Math.min(1, Math.max(0.6, (vh - stageTop - 16) / clipH));
 
+  // 화면 컨테이너는 viewport 높이를 꽉 채운다 — #root(index.html)가 내용을 세로 가운데 정렬하기
+  // 때문에, 예전 minHeight:"100%"(부모 높이가 없어 무효)로는 컨테이너가 무대 높이만큼만 차지해
+  // 위·아래에 빈 띠가 생기고 전체 배경(그라데이션·흐린 봉투)이 그만큼 아래로 밀려 보였다.
+  // 무대는 justifyContent:center로 예전과 같은 위치(가운데)에 그대로 둔다.
   return (
-    <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100%", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div onDoubleClick={() => setSkip(true)} style={{ position: "relative", minHeight: "100vh", overflowX: "hidden", background: "radial-gradient(120% 70% at 50% 0%, #FBF7F0 0%, var(--bg-page) 60%, #EDE7DE 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <style>{`@keyframes rxdot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}@keyframes rxstep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes rxopt{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
       {/* 배경: 이전 단계의 감정 봉투들이 흐릿하게 남아 공간과 이어짐 */}
