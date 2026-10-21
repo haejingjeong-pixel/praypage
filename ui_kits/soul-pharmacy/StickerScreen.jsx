@@ -31,16 +31,21 @@ const DEFAULT_NOTES = [
 
 // 스티커 화면 최초 접속자 전용 단계별 안내(튜토리얼) — localStorage에 "본 적 있음"을
 // 남겨서 다음 방문부터는 자동으로 뜨지 않는다. 노출 여부 판단(hasSeenStickerTutorial)과
-// 노출 트리거(showTutorial state)를 분리해뒀으니, 나중에 "다시보기" 버튼을 붙일 땐
-// StickerScreen 안에서 setShowTutorial(true)만 호출하면 된다.
-const STICKER_TUTORIAL_KEY = "soulpharmacy-sticker-tutorial-seen-v1";
-function hasSeenStickerTutorial() {
+// 노출 트리거(showTutorial state)를 분리해뒀고, 툴바 '사용 안내' 버튼(openGuide)이 언제든
+// 다시 열 수 있다. 기록은 역할별로 따로 둔다 — 처방전 주인(owner, 꾸미기로 진입)과 공유 링크로 들어온
+// 사람(guest)은 같은 브라우저라도 각자 처음 진입할 때 한 번씩 본다. v1(역할 구분 없던 기록)은
+// 더 이상 읽지 않으므로, v1 때문에 안 뜨던 사람도 v2에서 다시 한 번 보게 된다.
+const STICKER_TUTORIAL_KEYS = {
+  owner: "soulpharmacy-sticker-tutorial-seen-v2-owner",
+  guest: "soulpharmacy-sticker-tutorial-seen-v2-guest",
+};
+function hasSeenStickerTutorial(role) {
   // localStorage 접근 자체가 막힌 환경(프라이버시 설정 등)이면 "본 적 없음"으로 보고
   // 튜토리얼을 보여준다 — 반대로 처리하면 어떤 경우든 튜토리얼이 영영 안 뜰 수 있다.
-  try { return localStorage.getItem(STICKER_TUTORIAL_KEY) === "1"; } catch (e) { return false; }
+  try { return localStorage.getItem(STICKER_TUTORIAL_KEYS[role]) === "1"; } catch (e) { return false; }
 }
-function markStickerTutorialSeen() {
-  try { localStorage.setItem(STICKER_TUTORIAL_KEY, "1"); } catch (e) { /* noop */ }
+function markStickerTutorialSeen(role) {
+  try { localStorage.setItem(STICKER_TUTORIAL_KEYS[role], "1"); } catch (e) { /* noop */ }
 }
 
 function TutorialStage({ children }) {
@@ -197,8 +202,21 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
   const { Button, Icon, MOODS } = window.DesignSystem_d4e5a3;
   // 최초 접속자 전용 튜토리얼 — 화면 진입 시 한 번만 체크(리렌더마다 localStorage를
   // 다시 읽지 않도록 useState 초기화 함수 안에서만 판단).
-  const [showTutorial, setShowTutorial] = React.useState(() => !hasSeenStickerTutorial());
-  const dismissTutorial = () => { markStickerTutorialSeen(); setShowTutorial(false); };
+  // 역할은 진입 시점의 initialShareId로 고정 — 주인이 이 화면에서 공유해 shareId가 생겨도 owner다.
+  const tutorialRole = React.useState(() => (initialShareId ? "guest" : "owner"))[0];
+  const [showTutorial, setShowTutorial] = React.useState(() => !hasSeenStickerTutorial(tutorialRole));
+  // '사용 안내' 버튼으로 다시 연 경우엔 튜토리얼을 닫은 뒤 기존 손잡이 안내 말풍선(4.2초)도
+  // 이어서 보여준다 — 튜토리얼에 없는 "손잡이로 크기·각도 조절" 설명을 잃지 않기 위해서다.
+  const tipAfterTutorial = React.useRef(false);
+  const dismissTutorial = () => {
+    markStickerTutorialSeen(tutorialRole);
+    setShowTutorial(false);
+    if (tipAfterTutorial.current) {
+      tipAfterTutorial.current = false;
+      setShowTip(true); setTimeout(() => setShowTip(false), 4200);
+    }
+  };
+  const openGuide = () => { tipAfterTutorial.current = true; setShowTutorial(true); };
   const rx = rxProp || window.RX_DATA[mood] || window.RX_DATA.anxious;
   const moodLabel = ((MOODS && MOODS[mood] && MOODS[mood].label) || rx.symptom || "").replace(/\n/g, " ");
   const RX = "var(--rx-ink)";
@@ -817,7 +835,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
       <ToolBtn icon="chevrons-up" label="공간 줄이기" onClick={() => setExtraH((h) => Math.max(0, h - EXTRA_STEP))} />
       <ToolBtn icon="rotate-ccw" label="되돌리기" onClick={undo} disabled={!canUndo} />
       <ToolBtn icon="rotate-cw" label="되돌리기 취소" onClick={redo} disabled={!canRedo} />
-      <ToolBtn icon="help-circle" label="사용 안내" onClick={() => { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }} />
+      <ToolBtn icon="help-circle" label="사용 안내" onClick={openGuide} />
     </div>
   );
   const pickerModal = showPicker && (
@@ -1126,7 +1144,7 @@ function StickerScreen({ mood, rx: rxProp, rxDate: rxDateProp, initialStickers, 
           <ToolBtn icon="chevrons-up" label="공간 줄이기" onClick={() => setExtraH((h) => Math.max(0, h - EXTRA_STEP))} size={46} />
           <ToolBtn icon="rotate-ccw" label="되돌리기" onClick={undo} disabled={!canUndo} size={46} />
           <ToolBtn icon="rotate-cw" label="되돌리기 취소" onClick={redo} disabled={!canRedo} size={46} />
-          <ToolBtn icon="help-circle" label="사용 안내" onClick={() => { setShowTip(true); setTimeout(() => setShowTip(false), 4200); }} size={46} />
+          <ToolBtn icon="help-circle" label="사용 안내" onClick={openGuide} size={46} />
         </div>
       )}
       {pickerModal}
