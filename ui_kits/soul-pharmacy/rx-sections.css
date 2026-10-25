@@ -32,13 +32,17 @@
   font-size: 14px;
 }
 
-/* 본문 — 한글은 어절 단위로 줄바꿈하고, 긴 토큰만 예외적으로 끊는다. */
+/* 본문 — 한글은 어절 단위로 줄바꿈하고, 긴 토큰만 예외적으로 끊는다.
+   어절 단위 줄바꿈은 줄 끝이 콘텐츠 오른쪽 경계보다 일찍 끝나 오른쪽 여백이 왼쪽보다 넓어 보이므로
+   양쪽 맞춤으로 줄 끝을 경계에 맞춘다(마지막 줄은 왼쪽 정렬 그대로). */
 .rx-sec__text {
   margin: 0;
   font-family: var(--font-body);
   font-size: 13.5px;
   line-height: 1.85;
   color: var(--text-body);
+  text-align: justify;
+  text-justify: inter-word;
   text-wrap: pretty;
   word-break: keep-all;
   overflow-wrap: break-word;
