@@ -150,9 +150,11 @@ function MainScreen({ selected, onSelect, onNext }) {
           <div style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--text-muted)" }}>
             카드를 선택하면, 지금 내 마음에 어울리는 말씀과 안내를 만나볼 수 있어요.
           </div>
-          {/* 의료 서비스 아님 안내 — 하단 안내문 아래 흐름 안에 두어 카드·버튼과 겹치지 않게 한다. */}
+          {/* 의료 서비스 아님 · AI 활용 안내 — 하단 안내문 아래 흐름 안에 두어 카드·버튼과 겹치지 않게 한다. */}
           <div style={{ fontFamily: "var(--font-body)", fontSize: 11.5, lineHeight: 1.5, color: "var(--text-muted)", opacity: 0.85, marginTop: "clamp(8px,1.4vh,14px)", wordBreak: "keep-all" }}>
             ※ 본 콘텐츠는 의학적 진단·치료·처방을 제공하지 않습니다.
+            <br />
+            ※ 일부 콘텐츠는 AI를 활용해 제작되었습니다.
           </div>
         </div>
       </div>
